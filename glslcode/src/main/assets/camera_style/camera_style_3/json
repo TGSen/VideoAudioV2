@@ -1,0 +1,14 @@
+{
+    "filterList": [{
+        "type": "filter",
+        "name": "camera_style_3",
+        "vertexShader": "",
+        "fragmentShader": "fragment.glsl",
+        "uniformList":[],
+        "uniformData": {},
+        "strength": 1.0,
+        "texelOffset": 0,
+        "audioPath": "",
+        "audioLooping": 1
+    }]
+}
