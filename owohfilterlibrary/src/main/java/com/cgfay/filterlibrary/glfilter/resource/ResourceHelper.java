@@ -55,7 +55,8 @@ public final class ResourceHelper extends ResourceBaseHelper {
         mResourceList.add(new ResourceData("cartoon_v2", "assets://filters/cartoon_v2.zip", ResourceType.FILTER, "cartoon_v2", "assets://thumbs/camera/camera_style_5.png"));
         mResourceList.add(new ResourceData("cool_color", "assets://filters/cool_color.zip", ResourceType.FILTER, "cool_color", "assets://thumbs/camera/camera_style_5.png"));
         mResourceList.add(new ResourceData("warm_color", "assets://filters/warm_color.zip", ResourceType.FILTER, "warm_color", "assets://thumbs/camera/camera_style_5.png"));
-        mResourceList.add(new ResourceData("old_effect", "assets://filters/old_effect.zip", ResourceType.EFFECT, "old_effect", "assets://thumbs/camera/camera_style_5.png"));
+        mResourceList.add(new ResourceData("old_effect", "assets://filters/old_effect.zip", ResourceType.FILTER, "old_effect", "assets://thumbs/camera/camera_style_5.png"));
+        mResourceList.add(new ResourceData("flash_green", "assets://effects/flash_green.zip", ResourceType.FILTER, "flash_green", "assets://thumbs/camera/camera_style_5.png"));
         // 解压所有资源
         decompressResource(context, mResourceList);
     }

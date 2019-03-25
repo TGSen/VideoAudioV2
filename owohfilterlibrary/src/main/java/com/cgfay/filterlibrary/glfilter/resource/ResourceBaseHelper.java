@@ -28,9 +28,12 @@ public class ResourceBaseHelper {
     protected static void decompressAsset(Context context, String assetName, String unzipFolder, String parentFolder) {
 
         // 如果路径已经存在，则直接返回
-        if (new File(parentFolder + "/" + unzipFolder).exists()) {
+        File file = new File(parentFolder + "/" + unzipFolder);
+        if (file.exists()) {
+            //开发期经常更新，所以全部删除先
+            file.delete();
             Log.d(TAG, "decompressAsset: directory " + unzipFolder + " is existed!");
-            return;
+           // return;
         }
 
         // 打开输入流
@@ -91,10 +94,19 @@ public class ResourceBaseHelper {
      * @param parentFolder  解压目录
      */
     protected static void decompressFile(String zipPath, String unzipPath, String parentFolder) {
-        // 如果资源路径已经存在，则直接返回
-        if (new File(parentFolder + "/" + unzipPath).exists()) {
-            Log.d(TAG, "decompressFile: directory " + unzipPath + "is existed!");
-            return;
+//        // 如果资源路径已经存在，则直接返回
+//        if (new File(parentFolder + "/" + unzipPath).exists()) {
+//            Log.d(TAG, "decompressFile: directory " + unzipPath + "is existed!");
+//            return;
+//        }
+
+        // 如果路径已经存在，则直接返回
+        File file = new File(parentFolder + "/" + unzipPath);
+        if (file.exists()) {
+            //开发期经常更新，所以全部删除先
+            file.delete();
+            Log.d(TAG, "decompressAsset: directory " + unzipPath + " is existed!");
+            // return;
         }
 
         // 打开文件输入流
