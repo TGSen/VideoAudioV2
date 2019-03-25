@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginTop="71dp">
+
+    <ImageView
+        android:id="@+id/btCloseImag"
+        android:layout_width="@dimen/dp24"
+        android:layout_height="@dimen/dp24"
+        android:layout_marginLeft="@dimen/dp12"
+        android:padding="@dimen/dp4"
+        android:src="@mipmap/ic_close"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableLeft="@mipmap/ic_music"
+        android:gravity="center_vertical"
+        android:drawablePadding="@dimen/dp4"
+        android:text="@string/choose_music"
+        android:textColor="@color/colorWhilte"
+        android:textSize="18sp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/btCloseImag"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
+
+    <TextView
+        android:id="@+id/btSwitchCamera"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="@dimen/dp11"
+        android:drawableTop="@mipmap/ic_switch_camera"
+        android:gravity="center"
+        android:padding="@dimen/dp4"
+        android:text="@string/switch_camera"
+        android:textColor="@color/colorWhilte"
+        android:textSize="12sp"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/btFilters"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp11"
+        android:layout_marginRight="@dimen/dp11"
+        android:drawableTop="@mipmap/ic_filter"
+        android:gravity="center"
+        android:padding="@dimen/dp4"
+        android:text="@string/camera_filter"
+        android:textColor="@color/colorWhilte"
+        android:textSize="12sp"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btSwitchCamera" />
+
+    <TextView
+        android:id="@+id/btFlash"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp11"
+        android:layout_marginRight="@dimen/dp11"
+        android:drawableTop="@mipmap/ic_flash_lamp"
+        android:gravity="center"
+        android:padding="@dimen/dp4"
+        android:text="@string/camera_filter"
+        android:textColor="@color/colorWhilte"
+        android:textSize="12sp"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btFilters" />
+
+
+</android.support.constraint.ConstraintLayout>

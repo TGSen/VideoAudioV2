@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">ResLibrary</string>
+    <string name="choose_music">選擇音樂</string>
+    <string name="switch_camera">翻转</string>
+    <string name="filter_tools">道具</string>
+    <string name="upload_file">上传</string>
+    <string name="camera_filter">滤镜</string>
+</resources>

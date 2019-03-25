@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/layout_bottom"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignParentBottom="true"
+    android:layout_gravity="bottom"
+    android:background="@android:color/transparent"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <!-- 显示倒计时 -->
+    <TextView
+        android:id="@+id/tv_countdown"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:textColor="@color/yellow"
+        android:visibility="gone" />
+
+    <!-- 底部进度条 -->
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- 道具 -->
+        <TextView
+            android:id="@+id/btnTools"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="@dimen/button_margin_horizontal"
+            android:layout_marginRight="46dp"
+            android:drawableTop="@mipmap/ic_tools"
+            android:drawablePadding="@dimen/dp6"
+            android:gravity="center"
+            android:text="@string/filter_tools"
+            android:textColor="@color/colorWhilte"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toLeftOf="@+id/btn_shutter"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/btUpload"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="@dimen/button_margin_horizontal"
+            android:layout_marginLeft="46dp"
+            android:drawableTop="@mipmap/ic_upload"
+            android:drawablePadding="@dimen/dp6"
+            android:gravity="center"
+            android:text="@string/upload_file"
+            android:textColor="@color/colorWhilte"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toRightOf="@+id/btn_shutter"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+        <!-- 快门 -->
+        <com.cgfay.cameralibrary.widget.ShutterButton
+            android:id="@+id/btn_shutter"
+            android:layout_width="@dimen/record_width_height_normal"
+            android:layout_height="@dimen/record_width_height_normal"
+            android:layout_centerInParent="true"
+            android:layout_gravity="center"
+            android:layout_marginTop="@dimen/bottom_layout_margin"
+            android:layout_marginBottom="@dimen/bottom_layout_margin"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- 删除 -->
+        <Button
+            android:id="@+id/btn_record_delete"
+            android:layout_width="@dimen/button_preview_width_height"
+            android:layout_height="@dimen/button_preview_width_height"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="@dimen/button_preview_margin"
+            android:layout_toStartOf="@+id/btn_shutter"
+            android:background="@drawable/ic_camera_record_delete_dark"
+            android:visibility="gone" />
+
+        <!-- 预览 -->
+        <Button
+            android:id="@+id/btn_record_preview"
+            android:layout_width="@dimen/button_preview_width_height"
+            android:layout_height="@dimen/button_preview_width_height"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="@dimen/button_preview_margin"
+            android:layout_toEndOf="@+id/btn_shutter"
+            android:background="@drawable/ic_camera_record_done_dark"
+            android:visibility="gone" />
+
+
+    </android.support.constraint.ConstraintLayout>
+
+    <!-- 底部指示器 -->
+    <com.cgfay.cameralibrary.widget.HorizontalIndicatorView
+        android:id="@+id/bottom_indicator"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/bottom_indicator_height"
+        app:SeeSize="5"
+        app:SelectedTextColor="@color/colorHorizontalIndicator"
+        app:SelectedTextSize="40"
+        app:TextColor="@android:color/darker_gray"
+        app:TextSize="40" />
+
+</LinearLayout>
