@@ -26,7 +26,6 @@ import com.cgfay.cameralibrary.adapter.PreviewMakeupAdapter;
 import com.cgfay.cameralibrary.engine.camera.CameraParam;
 import com.cgfay.cameralibrary.engine.render.PreviewRenderer;
 import com.cgfay.filterlibrary.glfilter.color.bean.DynamicColor;
-import com.cgfay.filterlibrary.glfilter.makeup.bean.DynamicMakeup;
 import com.cgfay.filterlibrary.glfilter.resource.FilterHelper;
 import com.cgfay.filterlibrary.glfilter.resource.MakeupHelper;
 import com.cgfay.filterlibrary.glfilter.resource.ResourceHelper;
@@ -182,7 +181,7 @@ public class PreviewEffectFragment extends Fragment implements View.OnClickListe
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         if (fromUser) {
             if (mTitleButtonIndex == 0) { // 美颜
-                processBeautyParam(mBeautyAdapter.getSelectedPosition(), progress);
+                //processBeautyParam(mBeautyAdapter.getSelectedPosition(), progress);
             } else if (mTitleButtonIndex == 1) { // 彩妆
 
             } else if (mTitleButtonIndex == 2) { // 滤镜
@@ -265,114 +264,22 @@ public class PreviewEffectFragment extends Fragment implements View.OnClickListe
             mBeautyAdapter.addOnBeautySelectedListener(new PreviewBeautyAdapter.OnBeautySelectedListener() {
                 @Override
                 public void onBeautySelected(int position, String beautyName) {
-                    setSeekBarBeautyParam(position);
                 }
             });
             mBtnReset = (Button) mLayoutBeauty.findViewById(R.id.btn_beauty_reset);
             mBtnReset.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mCameraParam.beauty.reset();
-                    setSeekBarBeautyParam(mBeautyAdapter.getSelectedPosition());
+
                 }
             });
         }
-        setSeekBarBeautyParam(mBeautyAdapter.getSelectedPosition());
 
         mLayoutContent.removeAllViews();
         mLayoutContent.addView(mLayoutBeauty);
     }
 
-    /**
-     * 设置Seekbar对应的美颜参数值
-     */
-    private void setSeekBarBeautyParam(int position) {
-        if (position == 0) {            // 磨皮
-            mValueSeekBar.setProgress((int)(mCameraParam.beauty.beautyIntensity * 100));
-        } else if (position == 1) {     // 肤色
-            mValueSeekBar.setProgress((int) (mCameraParam.beauty.complexionIntensity * 100));
-        } else if (position == 2) {     // 瘦脸
-            mValueSeekBar.setProgress((int)(mCameraParam.beauty.faceLift * 100));
-        } else if (position == 3) {     // 削脸
-            mValueSeekBar.setProgress((int)(mCameraParam.beauty.faceShave * 100));
-        } else if (position == 4) {     // 小脸
-            mValueSeekBar.setProgress((int)(mCameraParam.beauty.faceNarrow * 100));
-        } else if (position == 5) {     // 下巴
-            mValueSeekBar.setProgress((int)((1.0f + mCameraParam.beauty.chinIntensity) * 50));
-        } else if (position == 6) {     // 法令纹
-            mValueSeekBar.setProgress((int)(mCameraParam.beauty.nasolabialFoldsIntensity * 100));
-        } else if (position == 7) {     // 额头
-            mValueSeekBar.setProgress((int)((1.0f + mCameraParam.beauty.foreheadIntensity) * 50));
-        } else if (position == 8) {     // 大眼
-            mValueSeekBar.setProgress((int)(mCameraParam.beauty.eyeEnlargeIntensity * 100));
-        } else if (position == 9) {     // 眼距
-            mValueSeekBar.setProgress((int)((1.0f + mCameraParam.beauty.eyeDistanceIntensity) * 50));
-        } else if (position == 10) {    // 眼角
-            mValueSeekBar.setProgress((int)((1.0f + mCameraParam.beauty.eyeCornerIntensity) * 50));
-        } else if (position == 11) {    // 卧蚕
-            mValueSeekBar.setProgress((int)(mCameraParam.beauty.eyeFurrowsIntensity * 100));
-        } else if (position == 12) {    // 眼袋
-            mValueSeekBar.setProgress((int)(mCameraParam.beauty.eyeBagsIntensity * 100));
-        } else if (position == 13) {    // 亮眼
-            mValueSeekBar.setProgress((int)(mCameraParam.beauty.eyeBrightIntensity * 100));
-        } else if (position == 14) {    // 瘦鼻
-            mValueSeekBar.setProgress((int)(mCameraParam.beauty.noseThinIntensity * 100));
-        } else if (position == 15) {    // 鼻翼
-            mValueSeekBar.setProgress((int)(mCameraParam.beauty.alaeIntensity * 100));
-        } else if (position == 16) {    // 长鼻
-            mValueSeekBar.setProgress((int)(mCameraParam.beauty.proboscisIntensity * 100));
-        } else if (position == 17) {    // 嘴型
-            mValueSeekBar.setProgress((int)(mCameraParam.beauty.mouthEnlargeIntensity * 100));
-        } else if (position == 18) {    // 美牙
-            mValueSeekBar.setProgress((int)(mCameraParam.beauty.teethBeautyIntensity * 100));
-        }
-    }
 
-    /**
-     * 处理美颜参数
-     * @param progress
-     */
-    private void processBeautyParam(int position, int progress) {
-        if (position == 0) {            // 磨皮
-            mCameraParam.beauty.beautyIntensity = progress / 100.0f;
-        } else if (position == 1) {     // 肤色
-            mCameraParam.beauty.complexionIntensity = progress / 100.0f;
-        } else if (position == 2) {     // 瘦脸
-            mCameraParam.beauty.faceLift = progress / 100.0f;
-        } else if (position == 3) {     // 削脸
-            mCameraParam.beauty.faceShave = progress / 100.0f;
-        } else if (position == 4) {     // 小脸
-            mCameraParam.beauty.faceNarrow = progress / 100.0f;
-        } else if (position == 5) {     // 下巴
-            mCameraParam.beauty.chinIntensity = (progress - 50.0f) / 50.0f;
-        } else if (position == 6) {     // 法令纹
-            mCameraParam.beauty.nasolabialFoldsIntensity = progress / 100.0f;
-        } else if (position == 7) {     // 额头
-            mCameraParam.beauty.foreheadIntensity = (progress - 50.0f) / 50.0f;
-        } else if (position == 8) {     // 大眼
-            mCameraParam.beauty.eyeEnlargeIntensity = progress / 100.0f;
-        } else if (position == 9) {     // 眼距
-            mCameraParam.beauty.eyeDistanceIntensity = (progress - 50.0f) / 50.0f;
-        } else if (position == 10) {    // 眼角
-            mCameraParam.beauty.eyeCornerIntensity = (progress - 50.0f) / 50.0f;
-        } else if (position == 11) {    // 卧蚕
-            mCameraParam.beauty.eyeFurrowsIntensity = progress / 100.0f;
-        } else if (position == 12) {    // 眼袋
-            mCameraParam.beauty.eyeBagsIntensity = progress / 100.0f;
-        } else if (position == 13) {    // 亮眼
-            mCameraParam.beauty.eyeBrightIntensity = progress / 100.0f;
-        } else if (position == 14) {    // 瘦鼻
-            mCameraParam.beauty.noseThinIntensity = progress / 100.0f;
-        } else if (position == 15) {    // 鼻翼
-            mCameraParam.beauty.alaeIntensity = progress / 100.0f;
-        } else if (position == 16) {    // 长鼻
-            mCameraParam.beauty.proboscisIntensity = progress / 100.0f;
-        } else if (position == 17) {    // 嘴型
-            mCameraParam.beauty.mouthEnlargeIntensity = progress / 100.0f;
-        } else if (position == 18) {    // 美牙
-            mCameraParam.beauty.teethBeautyIntensity = progress / 100.0f;
-        }
-    }
 
     // -------------------------------------- 美妆(makeup) ----------------------------------------
     /**
@@ -387,24 +294,7 @@ public class PreviewEffectFragment extends Fragment implements View.OnClickListe
             mMakeupRecyclerView.setLayoutManager(mMakeupLayoutManager);
             mMakeupAdapter = new PreviewMakeupAdapter(mActivity);
             mMakeupRecyclerView.setAdapter(mMakeupAdapter);
-            mMakeupAdapter.addOnMakeupSelectedListener(new PreviewMakeupAdapter.OnMakeupSelectedListener() {
-                @Override
-                public void onMakeupSelected(int position, String makeupName) {
-                    if (position == 0) {
-                        String folderPath = MakeupHelper.getMakeupDirectory(mActivity) + File.separator +
-                                MakeupHelper.getMakeupList().get(1).unzipFolder;
-                        DynamicMakeup makeup = null;
-                        try {
-                            makeup = ResourceJsonCodec.decodeMakeupData(folderPath);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        PreviewRenderer.getInstance().changeDynamicMakeup(makeup);
-                    } else {
-                        PreviewRenderer.getInstance().changeDynamicMakeup(null);
-                    }
-                }
-            });
+
         }
         mLayoutContent.removeAllViews();
         mLayoutContent.addView(mLayoutMakeup);

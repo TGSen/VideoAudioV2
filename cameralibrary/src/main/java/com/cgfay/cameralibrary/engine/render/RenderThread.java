@@ -16,7 +16,6 @@ import com.cgfay.cameralibrary.engine.recorder.HardcodeEncoder;
 import com.cgfay.filterlibrary.gles.EglCore;
 import com.cgfay.filterlibrary.gles.WindowSurface;
 import com.cgfay.filterlibrary.glfilter.color.bean.DynamicColor;
-import com.cgfay.filterlibrary.glfilter.makeup.bean.DynamicMakeup;
 import com.cgfay.filterlibrary.glfilter.stickers.StaticStickerNormalFilter;
 import com.cgfay.filterlibrary.glfilter.stickers.bean.DynamicSticker;
 import com.cgfay.filterlibrary.glfilter.utils.OpenGLUtils;
@@ -294,15 +293,6 @@ class RenderThread extends HandlerThread implements SurfaceTexture.OnFrameAvaila
         }
     }
 
-    /**
-     * 切换动态彩妆
-     * @param makeup
-     */
-    void changeDynamicMakeup(DynamicMakeup makeup) {
-        synchronized (mSynOperation) {
-            mRenderManager.changeDynamicMakeup(makeup);
-        }
-    }
 
     /**
      * 切换动态资源

@@ -8,7 +8,6 @@ import android.view.SurfaceView;
 import com.cgfay.cameralibrary.engine.camera.CameraParam;
 import com.cgfay.cameralibrary.engine.listener.OnCameraCallback;
 import com.cgfay.filterlibrary.glfilter.color.bean.DynamicColor;
-import com.cgfay.filterlibrary.glfilter.makeup.bean.DynamicMakeup;
 import com.cgfay.filterlibrary.glfilter.stickers.StaticStickerNormalFilter;
 import com.cgfay.filterlibrary.glfilter.stickers.bean.DynamicSticker;
 
@@ -177,19 +176,6 @@ public final class PreviewRenderer {
         }
     }
 
-    /**
-     * 切换彩妆
-     * @param makeup
-     */
-    public void changeDynamicMakeup(DynamicMakeup makeup) {
-        if (mRenderHandler == null) {
-            return;
-        }
-        synchronized (mSynOperation) {
-            mRenderHandler.sendMessage(mRenderHandler
-                    .obtainMessage(RenderHandler.MSG_CHANGE_DYNAMIC_MAKEUP, makeup));
-        }
-    }
 
     /**
      * 切换动态资源

@@ -30,18 +30,12 @@ android {
         }
     }
 
-    repositories {
-        flatDir {
-            // 人脸关键点检测依赖库下放到facedetectlibrary
-            dirs project(':facedetectlibrary').file('libs')
-        }
-    }
+
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation project(':facedetectlibrary')
     implementation project(':owohfilterlibrary')
     implementation project(':landmarklibrary')
     implementation project(':utilslibrary')

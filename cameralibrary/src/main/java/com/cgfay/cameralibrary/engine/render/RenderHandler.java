@@ -5,7 +5,6 @@ import android.os.Message;
 import android.view.SurfaceHolder;
 
 import com.cgfay.filterlibrary.glfilter.color.bean.DynamicColor;
-import com.cgfay.filterlibrary.glfilter.makeup.bean.DynamicMakeup;
 import com.cgfay.filterlibrary.glfilter.stickers.bean.DynamicSticker;
 
 import java.lang.ref.WeakReference;
@@ -129,15 +128,7 @@ class RenderHandler extends Handler {
                 break;
             }
 
-            // 切换动态彩妆
-            case MSG_CHANGE_DYNAMIC_MAKEUP: {
-                if (msg.obj == null) {
-                    thread.changeDynamicMakeup((DynamicMakeup) null);
-                } else {
-                    thread.changeDynamicMakeup((DynamicMakeup) msg.obj);
-                }
-                break;
-            }
+
 
             // 切换动态贴纸
             case MSG_CHANGE_DYNAMIC_RESOURCE:

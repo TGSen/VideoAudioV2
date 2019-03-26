@@ -1,1 +1,1 @@
-include ':app', ':landmarklibrary', ':facedetectlibrary', ':cameralibrary', ':gdxlibrary', ':owohfilterlibrary', ':utilslibrary', ':reslibrary'
+include ':app', ':landmarklibrary', ':cameralibrary', ':gdxlibrary', ':owohfilterlibrary', ':utilslibrary', ':reslibrary'

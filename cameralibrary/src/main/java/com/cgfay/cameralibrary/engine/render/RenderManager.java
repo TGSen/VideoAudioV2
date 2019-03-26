@@ -19,8 +19,6 @@ import com.cgfay.filterlibrary.glfilter.face.GLImageFaceReshapeFilter;
 import com.cgfay.filterlibrary.glfilter.face.GLImageFacePointsFilter;
 import com.cgfay.filterlibrary.glfilter.color.GLImageDynamicColorFilter;
 import com.cgfay.filterlibrary.glfilter.color.bean.DynamicColor;
-import com.cgfay.filterlibrary.glfilter.makeup.GLImageMakeupFilter;
-import com.cgfay.filterlibrary.glfilter.makeup.bean.DynamicMakeup;
 import com.cgfay.filterlibrary.glfilter.multiframe.GLImageFrameEdgeBlurFilter;
 import com.cgfay.filterlibrary.glfilter.stickers.GLImageDynamicStickerFilter;
 import com.cgfay.filterlibrary.glfilter.stickers.GestureHelp;
@@ -143,8 +141,6 @@ public final class RenderManager {
         mFilterArrays.put(RenderIndex.CameraIndex, new GLImageOESInputFilter(context));
         // 美颜滤镜
         mFilterArrays.put(RenderIndex.BeautyIndex, new GLImageBeautyFilter(context));
-        // 彩妆滤镜
-        mFilterArrays.put(RenderIndex.MakeupIndex, new GLImageMakeupFilter(context, null));
         // 美型滤镜
         mFilterArrays.put(RenderIndex.FaceAdjustIndex, new GLImageFaceReshapeFilter(context));
         // LUT/颜色滤镜
@@ -200,21 +196,7 @@ public final class RenderManager {
         mFilterArrays.put(RenderIndex.FilterIndex, filter);
     }
 
-    /**
-     * 切换动态滤镜
-     * @param dynamicMakeup
-     */
-    public synchronized void changeDynamicMakeup(DynamicMakeup dynamicMakeup) {
-        if (mFilterArrays.get(RenderIndex.MakeupIndex) != null) {
-            ((GLImageMakeupFilter)mFilterArrays.get(RenderIndex.MakeupIndex)).changeMakeupData(dynamicMakeup);
-        } else {
-            GLImageMakeupFilter filter = new GLImageMakeupFilter(mContext, dynamicMakeup);
-            filter.onInputSizeChanged(mTextureWidth, mTextureHeight);
-            filter.initFrameBuffer(mTextureWidth, mTextureHeight);
-            filter.onDisplaySizeChanged(mViewWidth, mViewHeight);
-            mFilterArrays.put(RenderIndex.MakeupIndex, filter);
-        }
-    }
+
 
     /**
      * 切换动态资源
@@ -275,27 +257,11 @@ public final class RenderManager {
                 .drawFrameBuffer(currentTexture, mVertexBuffer, mTextureBuffer);
         // 如果处于对比状态，不做处理
         if (!mCameraParam.showCompare) {
-            // 美颜滤镜
-            if (mFilterArrays.get(RenderIndex.BeautyIndex) != null) {
-                if (mFilterArrays.get(RenderIndex.BeautyIndex) instanceof IBeautify
-                        && mCameraParam.beauty != null) {
-                    ((IBeautify) mFilterArrays.get(RenderIndex.BeautyIndex)).onBeauty(mCameraParam.beauty);
-                }
-                currentTexture = mFilterArrays.get(RenderIndex.BeautyIndex).drawFrameBuffer(currentTexture, mVertexBuffer, mTextureBuffer);
-            }
-
             // 彩妆滤镜
             if (mFilterArrays.get(RenderIndex.MakeupIndex) != null) {
                 currentTexture = mFilterArrays.get(RenderIndex.MakeupIndex).drawFrameBuffer(currentTexture, mVertexBuffer, mTextureBuffer);
             }
 
-            // 美型滤镜
-            if (mFilterArrays.get(RenderIndex.FaceAdjustIndex) != null) {
-                if (mFilterArrays.get(RenderIndex.FaceAdjustIndex) instanceof IBeautify) {
-                    ((IBeautify) mFilterArrays.get(RenderIndex.FaceAdjustIndex)).onBeauty(mCameraParam.beauty);
-                }
-                currentTexture = mFilterArrays.get(RenderIndex.FaceAdjustIndex).drawFrameBuffer(currentTexture, mVertexBuffer, mTextureBuffer);
-            }
 
             // 绘制颜色滤镜
             if (mFilterArrays.get(RenderIndex.FilterIndex) != null) {
