@@ -431,6 +431,7 @@ public class PreviewEffectFragment extends Fragment implements View.OnClickListe
             mFilterLayoutManager = new LinearLayoutManager(mActivity);
             mFilterLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
             mFilterRecyclerView.setLayoutManager(mFilterLayoutManager);
+            FilterHelper.initAssetsFilter(mActivity);
             mFilterAdapter = new PreviewFilterAdapter(mActivity,
                     FilterHelper.getFilterList());
             mFilterRecyclerView.setAdapter(mFilterAdapter);
