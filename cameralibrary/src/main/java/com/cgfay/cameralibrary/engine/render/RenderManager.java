@@ -4,19 +4,13 @@ import android.content.Context;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.MotionEvent;
-import android.widget.Toast;
 
 import com.badlogic.gdx.math.Vector3;
 import com.cgfay.cameralibrary.engine.camera.CameraParam;
 import com.cgfay.cameralibrary.engine.model.ScaleType;
-import com.cgfay.filterlibrary.glfilter.base.GLImageDepthBlurFilter;
 import com.cgfay.filterlibrary.glfilter.base.GLImageFilter;
 import com.cgfay.filterlibrary.glfilter.base.GLImageOESInputFilter;
-import com.cgfay.filterlibrary.glfilter.base.GLImageVignetteFilter;
-import com.cgfay.filterlibrary.glfilter.beauty.GLImageBeautyFilter;
-import com.cgfay.filterlibrary.glfilter.beauty.bean.IBeautify;
-import com.cgfay.filterlibrary.glfilter.face.GLImageFaceReshapeFilter;
-import com.cgfay.filterlibrary.glfilter.face.GLImageFacePointsFilter;
+
 import com.cgfay.filterlibrary.glfilter.color.GLImageDynamicColorFilter;
 import com.cgfay.filterlibrary.glfilter.color.bean.DynamicColor;
 import com.cgfay.filterlibrary.glfilter.multiframe.GLImageFrameEdgeBlurFilter;
@@ -26,7 +20,6 @@ import com.cgfay.filterlibrary.glfilter.stickers.StaticStickerNormalFilter;
 import com.cgfay.filterlibrary.glfilter.stickers.bean.DynamicSticker;
 import com.cgfay.filterlibrary.glfilter.utils.OpenGLUtils;
 import com.cgfay.filterlibrary.glfilter.utils.TextureRotationUtils;
-import com.cgfay.landmarklibrary.LandmarkEngine;
 
 import java.nio.FloatBuffer;
 
@@ -133,32 +126,26 @@ public final class RenderManager {
 
     /**
      * 初始化滤镜
+     *
      * @param context
      */
     private void initFilters(Context context) {
         releaseFilters();
         // 相机输入滤镜
         mFilterArrays.put(RenderIndex.CameraIndex, new GLImageOESInputFilter(context));
-        // 美颜滤镜
-        mFilterArrays.put(RenderIndex.BeautyIndex, new GLImageBeautyFilter(context));
-        // 美型滤镜
-        mFilterArrays.put(RenderIndex.FaceAdjustIndex, new GLImageFaceReshapeFilter(context));
+
         // LUT/颜色滤镜
         mFilterArrays.put(RenderIndex.FilterIndex, null);
         // 贴纸资源滤镜
         mFilterArrays.put(RenderIndex.ResourceIndex, null);
-        // 景深滤镜
-        mFilterArrays.put(RenderIndex.DepthBlurIndex, new GLImageDepthBlurFilter(context));
-        // 暗角滤镜
-        mFilterArrays.put(RenderIndex.VignetteIndex, new GLImageVignetteFilter(context));
         // 显示输出
         mFilterArrays.put(RenderIndex.DisplayIndex, new GLImageFilter(context));
-        // 人脸关键点调试
-        mFilterArrays.put(RenderIndex.FacePointIndex, new GLImageFacePointsFilter(context));
+
     }
 
     /**
      * 是否切换边框模糊
+     *
      * @param enableEdgeBlur
      */
     public synchronized void changeEdgeBlurFilter(boolean enableEdgeBlur) {
@@ -179,6 +166,7 @@ public final class RenderManager {
 
     /**
      * 切换动态滤镜
+     *
      * @param color
      */
     public synchronized void changeDynamicFilter(DynamicColor color) {
@@ -197,9 +185,9 @@ public final class RenderManager {
     }
 
 
-
     /**
      * 切换动态资源
+     *
      * @param color
      */
     public synchronized void changeDynamicResource(DynamicColor color) {
@@ -219,6 +207,7 @@ public final class RenderManager {
 
     /**
      * 切换动态资源
+     *
      * @param sticker
      */
     public synchronized void changeDynamicResource(DynamicSticker sticker) {
@@ -240,6 +229,7 @@ public final class RenderManager {
 
     /**
      * 绘制纹理
+     *
      * @param inputTexture
      * @param mMatrix
      * @return
@@ -251,17 +241,12 @@ public final class RenderManager {
             return currentTexture;
         }
         if (mFilterArrays.get(RenderIndex.CameraIndex) instanceof GLImageOESInputFilter) {
-            ((GLImageOESInputFilter)mFilterArrays.get(RenderIndex.CameraIndex)).setTextureTransformMatrix(mMatrix);
+            ((GLImageOESInputFilter) mFilterArrays.get(RenderIndex.CameraIndex)).setTextureTransformMatrix(mMatrix);
         }
         currentTexture = mFilterArrays.get(RenderIndex.CameraIndex)
                 .drawFrameBuffer(currentTexture, mVertexBuffer, mTextureBuffer);
         // 如果处于对比状态，不做处理
         if (!mCameraParam.showCompare) {
-            // 彩妆滤镜
-            if (mFilterArrays.get(RenderIndex.MakeupIndex) != null) {
-                currentTexture = mFilterArrays.get(RenderIndex.MakeupIndex).drawFrameBuffer(currentTexture, mVertexBuffer, mTextureBuffer);
-            }
-
 
             // 绘制颜色滤镜
             if (mFilterArrays.get(RenderIndex.FilterIndex) != null) {
@@ -273,17 +258,7 @@ public final class RenderManager {
                 currentTexture = mFilterArrays.get(RenderIndex.ResourceIndex).drawFrameBuffer(currentTexture, mVertexBuffer, mTextureBuffer);
             }
 
-            // 景深
-            if (mFilterArrays.get(RenderIndex.DepthBlurIndex) != null) {
-                mFilterArrays.get(RenderIndex.DepthBlurIndex).setFilterEnable(mCameraParam.enableDepthBlur);
-                currentTexture = mFilterArrays.get(RenderIndex.DepthBlurIndex).drawFrameBuffer(currentTexture, mVertexBuffer, mTextureBuffer);
-            }
 
-            // 暗角
-            if (mFilterArrays.get(RenderIndex.VignetteIndex) != null) {
-                mFilterArrays.get(RenderIndex.VignetteIndex).setFilterEnable(mCameraParam.enableVignette);
-                currentTexture = mFilterArrays.get(RenderIndex.VignetteIndex).drawFrameBuffer(currentTexture, mVertexBuffer, mTextureBuffer);
-            }
         }
 
         // 显示输出，需要调整视口大小
@@ -292,20 +267,10 @@ public final class RenderManager {
         return currentTexture;
     }
 
-    /**
-     * 绘制调试用的人脸关键点
-     * @param mCurrentTexture
-     */
-    public void drawFacePoint(int mCurrentTexture) {
-        if (mFilterArrays.get(RenderIndex.FacePointIndex) != null) {
-            if (mCameraParam.drawFacePoints && LandmarkEngine.getInstance().hasFace()) {
-                mFilterArrays.get(RenderIndex.FacePointIndex).drawFrame(mCurrentTexture, mDisplayVertexBuffer, mDisplayTextureBuffer);
-            }
-        }
-    }
 
     /**
      * 设置输入纹理大小
+     *
      * @param width
      * @param height
      */
@@ -316,6 +281,7 @@ public final class RenderManager {
 
     /**
      * 设置纹理显示大小
+     *
      * @param width
      * @param height
      */
@@ -359,7 +325,7 @@ public final class RenderManager {
         float ratioWidth = (float) imageWidth / (float) mViewWidth;
         float ratioHeight = (float) imageHeight / (float) mViewHeight;
         if (mScaleType == ScaleType.CENTER_INSIDE) {
-            vertexCoord = new float[] {
+            vertexCoord = new float[]{
                     vertexVertices[0] / ratioHeight, vertexVertices[1] / ratioWidth, vertexVertices[2],
                     vertexVertices[3] / ratioHeight, vertexVertices[4] / ratioWidth, vertexVertices[5],
                     vertexVertices[6] / ratioHeight, vertexVertices[7] / ratioWidth, vertexVertices[8],
@@ -368,7 +334,7 @@ public final class RenderManager {
         } else if (mScaleType == ScaleType.CENTER_CROP) {
             float distHorizontal = (1 - 1 / ratioWidth) / 2;
             float distVertical = (1 - 1 / ratioHeight) / 2;
-            textureCoord = new float[] {
+            textureCoord = new float[]{
                     addDistance(textureVertices[0], distVertical), addDistance(textureVertices[1], distHorizontal),
                     addDistance(textureVertices[2], distVertical), addDistance(textureVertices[3], distHorizontal),
                     addDistance(textureVertices[4], distVertical), addDistance(textureVertices[5], distHorizontal),
@@ -390,6 +356,7 @@ public final class RenderManager {
 
     /**
      * 计算距离
+     *
      * @param coordinate
      * @param distance
      * @return
@@ -398,22 +365,23 @@ public final class RenderManager {
         return coordinate == 0.0f ? distance : 1 - distance;
     }
 
-    public static final Vector3 tempVec=new Vector3();
+    public static final Vector3 tempVec = new Vector3();
+
     public StaticStickerNormalFilter touchDown(MotionEvent e) {
 
         if (mFilterArrays.get(RenderIndex.ResourceIndex) != null) {
-          GLImageFilter  glImageFilter = mFilterArrays.get(RenderIndex.ResourceIndex);
-          if(glImageFilter instanceof GLImageDynamicStickerFilter) {
-              GLImageDynamicStickerFilter glImageDynamicStickerFilter= (GLImageDynamicStickerFilter) glImageFilter;
-              tempVec.set(e.getX(), e.getY(), 0);
-              StaticStickerNormalFilter staticStickerNormalFilter=GestureHelp.hit(tempVec,glImageDynamicStickerFilter.getmFilters());
-              if(staticStickerNormalFilter!=null){
-                  Log.d("touchSticker","找到贴纸");
-              }else{
-                  Log.d("touchSticker","没有贴纸");
-              }
-              return staticStickerNormalFilter;
-          }
+            GLImageFilter glImageFilter = mFilterArrays.get(RenderIndex.ResourceIndex);
+            if (glImageFilter instanceof GLImageDynamicStickerFilter) {
+                GLImageDynamicStickerFilter glImageDynamicStickerFilter = (GLImageDynamicStickerFilter) glImageFilter;
+                tempVec.set(e.getX(), e.getY(), 0);
+                StaticStickerNormalFilter staticStickerNormalFilter = GestureHelp.hit(tempVec, glImageDynamicStickerFilter.getmFilters());
+                if (staticStickerNormalFilter != null) {
+                    Log.d("touchSticker", "找到贴纸");
+                } else {
+                    Log.d("touchSticker", "没有贴纸");
+                }
+                return staticStickerNormalFilter;
+            }
         }
 
         return null;

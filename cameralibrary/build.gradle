@@ -37,7 +37,6 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     implementation project(':owohfilterlibrary')
-    implementation project(':landmarklibrary')
     implementation project(':utilslibrary')
     implementation project(':reslibrary')
     implementation project(':gdxlibrary')

@@ -10,7 +10,6 @@ import com.cgfay.filterlibrary.glfilter.resource.ResourceCodec;
 import com.cgfay.filterlibrary.glfilter.resource.ResourceIndexCodec;
 import com.cgfay.filterlibrary.glfilter.stickers.bean.DynamicStickerData;
 import com.cgfay.filterlibrary.glfilter.utils.OpenGLUtils;
-import com.cgfay.landmarklibrary.LandmarkEngine;
 import com.cgfay.utilslibrary.utils.BitmapUtils;
 
 import java.io.IOException;
@@ -83,14 +82,7 @@ public class DynamicStickerLoader {
      * 更新贴纸纹理
      */
     public void updateStickerTexture() {
-        // 判断人脸是否存在
-        if (!LandmarkEngine.getInstance().hasFace()&&!isStaticSticker) {
-            mCurrentTime = -1L;
-            if (mWeakFilter.get() != null) {
-                mWeakFilter.get().stopPlayer();
-            }
-            return;
-        }
+
 
         // 如果如果存在音乐并且动作标记为0，则表示属于默认音乐，直接开始播放音乐
         if (!TextUtils.isEmpty(mStickerData.audioPath) && mStickerData.action == 0) {

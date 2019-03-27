@@ -213,8 +213,6 @@ class RenderThread extends HandlerThread implements SurfaceTexture.OnFrameAvaila
         // 绘制渲染
         mCurrentTexture = mRenderManager.drawFrame(mInputTexture, mMatrix);
 
-        // 是否绘制人脸关键点
-        mRenderManager.drawFacePoint(mCurrentTexture);
 
         // 显示到屏幕
         mDisplaySurface.swapBuffers();
