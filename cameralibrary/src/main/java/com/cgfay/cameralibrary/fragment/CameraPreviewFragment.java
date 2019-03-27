@@ -509,32 +509,12 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
 
         @Override
         public void swipeBack() {
-            if (mEffectFragment != null) {
-                mFilterIndex = mEffectFragment.getCurrentFilterIndex();
-            }
-            mFilterIndex++;
-            mFilterIndex = mFilterIndex % FilterHelper.getFilterList().size();
-            changeDynamicColor(mFilterIndex);
-            if (mEffectFragment != null) {
-                mEffectFragment.scrollToCurrentFilter(mFilterIndex);
-            }
+
         }
 
         @Override
         public void swipeFrontal() {
-            if (mEffectFragment != null) {
-                mFilterIndex = mEffectFragment.getCurrentFilterIndex();
-            }
-            mFilterIndex--;
-            if (mFilterIndex < 0) {
-                int count = FilterHelper.getFilterList().size();
-                mFilterIndex = count > 0 ? count - 1 : 0;
-            }
-            changeDynamicColor(mFilterIndex);
 
-            if (mEffectFragment != null) {
-                mEffectFragment.scrollToCurrentFilter(mFilterIndex);
-            }
         }
 
         @Override
