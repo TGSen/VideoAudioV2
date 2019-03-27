@@ -11,6 +11,7 @@
     <color name="shutter_gray_dark">#EE2A2A2A</color>
     <color name="shutter_gray_light">#AA696969</color>
     <color name="shutter_blue">#3394EC</color>
+    <color name="shutter_blue_alpha">#223394EC</color>
     <color name="shutter_green">#90EE90</color>
 
     <!-- 特效选择页面背景颜色 -->

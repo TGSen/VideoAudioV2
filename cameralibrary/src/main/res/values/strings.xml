@@ -56,12 +56,7 @@
 
     <string name="makeup_clear">一键清除</string>
 
-    <!-- 相机类型 -->
-    <string-array name="gallery_indicator">
-        <item>表情包</item>
-        <item>拍照</item>
-        <item>视频</item>
-    </string-array>
+
 
 
     <!-- 特效页面参数 -->

@@ -203,7 +203,8 @@ public class HorizontalIndicatorView extends View {
      */
     public void setIndicators(List<String> indicators) {
         mIndicators = indicators;
-        mCurrentIndex = mIndicators.size() / 2;
+//        mCurrentIndex = mIndicators.size() / 2;
+        mCurrentIndex = 0;
         invalidate();
     }
 

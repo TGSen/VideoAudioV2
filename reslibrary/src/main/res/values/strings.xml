@@ -5,4 +5,10 @@
     <string name="filter_tools">道具</string>
     <string name="upload_file">上传</string>
     <string name="camera_filter">滤镜</string>
+
+    <!-- 相机类型 -->
+    <string-array name="gallery_indicator">
+        <item>单击拍摄</item>
+        <item>长摁拍摄</item>
+    </string-array>
 </resources>

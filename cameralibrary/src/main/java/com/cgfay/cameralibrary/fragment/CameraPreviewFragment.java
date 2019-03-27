@@ -111,8 +111,6 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
 
     // 设置的PopupView
     private PopupSettingView mSettingView;
-    // 倒计时
-    private TextView mCountDownView;
     // 道具按钮
     private TextView mBtnTools;
     // 快门按钮
@@ -211,7 +209,6 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
         mBtnSwitch.setOnClickListener(this);
 
 
-        mCountDownView = view.findViewById(R.id.tv_countdown);
         mBtnTools = view.findViewById(R.id.btnTools);
         mBtnTools.setOnClickListener(this);
         mBtnEffect = view.findViewById(R.id.btFilters);
@@ -338,16 +335,6 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
     @Override
     public void onIndicatorChanged(int currentIndex) {
         if (currentIndex == 0) {
-            mCameraParam.mGalleryType = GalleryType.GIF;
-            mBtnShutter.setIsRecorder(false);
-        } else if (currentIndex == 1) {
-            mCameraParam.mGalleryType = GalleryType.PICTURE;
-            // 拍照状态
-            mBtnShutter.setIsRecorder(false);
-            if (!mStorageWriteEnable) {
-                requestStoragePermission();
-            }
-        } else if (currentIndex == 2) {
             mCameraParam.mGalleryType = GalleryType.VIDEO;
             // 录制视频状态
             mBtnShutter.setIsRecorder(true);
@@ -355,13 +342,16 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
             if (!mCameraParam.audioPermitted) {
                 requestRecordSoundPermission();
             }
+
+        } else if (currentIndex == 1) {
+            mCameraParam.mGalleryType = GalleryType.PICTURE;
+            // 拍照状态
+            mBtnShutter.setIsRecorder(false);
+            if (!mStorageWriteEnable) {
+                requestStoragePermission();
+            }
         }
-        // 显示时间
-        if (currentIndex == 2) {
-            mCountDownView.setVisibility(View.VISIBLE);
-        } else {
-            mCountDownView.setVisibility(View.GONE);
-        }
+
     }
 
     /**
@@ -804,7 +794,6 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
                     // 设置进度
                     mBtnShutter.setProgress(duration);
                     // 设置时间
-                    mCountDownView.setText(StringUtils.generateMillisTime((int) duration));
                 }
             });
         }
@@ -856,10 +845,8 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
             // 更新进度
             mBtnShutter.setProgress(PreviewRecorder.getInstance().getVisibleDuration());
             // 更新时间
-            mCountDownView.setText(PreviewRecorder.getInstance().getVisibleDurationString());
             // 如果此时没有了视频，则恢复初始状态
             if (PreviewRecorder.getInstance().getNumberOfSubVideo() <= 0) {
-                mCountDownView.setText("");
                 mBtnRecordDelete.setVisibility(View.GONE);
                 mBtnRecordPreview.setVisibility(View.GONE);
                 mNeedToWaitStop = false;
@@ -1051,8 +1038,6 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
                         mBtnShutter.deleteSplitView();
                         // 关闭按钮
                         mBtnShutter.closeButton();
-                        // 更新时间
-                        mCountDownView.setText(PreviewRecorder.getInstance().getVisibleDurationString());
                     }
                 }
             }

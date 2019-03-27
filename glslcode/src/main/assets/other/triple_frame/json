@@ -1,0 +1,18 @@
+{
+    "filterList": [{
+        "type": "filter",
+        "name": "triple_frame",
+        "vertexShader": "",
+        "fragmentShader": "fragment.glsl",
+        "uniformList":["lookupTable1", "lookupTable2", "lookupTable3"],
+        "uniformData": {
+            "lookupTable1": "lut1.png",
+            "lookupTable2": "lut2.png",
+            "lookupTable3": "lut3.png"
+        },
+        "strength": 1.0,
+        "texelOffset": 0,
+        "audioPath": "",
+        "audioLooping": 1
+    }]
+}

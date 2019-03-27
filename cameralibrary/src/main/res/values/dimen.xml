@@ -2,7 +2,7 @@
 <resources>
     <!--拍照录制按钮宽高-->
     <dimen name="bottom_gallery_layout_height">120dp</dimen>
-    <dimen name="record_width_height_normal">100dp</dimen>
+    <dimen name="record_width_height_normal">80dp</dimen>
     <dimen name="record_width_height_small">50dp</dimen>
     <dimen name="stickers_width_height">40dp</dimen>
     <dimen name="filters_width_height">40dp</dimen>
