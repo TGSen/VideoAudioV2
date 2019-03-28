@@ -75,7 +75,7 @@
         android:drawableTop="@mipmap/ic_flash_lamp"
         android:gravity="center"
         android:padding="@dimen/dp4"
-        android:text="@string/camera_filter"
+        android:text="@string/camera_flash"
         android:textColor="@color/colorWhilte"
         android:textSize="12sp"
         app:layout_constraintRight_toRightOf="parent"

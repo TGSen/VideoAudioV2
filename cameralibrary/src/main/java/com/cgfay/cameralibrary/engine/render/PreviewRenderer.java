@@ -148,22 +148,10 @@ public final class PreviewRenderer {
         }
     }
 
-    /**
-     * 切换边框模糊功能
-     * @param enableEdgeBlur
-     */
-    public void changeEdgeBlurFilter(boolean enableEdgeBlur) {
-        if (mRenderHandler == null) {
-            return;
-        }
-        synchronized (mSynOperation) {
-            mRenderHandler.sendMessage(mRenderHandler
-                    .obtainMessage(RenderHandler.MSG_CHANGE_EDGE_BLUR, enableEdgeBlur));
-        }
-    }
+
 
     /**
-     * 切换滤镜
+     * 切换Color滤镜
      * @param color
      */
     public void changeDynamicFilter(DynamicColor color) {
@@ -173,6 +161,20 @@ public final class PreviewRenderer {
         synchronized (mSynOperation) {
             mRenderHandler.sendMessage(mRenderHandler
                     .obtainMessage(RenderHandler.MSG_CHANGE_DYNAMIC_COLOR, color));
+        }
+    }
+
+    /**
+     * 切换分镜滤镜
+     * @param color
+     */
+    public void changeDynamicCameraFilter(DynamicColor color) {
+        if (mRenderHandler == null) {
+            return;
+        }
+        synchronized (mSynOperation) {
+            mRenderHandler.sendMessage(mRenderHandler
+                    .obtainMessage(RenderHandler.MSG_CHANGE_DYNAMIC_CAMERA_COLOR, color));
         }
     }
 

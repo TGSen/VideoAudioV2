@@ -8,6 +8,7 @@ public enum ResourceType {
     NONE("none", -1),       // 没有资源
     STICKER("sticker", 0),  // 贴纸资源类型
     FILTER("filter", 1),    // 滤镜资源类型
+    CAMERA_FILTER("camera_filter", 5),    // 滤镜资源类型
     EFFECT("effect", 2),    // 特效资源类型
     MAKEUP("makeup", 3),    // 彩妆资源类型
     MULTI("multi", 4);      // 多种类型混合起来

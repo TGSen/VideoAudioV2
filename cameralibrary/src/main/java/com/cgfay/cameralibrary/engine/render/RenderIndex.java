@@ -6,6 +6,7 @@ package com.cgfay.cameralibrary.engine.render;
 public final class RenderIndex {
     public static final int CameraIndex = 0;        // 相机输入索引
     public static final int FilterIndex = 1;        // 滤镜索引
-    public static final int ResourceIndex = 2;      // 资源索引
-    public static final int DisplayIndex = 3;       // 显示索引
+    public static final int CameraFilterIndex = 2;   // 滤镜索引
+    public static final int ResourceIndex = 3;      // 资源索引
+    public static final int DisplayIndex = 4;       // 显示索引
 }

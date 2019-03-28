@@ -138,6 +138,8 @@ public final class RenderManager {
         mFilterArrays.put(RenderIndex.FilterIndex, null);
         // 贴纸资源滤镜
         mFilterArrays.put(RenderIndex.ResourceIndex, null);
+        //分镜资源
+        mFilterArrays.put(RenderIndex.CameraFilterIndex, null);
         // 显示输出
         mFilterArrays.put(RenderIndex.DisplayIndex, new GLImageFilter(context));
 
@@ -182,6 +184,26 @@ public final class RenderManager {
         filter.initFrameBuffer(mTextureWidth, mTextureHeight);
         filter.onDisplaySizeChanged(mViewWidth, mViewHeight);
         mFilterArrays.put(RenderIndex.FilterIndex, filter);
+    }
+
+    /**
+     * 切换分镜滤镜
+     *
+     * @param color
+     */
+    public synchronized void changeCameraDynamicFilter(DynamicColor color) {
+        if (mFilterArrays.get(RenderIndex.CameraFilterIndex) != null) {
+            mFilterArrays.get(RenderIndex.CameraFilterIndex).release();
+            mFilterArrays.put(RenderIndex.CameraFilterIndex, null);
+        }
+        if (color == null) {
+            return;
+        }
+        GLImageDynamicColorFilter filter = new GLImageDynamicColorFilter(mContext, color);
+        filter.onInputSizeChanged(mTextureWidth, mTextureHeight);
+        filter.initFrameBuffer(mTextureWidth, mTextureHeight);
+        filter.onDisplaySizeChanged(mViewWidth, mViewHeight);
+        mFilterArrays.put(RenderIndex.CameraFilterIndex, filter);
     }
 
 
@@ -251,6 +273,11 @@ public final class RenderManager {
             // 绘制颜色滤镜
             if (mFilterArrays.get(RenderIndex.FilterIndex) != null) {
                 currentTexture = mFilterArrays.get(RenderIndex.FilterIndex).drawFrameBuffer(currentTexture, mVertexBuffer, mTextureBuffer);
+            }
+
+            // 绘制颜色滤镜
+            if (mFilterArrays.get(RenderIndex.CameraFilterIndex) != null) {
+                currentTexture = mFilterArrays.get(RenderIndex.CameraFilterIndex).drawFrameBuffer(currentTexture, mVertexBuffer, mTextureBuffer);
             }
 
             // 资源滤镜，可以是贴纸、滤镜甚至是彩妆类型

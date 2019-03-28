@@ -271,23 +271,25 @@ class RenderThread extends HandlerThread implements SurfaceTexture.OnFrameAvaila
         mRenderManager.setTextureSize(mTextureWidth, mTextureHeight);
     }
 
-    /**
-     * 切换边框模糊
-     * @param enableEdgeBlur
-     */
-    void changeEdgeBlurFilter(boolean enableEdgeBlur) {
-        synchronized (mSynOperation) {
-            mRenderManager.changeEdgeBlurFilter(enableEdgeBlur);
-        }
-    }
+
 
     /**
-     * 切换动态滤镜
+     * 切换动态Color滤镜
      * @param color
      */
     void changeDynamicFilter(DynamicColor color) {
         synchronized (mSynOperation) {
             mRenderManager.changeDynamicFilter(color);
+        }
+    }
+
+    /**
+     * 切换动态Camera滤镜
+     * @param color
+     */
+    void changeCameraDynamicFilter(DynamicColor color) {
+        synchronized (mSynOperation) {
+            mRenderManager.changeCameraDynamicFilter(color);
         }
     }
 

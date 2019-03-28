@@ -12,13 +12,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.constraint.ConstraintLayout;
 import android.support.constraint.Group;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -85,8 +83,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
     private boolean isShowingStickers = false;
     // 显示滤镜页面
     private boolean isShowingFilters = false;
-    // 当前索引
-    private int mFilterIndex = 0;
+
 
     // 处于延时拍照状态
     private boolean mDelayTaking = false;
@@ -106,8 +103,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
     private TextView tvTitle;
     private TextView mBtnSwitch;
 
-    // 设置的PopupView
-    private PopupSettingView mSettingView;
+
     // 道具按钮
     private TextView mBtnTools;
     // 快门按钮
@@ -130,10 +126,10 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
     private Activity mActivity;
     // 页面跳转监听器
     private OnPageOperationListener mPageListener;
-    // 贴纸资源页面
-    private PreviewResourceFragment mResourcesFragment;
+    // 分镜页面
+    private PreviewFiltersFragment mCameraFilterFragment;
     // 滤镜页面
-    private PreviewEffectFragment mEffectFragment;
+    private PreviewFiltersFragment mColorFilterFragment;
     private Group mGroupViewTop;
     private Group mGroupViewBottom;
 
@@ -365,11 +361,11 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
     private void showCameraStyleTools() {
         isShowingStickers = true;
         FragmentTransaction ft = getChildFragmentManager().beginTransaction();
-        if (mResourcesFragment == null) {
-            mResourcesFragment = new PreviewResourceFragment();
-            ft.add(R.id.fragment_container, mResourcesFragment);
+        if (mCameraFilterFragment == null) {
+            mCameraFilterFragment = PreviewFiltersFragment.getInstance(PreviewFiltersFragment.TYPE_CAMERA_FILTER);
+            ft.add(R.id.fragment_container, mCameraFilterFragment);
         } else {
-            ft.show(mResourcesFragment);
+            ft.show(mCameraFilterFragment);
         }
         ft.commit();
         hideToolsLayout();
@@ -381,14 +377,13 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
     private void showEffectView() {
         isShowingFilters = true;
         FragmentTransaction ft = getChildFragmentManager().beginTransaction();
-        if (mEffectFragment == null) {
-            mEffectFragment = new PreviewEffectFragment();
-            ft.add(R.id.fragment_container, mEffectFragment);
+        if (mColorFilterFragment == null) {
+            mColorFilterFragment = PreviewFiltersFragment.getInstance(PreviewFiltersFragment.TYPE_COLOR_FILTER);
+            ft.add(R.id.fragment_container, mColorFilterFragment);
         } else {
-            ft.show(mEffectFragment);
+            ft.show(mColorFilterFragment);
         }
         ft.commit();
-        mEffectFragment.scrollToCurrentFilter(mFilterIndex);
         hideToolsLayout();
     }
 
@@ -398,9 +393,9 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
     private void hideStickerView() {
         if (isShowingStickers) {
             isShowingStickers = false;
-            if (mResourcesFragment != null) {
+            if (mCameraFilterFragment != null) {
                 FragmentTransaction ft = getChildFragmentManager().beginTransaction();
-                ft.hide(mResourcesFragment);
+                ft.hide(mCameraFilterFragment);
                 ft.commit();
             }
         }
@@ -413,9 +408,9 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
     private void hideEffectView() {
         if (isShowingFilters) {
             isShowingFilters = false;
-            if (mEffectFragment != null) {
+            if (mColorFilterFragment != null) {
                 FragmentTransaction ft = getChildFragmentManager().beginTransaction();
-                ft.hide(mEffectFragment);
+                ft.hide(mColorFilterFragment);
                 ft.commit();
             }
         }
@@ -591,7 +586,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
 
         @Override
         public void changeEdgeBlur(boolean enable) {
-            PreviewRenderer.getInstance().changeEdgeBlurFilter(enable);
+
         }
     };
 

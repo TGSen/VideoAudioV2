@@ -20,7 +20,8 @@ public final class ResourceHelper extends ResourceBaseHelper {
     // 资源存储路径
     private static final String ResourceDirectory = "Resource";
     // 资源列表
-    private static final List<ResourceData> mResourceList = new ArrayList<>();
+    private static final List<ResourceData> mColorFilter = new ArrayList<>();
+    private static final List<ResourceData> mCameraFileter = new ArrayList<>();
 
     private ResourceHelper() {
 
@@ -28,44 +29,68 @@ public final class ResourceHelper extends ResourceBaseHelper {
 
     /**
      * 获取资源列表
+     *
      * @return
      */
-    public static List<ResourceData> getResourceList() {
-        return mResourceList;
+    public static List<ResourceData> getColorFilter() {
+        return mColorFilter;
+    }
+
+    public static List<ResourceData> getCamerFilter() {
+        return mCameraFileter;
     }
 
     /**
-     * 初始化Assets目录下的资源
+     * 初始化分镜资源
+     *
      * @param context
      */
-    public static void initAssetsResource(Context context) {
-        FileUtils.createNoMediaFile(getResourceDirectory(context));
+    public static void initCameraFilterResource(Context context) {
+        FileUtils.createNoMediaFile(getResourceDirectory(context.getApplicationContext()));
         // 清空之前的数据
-        mResourceList.clear();
-        mResourceList.add(new ResourceData("none", "assets://resource/none.zip", ResourceType.NONE, "none", "assets://thumbs/camera/camera_style_normal.png"));
-        mResourceList.add(new ResourceData("camera_style_mirror", "assets://camera/camera_style_mirror.zip", ResourceType.FILTER, "camera_style_mirror", "assets://thumbs/camera/camera_style_mirror.png"));
-        mResourceList.add(new ResourceData("camera_style_3", "assets://camera/camera_style_3.zip", ResourceType.FILTER, "camera_style_3", "assets://thumbs/camera/camera_style_3.png"));
-        mResourceList.add(new ResourceData("camera_style_4", "assets://camera/camera_style_4.zip", ResourceType.FILTER, "camera_style_4", "assets://thumbs/camera/camera_style_4.png"));
-        mResourceList.add(new ResourceData("camera_style_5", "assets://camera/camera_style_5.zip", ResourceType.FILTER, "camera_style_5", "assets://thumbs/camera/camera_style_5.png"));
-//         mResourceList.add(new ResourceData("mosaic", "assets://filters/mosaic.zip", ResourceType.FILTER, "mosaic", "assets://thumbs/camera/camera_style_5.png"));
-//        mResourceList.add(new ResourceData("reversed_color", "assets://filters/reversed_color.zip", ResourceType.FILTER, "reversed_color", "assets://thumbs/camera/camera_style_5.png"));
-//        mResourceList.add(new ResourceData("grayscale", "assets://filters/grayscale.zip", ResourceType.FILTER, "grayscale", "assets://thumbs/camera/camera_style_5.png"));
-//        mResourceList.add(new ResourceData("cartoon_v2", "assets://filters/cartoon_v2.zip", ResourceType.FILTER, "cartoon_v2", "assets://thumbs/camera/camera_style_5.png"));
-//        mResourceList.add(new ResourceData("cool_color", "assets://filters/cool_color.zip", ResourceType.FILTER, "cool_color", "assets://thumbs/camera/camera_style_5.png"));
-//        mResourceList.add(new ResourceData("warm_color", "assets://filters/warm_color.zip", ResourceType.FILTER, "warm_color", "assets://thumbs/camera/camera_style_5.png"));
-//        mResourceList.add(new ResourceData("old_effect", "assets://filters/old_effect.zip", ResourceType.FILTER, "old_effect", "assets://thumbs/camera/camera_style_5.png"));
-//        mResourceList.add(new ResourceData("flash_green", "assets://effects/flash_green.zip", ResourceType.FILTER, "flash_green", "assets://thumbs/camera/camera_style_5.png"));
-//        mResourceList.add(new ResourceData("dark_while", "assets://effects/dark_while.zip", ResourceType.FILTER, "dark_while", "assets://thumbs/camera/camera_style_5.png"));
-//        mResourceList.add(new ResourceData("radial_blur_v2", "assets://effects/radial_blur_v2.zip", ResourceType.FILTER, "radial_blur_v2", "assets://thumbs/camera/camera_style_5.png"));
-//        mResourceList.add(new ResourceData("three_color_blend", "assets://effects/three_color_blend.zip", ResourceType.FILTER, "three_color_blend", "assets://thumbs/camera/camera_style_5.png"));
-//        mResourceList.add(new ResourceData("cartoon", "assets://effects/cartoon.zip", ResourceType.FILTER, "cartoon", "assets://thumbs/camera/camera_style_5.png"));
+        mCameraFileter.clear();
+        mCameraFileter.add(new ResourceData("none", "assets://resource/none.zip", ResourceType.NONE, "none", "assets://thumbs/camera/camera_style_normal.png"));
+        mCameraFileter.add(new ResourceData("camera_style_mirror", "assets://camera/camera_style_mirror.zip", ResourceType.CAMERA_FILTER, "camera_style_mirror", "assets://thumbs/camera/camera_style_mirror.png"));
+        mCameraFileter.add(new ResourceData("camera_style_3", "assets://camera/camera_style_3.zip", ResourceType.CAMERA_FILTER, "camera_style_3", "assets://thumbs/camera/camera_style_3.png"));
+        mCameraFileter.add(new ResourceData("camera_style_4", "assets://camera/camera_style_4.zip", ResourceType.CAMERA_FILTER, "camera_style_4", "assets://thumbs/camera/camera_style_4.png"));
+        mCameraFileter.add(new ResourceData("camera_style_5", "assets://camera/camera_style_5.zip", ResourceType.CAMERA_FILTER, "camera_style_5", "assets://thumbs/camera/camera_style_5.png"));
 
         // 解压所有资源
-        decompressResource(context, mResourceList);
+        decompressResource(context, mCameraFileter);
     }
+
+    /**
+     * 初始化color filter资源
+     *
+     * @param context
+     */
+    public static void initColorFilterResource(Context context) {
+        FileUtils.createNoMediaFile(getResourceDirectory(context.getApplicationContext()));
+        // 清空之前的数据
+        mColorFilter.clear();
+        mColorFilter.add(new ResourceData("none", "assets://resource/none.zip", ResourceType.NONE, "none", "assets://thumbs/filter/normal.png"));
+        mColorFilter.add(new ResourceData("old_effect", "assets://filters/old_effect.zip", ResourceType.FILTER, "old_effect", "assets://thumbs/filter/old_effect.png"));
+        mColorFilter.add(new ResourceData("warm_color", "assets://filters/warm_color.zip", ResourceType.FILTER, "warm_color", "assets://thumbs/filter/warm_color.png"));
+        mColorFilter.add(new ResourceData("cool_color", "assets://filters/cool_color.zip", ResourceType.FILTER, "cool_color", "assets://thumbs/filter/cool_color.png"));
+        mColorFilter.add(new ResourceData("grayscale", "assets://filters/grayscale.zip", ResourceType.FILTER, "grayscale", "assets://thumbs/filter/dark_while.png"));
+        mColorFilter.add(new ResourceData("cartoon", "assets://effects/cartoon.zip", ResourceType.FILTER, "cartoon", "assets://thumbs/filter/cartoon.png"));
+        mColorFilter.add(new ResourceData("reversed_color", "assets://filters/reversed_color.zip", ResourceType.FILTER, "reversed_color", "assets://thumbs/filter/reversed_color.png"));
+        mColorFilter.add(new ResourceData("cartoon_red", "assets://filters/cartoon_red.zip", ResourceType.FILTER, "cartoon_red", "assets://thumbs/filter/cartoon_red.png"));
+        mColorFilter.add(new ResourceData("brightness", "assets://filters/brightness.zip", ResourceType.FILTER, "brightness", "assets://thumbs/filter/brightness.png"));
+        mColorFilter.add(new ResourceData("mosaic", "assets://filters/mosaic.zip", ResourceType.FILTER, "mosaic", "assets://thumbs/filter/mosaic.png"));
+//        mResourceList.add(new ResourceData("cartoon_v2", "assets://filters/cartoon_red.zip", ResourceType.FILTER, "cartoon_v2", "assets://thumbs/camera/camera_style_5.png"));
+//        mResourceList.add(new ResourceData("flash_green", "assets://effects/flash_green.zip", ResourceType.FILTER, "flash_green", "assets://thumbs/camera/camera_style_5.png"));
+//       mResourceList.add(new ResourceData("radial_blur_v2", "assets://effects/radial_blur_v2.zip", ResourceType.FILTER, "radial_blur_v2", "assets://thumbs/camera/camera_style_5.png"));
+//        mResourceList.add(new ResourceData("three_color_blend", "assets://effects/three_color_blend.zip", ResourceType.FILTER, "three_color_blend", "assets://thumbs/camera/camera_style_5.png"));
+
+        // 解压所有资源
+        decompressResource(context, mColorFilter);
+    }
+
 
     /**
      * 解压所有资源
+     *
      * @param context
      * @param resourceList 资源列表
      */
@@ -91,6 +116,7 @@ public final class ResourceHelper extends ResourceBaseHelper {
 
     /**
      * 检查资源路径是否存在
+     *
      * @param context
      */
     private static boolean checkResourceDirectory(Context context) {
@@ -104,6 +130,7 @@ public final class ResourceHelper extends ResourceBaseHelper {
 
     /**
      * 获取资源路径
+     *
      * @param context
      * @return
      */
@@ -119,12 +146,12 @@ public final class ResourceHelper extends ResourceBaseHelper {
     }
 
 
-
     /**
      * 删除某个资源
+     *
      * @param context
-     * @param resource  资源对象
-     * @return          删除操作结果
+     * @param resource 资源对象
+     * @return 删除操作结果
      */
     public static boolean deleteResource(Context context, ResourceData resource) {
         if (resource == null || TextUtils.isEmpty(resource.unzipFolder)) {
