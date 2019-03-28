@@ -93,7 +93,7 @@
         android:layout_width="0dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btShutter"
+        app:layout_constraintTop_toBottomOf="@+id/btUpload"
         android:layout_height="@dimen/bottom_indicator_height"
         app:SeeSize="5"
         app:SelectedTextColor="@color/colorWhilte"
