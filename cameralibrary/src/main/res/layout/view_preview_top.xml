@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    app:layout_constraintTop_toTopOf="parent"
     android:layout_marginTop="71dp">
 
     <ImageView
@@ -14,6 +15,11 @@
         android:src="@mipmap/ic_close"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+    <android.support.constraint.Group
+        android:layout_width="wrap_content"
+        android:id="@+id/mGroupViewTop"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="tvTitle"/>
 
 
     <TextView

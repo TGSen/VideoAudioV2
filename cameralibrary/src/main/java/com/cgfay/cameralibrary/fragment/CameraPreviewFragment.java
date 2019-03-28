@@ -12,18 +12,17 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
+import android.support.constraint.Group;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -32,7 +31,6 @@ import com.cgfay.cameralibrary.engine.camera.CameraEngine;
 import com.cgfay.cameralibrary.engine.camera.CameraParam;
 import com.cgfay.cameralibrary.engine.listener.OnCameraCallback;
 import com.cgfay.cameralibrary.engine.listener.OnCaptureListener;
-import com.cgfay.cameralibrary.engine.listener.OnFpsListener;
 import com.cgfay.cameralibrary.engine.listener.OnRecordListener;
 import com.cgfay.cameralibrary.engine.model.AspectRatio;
 import com.cgfay.cameralibrary.engine.model.GalleryType;
@@ -56,7 +54,6 @@ import com.cgfay.utilslibrary.fragment.PermissionErrorDialogFragment;
 import com.cgfay.utilslibrary.utils.BitmapUtils;
 import com.cgfay.utilslibrary.utils.BrightnessUtils;
 import com.cgfay.utilslibrary.utils.PermissionUtils;
-import com.cgfay.utilslibrary.utils.StringUtils;
 
 import java.io.File;
 import java.nio.ByteBuffer;
@@ -137,6 +134,8 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
     private PreviewResourceFragment mResourcesFragment;
     // 滤镜页面
     private PreviewEffectFragment mEffectFragment;
+    private Group mGroupViewTop;
+    private Group mGroupViewBottom;
 
     public CameraPreviewFragment() {
         mCameraParam = CameraParam.getInstance();
@@ -219,7 +218,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
         mBottomIndicator.setIndicators(mIndicatorText);
         mBottomIndicator.addIndicatorListener(this);
 
-        mBtnShutter = (ShutterButton) view.findViewById(R.id.btn_shutter);
+        mBtnShutter = (ShutterButton) view.findViewById(R.id.btShutter);
         mBtnShutter.setOnShutterListener(mShutterListener);
         mBtnShutter.setOnClickListener(this);
 
@@ -228,18 +227,11 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
         mBtnRecordPreview = (Button) view.findViewById(R.id.btn_record_preview);
         mBtnRecordPreview.setOnClickListener(this);
 
-        adjustBottomView();
+        mGroupViewTop = view.findViewById(R.id.mGroupViewTop);
+        mGroupViewBottom = view.findViewById(R.id.mGroupViewBottom);
+
     }
 
-    /**
-     * 调整底部视图
-     */
-    private void adjustBottomView() {
-        boolean result = mCameraParam.currentRatio < CameraParam.Ratio_4_3;
-        mBtnRecordDelete.setBackgroundResource(result ? R.drawable.ic_camera_record_delete_light : R.drawable.ic_camera_record_delete_dark);
-        mBtnRecordPreview.setBackgroundResource(result ? R.drawable.ic_camera_record_done_light : R.drawable.ic_camera_record_done_dark);
-        mBtnShutter.setOuterBackgroundColor(result ? R.color.shutter_gray_light : R.color.shutter_gray_dark);
-    }
 
     @Override
     public void onResume() {
@@ -311,16 +303,16 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
                 switchCamera();
                 break;
             case R.id.btCloseImag:
-                showSettingPopView();
+
                 break;
             case R.id.btnTools:
                 //打开道具
-                showStickers();
+                showCameraStyleTools();
                 break;
             case R.id.btFilters:
                 showEffectView();
                 break;
-            case R.id.btn_shutter:
+            case R.id.btShutter:
                 takePicture();
                 break;
             case R.id.btn_record_delete:
@@ -354,14 +346,6 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
 
     }
 
-    /**
-     * 打开图库
-     */
-    private void openGallery() {
-        if (mPageListener != null) {
-            mPageListener.onOpenGalleryPage();
-        }
-    }
 
     /**
      * 切换相机
@@ -374,22 +358,11 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
         PreviewRenderer.getInstance().switchCamera();
     }
 
-    /**
-     * 显示下拉设置页面
-     */
-    private void showSettingPopView() {
-//        if (mSettingView == null) {
-//            mSettingView = new PopupSettingView(mActivity);
-//        }
-//        mSettingView.addStateChangedListener(mStateChangedListener);
-//        mSettingView.showAsDropDown(mBtnSetting, Gravity.BOTTOM, 0, 0);
-//        mSettingView.setEnableChangeFlash(mCameraParam.supportFlash);
-    }
 
     /**
-     * 显示动态贴纸页面
+     * 显示分镜工具页面
      */
-    private void showStickers() {
+    private void showCameraStyleTools() {
         isShowingStickers = true;
         FragmentTransaction ft = getChildFragmentManager().beginTransaction();
         if (mResourcesFragment == null) {
@@ -399,7 +372,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
             ft.show(mResourcesFragment);
         }
         ft.commit();
-        hideBottomLayout();
+        hideToolsLayout();
     }
 
     /**
@@ -416,7 +389,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
         }
         ft.commit();
         mEffectFragment.scrollToCurrentFilter(mFilterIndex);
-        hideBottomLayout();
+        hideToolsLayout();
     }
 
     /**
@@ -431,7 +404,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
                 ft.commit();
             }
         }
-        resetBottomLayout();
+        showToolsLayout();
     }
 
     /**
@@ -446,37 +419,26 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
                 ft.commit();
             }
         }
-        resetBottomLayout();
+        showToolsLayout();
     }
 
     /**
-     * 隐藏底部布局按钮
+     * 当点击道具或者滤镜时，滤镜和道具，拍摄按钮，上传，选择音乐得隐藏，
      */
-    private void hideBottomLayout() {
-        mBtnEffect.setVisibility(View.GONE);
-        mBottomIndicator.setVisibility(View.GONE);
-        ViewGroup.LayoutParams layoutParams = mBtnShutter.getLayoutParams();
-        layoutParams.width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
-                60, mActivity.getResources().getDisplayMetrics());
-        layoutParams.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
-                60, mActivity.getResources().getDisplayMetrics());
-        mBtnShutter.setLayoutParams(layoutParams);
+    private void hideToolsLayout() {
+        mGroupViewTop.setVisibility(View.GONE);
+        mGroupViewBottom.setVisibility(View.GONE);
+        mBtnEffect.setVisibility(View.INVISIBLE);
     }
 
     /**
-     * 恢复底部布局
+     * 恢复显示布局
      */
-    private void resetBottomLayout() {
-        mBtnShutter.setOuterBackgroundColor(mCameraParam.currentRatio < CameraParam.Ratio_4_3
-                ? R.color.shutter_gray_light : R.color.shutter_gray_dark);
-        ViewGroup.LayoutParams layoutParams = mBtnShutter.getLayoutParams();
-        layoutParams.width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
-                100, mActivity.getResources().getDisplayMetrics());
-        layoutParams.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
-                100, mActivity.getResources().getDisplayMetrics());
-        mBtnShutter.setLayoutParams(layoutParams);
+    private void showToolsLayout() {
+        mGroupViewTop.setVisibility(View.VISIBLE);
+        mGroupViewBottom.setVisibility(View.VISIBLE);
         mBtnEffect.setVisibility(View.VISIBLE);
-        mBottomIndicator.setVisibility(View.VISIBLE);
+
     }
 
     /**
@@ -643,7 +605,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
                 public void run() {
                     mAspectLayout.setAspectRatio(mCameraParam.currentRatio);
                     PreviewRenderer.getInstance().reopenCamera();
-                    adjustBottomView();
+
                     PreviewRenderer.getInstance().surfaceSizeChanged(mCameraSurfaceView.getWidth(),
                             mCameraSurfaceView.getHeight());
                 }

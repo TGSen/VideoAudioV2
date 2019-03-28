@@ -1,49 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:layout_gravity="bottom">
+    android:layout_height="match_parent">
 
-    <!-- 类型选择 -->
-    <LinearLayout
-        android:id="@+id/layout_bottom"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:minHeight="@dimen/dp200"
-        android:gravity="bottom"
-        android:layout_gravity="bottom">
 
-        <!-- 标题栏 -->
-        <LinearLayout
-            android:id="@+id/layout_sticker_title"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/dp40"
-            android:orientation="horizontal"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:background="@color/effectEditBackground">
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/preview_resource_list"
+        android:paddingTop="48dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/effectEditBackground"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
 
-        </LinearLayout>
 
-        <!-- 分割线 -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/white"/>
-
-        <!-- 内容栏 -->
-        <LinearLayout
-            android:id="@+id/layout_sticker_content"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/dp160"
-            android:orientation="vertical"
-            android:layout_gravity="center_horizontal"
-            android:gravity="top"
-            android:background="@color/effectEditBackground">
-
-        </LinearLayout>
-    </LinearLayout>
-
-</LinearLayout>
+</android.support.constraint.ConstraintLayout>

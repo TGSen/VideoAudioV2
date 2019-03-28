@@ -36,25 +36,18 @@ public class PreviewResourceFragment extends Fragment {
     // 内容显示列表
     private View mContentView;
 
-    // 标题
-    private LinearLayout mLayoutStickerTitle;
 
-    // 容器
-    private LinearLayout mLayoutStickerContent;
 
     // 贴纸列表 TODO 后续可以改成ViewPager的形式，用于支持多种贴纸类型
-    private LinearLayout mResourceLayout;
     private RecyclerView mResourceView;
 
     // 布局管理器
-    private LayoutInflater mInflater;
     private Activity mActivity;
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         mActivity = getActivity();
-        mInflater = LayoutInflater.from(mActivity);
     }
 
     @Nullable
@@ -71,12 +64,7 @@ public class PreviewResourceFragment extends Fragment {
     }
 
     private void initView(View view) {
-        mLayoutStickerTitle = (LinearLayout) view.findViewById(R.id.layout_sticker_title);
-        mLayoutStickerContent = (LinearLayout) view.findViewById(R.id.layout_sticker_content);
-        if (mResourceLayout == null) {
-            mResourceLayout = (LinearLayout) mInflater.inflate(R.layout.view_preview_resource, null);
-        }
-        mResourceView = (RecyclerView) mResourceLayout.findViewById(R.id.preview_resource_list);
+        mResourceView = view.findViewById(R.id.preview_resource_list);
         ResourceHelper.initAssetsResource(mActivity);
         GridLayoutManager manager = new GridLayoutManager(mActivity, 5);
         mResourceView.setLayoutManager(manager);
@@ -88,7 +76,6 @@ public class PreviewResourceFragment extends Fragment {
                 parseResource(resourceData.type, resourceData.unzipFolder);
             }
         });
-        mLayoutStickerContent.addView(mResourceLayout);
     }
 
     @Override
