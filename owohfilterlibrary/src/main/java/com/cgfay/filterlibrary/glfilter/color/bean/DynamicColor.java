@@ -10,6 +10,17 @@ public class DynamicColor {
 
     // 滤镜解压的文件夹路径
     public String unzipPath;
+    private int colorType;
+
+
+    public int getColorType() {
+        return colorType;
+    }
+
+    public DynamicColor setColorType(int colorType) {
+        this.colorType = colorType;
+        return this;
+    }
 
     // 滤镜列表
     public List<DynamicColorData> filterList;

@@ -490,22 +490,8 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
 
     };
 
-    /**
-     * 切换滤镜
-     *
-     * @param filterIndex
-     */
-    private void changeDynamicColor(int filterIndex) {
-        String folderPath = FilterHelper.getFilterDirectory(mActivity) + File.separator +
-                FilterHelper.getFilterList().get(filterIndex).unzipFolder;
-        DynamicColor color = null;
-        try {
-            color = ResourceJsonCodec.decodeFilterData(folderPath);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        PreviewRenderer.getInstance().changeDynamicFilter(color);
-    }
+
+
 
     /**
      * 单双击回调监听

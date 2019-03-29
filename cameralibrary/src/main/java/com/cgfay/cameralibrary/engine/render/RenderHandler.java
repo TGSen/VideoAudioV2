@@ -42,10 +42,17 @@ class RenderHandler extends Handler {
     // 切换动态滤镜
     public static final int MSG_CHANGE_DYNAMIC_COLOR = 0x14;
 
+
     // 切换动态动态资源
     public static final int MSG_CHANGE_DYNAMIC_RESOURCE = 0x15;
     //切换分镜的滤镜
-    public static final int MSG_CHANGE_DYNAMIC_CAMERA_COLOR = 0x16;
+    public static final int MSG_CHANGE_DYNAMIC_CAMERA_FILTER = 0x16;
+    //移除滤镜
+    public static final int MSG_CHANGE_DYNAMIC_REMOVE = 0x17;
+    // 切换ColorFilter资源
+    public static final int MSG_CHANGE_DYNAMIC_COLOR_FILTER = 0x18;
+
+
 
     private WeakReference<RenderThread> mWeakRenderThread;
 
@@ -64,7 +71,7 @@ class RenderHandler extends Handler {
 
             // surfaceCreated
             case MSG_SURFACE_CREATED:
-                thread.surfaceCreated((SurfaceHolder)msg.obj);
+                thread.surfaceCreated((SurfaceHolder) msg.obj);
                 break;
 
             // surfaceChanged
@@ -104,7 +111,7 @@ class RenderHandler extends Handler {
 
             // 预览帧回调
             case MSG_PREVIEW_CALLBACK:
-                thread.onPreviewCallback((byte[])msg.obj);
+                thread.onPreviewCallback((byte[]) msg.obj);
                 break;
 
             // 拍照
@@ -117,19 +124,18 @@ class RenderHandler extends Handler {
                 thread.calculateFps();
                 break;
 
-
-
             // 切换动态滤镜
             case MSG_CHANGE_DYNAMIC_COLOR: {
                 thread.changeDynamicFilter((DynamicColor) msg.obj);
                 break;
-            }// 切换动态滤镜
-            case MSG_CHANGE_DYNAMIC_CAMERA_COLOR: {
+            }// 切分镜滤镜
+            case MSG_CHANGE_DYNAMIC_CAMERA_FILTER: {
                 thread.changeCameraDynamicFilter((DynamicColor) msg.obj);
                 break;
+            } case MSG_CHANGE_DYNAMIC_COLOR_FILTER: {
+                thread.changeColorDynamicFilter((DynamicColor) msg.obj);
+                break;
             }
-
-
 
             // 切换动态贴纸
             case MSG_CHANGE_DYNAMIC_RESOURCE:
@@ -140,6 +146,10 @@ class RenderHandler extends Handler {
                 } else if (msg.obj instanceof DynamicSticker) {
                     thread.changeDynamicResource((DynamicSticker) msg.obj);
                 }
+                break;
+            case MSG_CHANGE_DYNAMIC_REMOVE:
+                if (msg.obj != null)
+                    thread.removeDynamicResource((DynamicColor) msg.obj);
                 break;
             default:
                 throw new IllegalStateException("Can not handle message what is: " + msg.what);

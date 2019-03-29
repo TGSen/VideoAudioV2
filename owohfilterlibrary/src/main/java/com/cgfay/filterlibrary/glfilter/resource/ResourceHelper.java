@@ -75,14 +75,10 @@ public final class ResourceHelper extends ResourceBaseHelper {
         mColorFilter.add(new ResourceData("grayscale", "assets://filters/grayscale.zip", ResourceType.FILTER, "grayscale", "assets://thumbs/filter/dark_while.png"));
         mColorFilter.add(new ResourceData("cartoon", "assets://effects/cartoon.zip", ResourceType.FILTER, "cartoon", "assets://thumbs/filter/cartoon.png"));
         mColorFilter.add(new ResourceData("reversed_color", "assets://filters/reversed_color.zip", ResourceType.FILTER, "reversed_color", "assets://thumbs/filter/reversed_color.png"));
-        mColorFilter.add(new ResourceData("cartoon_red", "assets://filters/cartoon_red.zip", ResourceType.FILTER, "cartoon_red", "assets://thumbs/filter/cartoon_red.png"));
+        mColorFilter.add(new ResourceData("cartoon_haltone", "assets://filters/cartoon_haltone.zip", ResourceType.FILTER, "cartoon_haltone", "assets://thumbs/filter/mosaic.png"));
         mColorFilter.add(new ResourceData("brightness", "assets://filters/brightness.zip", ResourceType.FILTER, "brightness", "assets://thumbs/filter/brightness.png"));
         mColorFilter.add(new ResourceData("mosaic", "assets://filters/mosaic.zip", ResourceType.FILTER, "mosaic", "assets://thumbs/filter/mosaic.png"));
-        mColorFilter.add(new ResourceData("cartoon_v3", "assets://filters/cartoon_v3.zip", ResourceType.FILTER, "cartoon_v3", "assets://thumbs/filter/mosaic.png"));
-        mColorFilter.add(new ResourceData("halftone", "assets://filters/halftone.zip", ResourceType.FILTER, "halftone", "assets://thumbs/filter/mosaic.png"));
-        mColorFilter.add(new ResourceData("edge_gray", "assets://filters/edge_gray.zip", ResourceType.FILTER, "edge_gray", "assets://thumbs/filter/mosaic.png"));
-        mColorFilter.add(new ResourceData("cartoon_haltone", "assets://filters/cartoon_haltone.zip", ResourceType.FILTER, "cartoon_haltone", "assets://thumbs/filter/mosaic.png"));
-//        mResourceList.add(new ResourceData("cartoon_v2", "assets://filters/cartoon_red.zip", ResourceType.FILTER, "cartoon_v2", "assets://thumbs/camera/camera_style_5.png"));
+    //        mResourceList.add(new ResourceData("cartoon_v2", "assets://filters/cartoon_red.zip", ResourceType.FILTER, "cartoon_v2", "assets://thumbs/camera/camera_style_5.png"));
 //        mResourceList.add(new ResourceData("flash_green", "assets://effects/flash_green.zip", ResourceType.FILTER, "flash_green", "assets://thumbs/camera/camera_style_5.png"));
 //       mResourceList.add(new ResourceData("radial_blur_v2", "assets://effects/radial_blur_v2.zip", ResourceType.FILTER, "radial_blur_v2", "assets://thumbs/camera/camera_style_5.png"));
 //        mResourceList.add(new ResourceData("three_color_blend", "assets://effects/three_color_blend.zip", ResourceType.FILTER, "three_color_blend", "assets://thumbs/camera/camera_style_5.png"));

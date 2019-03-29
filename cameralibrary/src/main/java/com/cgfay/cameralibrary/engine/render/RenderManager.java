@@ -28,6 +28,9 @@ import java.nio.FloatBuffer;
  */
 public final class RenderManager {
 
+
+
+
     private static class RenderManagerHolder {
         public static RenderManager instance = new RenderManager();
     }
@@ -145,26 +148,7 @@ public final class RenderManager {
 
     }
 
-    /**
-     * 是否切换边框模糊
-     *
-     * @param enableEdgeBlur
-     */
-    public synchronized void changeEdgeBlurFilter(boolean enableEdgeBlur) {
-        if (enableEdgeBlur) {
-            mFilterArrays.get(RenderIndex.DisplayIndex).release();
-            GLImageFrameEdgeBlurFilter filter = new GLImageFrameEdgeBlurFilter(mContext);
-            filter.onInputSizeChanged(mTextureWidth, mTextureHeight);
-            filter.onDisplaySizeChanged(mViewWidth, mViewHeight);
-            mFilterArrays.put(RenderIndex.DisplayIndex, filter);
-        } else {
-            mFilterArrays.get(RenderIndex.DisplayIndex).release();
-            GLImageFilter filter = new GLImageFilter(mContext);
-            filter.onInputSizeChanged(mTextureWidth, mTextureHeight);
-            filter.onDisplaySizeChanged(mViewWidth, mViewHeight);
-            mFilterArrays.put(RenderIndex.DisplayIndex, filter);
-        }
-    }
+
 
     /**
      * 切换动态滤镜
@@ -186,6 +170,39 @@ public final class RenderManager {
         mFilterArrays.put(RenderIndex.FilterIndex, filter);
     }
 
+    /**
+     * 移除滤镜
+     */
+    public void removeDynamicCameraFilter() {
+        if (mFilterArrays.get(RenderIndex.CameraFilterIndex) != null) {
+            Log.e("Harrison","removeDynamicCameraFilter");
+            mFilterArrays.get(RenderIndex.CameraFilterIndex).release();
+            mFilterArrays.put(RenderIndex.CameraFilterIndex, null);
+        }
+    }
+
+
+    public void removeDynamicColorFilter() {
+        if (mFilterArrays.get(RenderIndex.FilterIndex) != null) {
+            Log.e("Harrison","removeDynamicColorFilter");
+            mFilterArrays.get(RenderIndex.FilterIndex).release();
+            mFilterArrays.put(RenderIndex.FilterIndex, null);
+        }
+    }
+    public void changeColorDynamicFilter(DynamicColor color) {
+        if (mFilterArrays.get(RenderIndex.FilterIndex) != null) {
+            mFilterArrays.get(RenderIndex.FilterIndex).release();
+            mFilterArrays.put(RenderIndex.FilterIndex, null);
+        }
+        if (color == null) {
+            return;
+        }
+        GLImageDynamicColorFilter filter = new GLImageDynamicColorFilter(mContext, color);
+        filter.onInputSizeChanged(mTextureWidth, mTextureHeight);
+        filter.initFrameBuffer(mTextureWidth, mTextureHeight);
+        filter.onDisplaySizeChanged(mViewWidth, mViewHeight);
+        mFilterArrays.put(RenderIndex.FilterIndex, filter);
+    }
     /**
      * 切换分镜滤镜
      *

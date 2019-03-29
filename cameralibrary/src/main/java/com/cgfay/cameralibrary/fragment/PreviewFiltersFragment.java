@@ -11,6 +11,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -149,13 +150,15 @@ public class PreviewFiltersFragment extends Fragment {
                 case FILTER: {
                     String folderPath = ResourceHelper.getResourceDirectory(mActivity) + File.separator + unzipFolder;
                     DynamicColor color = ResourceJsonCodec.decodeFilterData(folderPath);
-                    PreviewRenderer.getInstance().changeDynamicResource(color);
+                    color.setColorType(ResourceType.FILTER.getIndex());
+                    PreviewRenderer.getInstance().changeDynamicColorFilter(color);
                     break;
                 }// 摄像机分镜
                 case CAMERA_FILTER: {
                     String folderPath = ResourceHelper.getResourceDirectory(mActivity) + File.separator + unzipFolder;
                     DynamicColor color = ResourceJsonCodec.decodeFilterData(folderPath);
-                    PreviewRenderer.getInstance().changeDynamicFilter(color);
+                    color.setColorType(ResourceType.CAMERA_FILTER.getIndex());
+                    PreviewRenderer.getInstance().changeDynamicCameraFilter(color);
                     break;
                 }
 
@@ -174,7 +177,15 @@ public class PreviewFiltersFragment extends Fragment {
 
                 // 所有数据均为空
                 case NONE: {
-                    PreviewRenderer.getInstance().changeDynamicResource((DynamicSticker) null);
+
+                    if(mFilterType==TYPE_COLOR_FILTER){
+                        Log.e("Harrison","TYPE_COLOR_FILTER");
+                        PreviewRenderer.getInstance().removeDynamic(new DynamicColor().setColorType(ResourceType.FILTER.getIndex()));
+                    }else{
+                        //移除分镜的
+                        Log.e("Harrison","TYPE_COLOR_FILTER 分镜");
+                        PreviewRenderer.getInstance().removeDynamic(new DynamicColor().setColorType(ResourceType.CAMERA_FILTER.getIndex()));
+                    }
                     break;
                 }
                 default:

@@ -16,6 +16,7 @@ import com.cgfay.cameralibrary.engine.recorder.HardcodeEncoder;
 import com.cgfay.filterlibrary.gles.EglCore;
 import com.cgfay.filterlibrary.gles.WindowSurface;
 import com.cgfay.filterlibrary.glfilter.color.bean.DynamicColor;
+import com.cgfay.filterlibrary.glfilter.resource.bean.ResourceType;
 import com.cgfay.filterlibrary.glfilter.stickers.StaticStickerNormalFilter;
 import com.cgfay.filterlibrary.glfilter.stickers.bean.DynamicSticker;
 import com.cgfay.filterlibrary.glfilter.utils.OpenGLUtils;
@@ -90,6 +91,7 @@ class RenderThread extends HandlerThread implements SurfaceTexture.OnFrameAvaila
 
     /**
      * 设置预览Handler回调
+     *
      * @param handler
      */
     public void setRenderHandler(RenderHandler handler) {
@@ -102,6 +104,7 @@ class RenderThread extends HandlerThread implements SurfaceTexture.OnFrameAvaila
     }
 
     private long time = 0;
+
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
         synchronized (mSynOperation) {
@@ -125,6 +128,7 @@ class RenderThread extends HandlerThread implements SurfaceTexture.OnFrameAvaila
 
     /**
      * 预览回调
+     *
      * @param data
      */
     void onPreviewCallback(byte[] data) {
@@ -135,6 +139,7 @@ class RenderThread extends HandlerThread implements SurfaceTexture.OnFrameAvaila
 
     /**
      * Surface创建
+     *
      * @param holder
      */
     void surfaceCreated(SurfaceHolder holder) {
@@ -159,6 +164,7 @@ class RenderThread extends HandlerThread implements SurfaceTexture.OnFrameAvaila
 
     /**
      * Surface改变
+     *
      * @param width
      * @param height
      */
@@ -272,9 +278,9 @@ class RenderThread extends HandlerThread implements SurfaceTexture.OnFrameAvaila
     }
 
 
-
     /**
-     * 切换动态Color滤镜
+     * 切换动态滤镜
+     *
      * @param color
      */
     void changeDynamicFilter(DynamicColor color) {
@@ -283,8 +289,15 @@ class RenderThread extends HandlerThread implements SurfaceTexture.OnFrameAvaila
         }
     }
 
+    public void changeColorDynamicFilter(DynamicColor color) {
+        synchronized (mSynOperation) {
+            mRenderManager.changeColorDynamicFilter(color);
+        }
+    }
+
     /**
      * 切换动态Camera滤镜
+     *
      * @param color
      */
     void changeCameraDynamicFilter(DynamicColor color) {
@@ -296,6 +309,7 @@ class RenderThread extends HandlerThread implements SurfaceTexture.OnFrameAvaila
 
     /**
      * 切换动态资源
+     *
      * @param color
      */
     void changeDynamicResource(DynamicColor color) {
@@ -306,6 +320,7 @@ class RenderThread extends HandlerThread implements SurfaceTexture.OnFrameAvaila
 
     /**
      * 切换动态资源
+     *
      * @param sticker
      */
     void changeDynamicResource(DynamicSticker sticker) {
@@ -355,6 +370,7 @@ class RenderThread extends HandlerThread implements SurfaceTexture.OnFrameAvaila
 
 
     // --------------------------------- 相机操作逻辑 ----------------------------------------------
+
     /**
      * 打开相机
      */
@@ -363,7 +379,7 @@ class RenderThread extends HandlerThread implements SurfaceTexture.OnFrameAvaila
         CameraEngine.getInstance().openCamera(mContext);
         CameraEngine.getInstance().setPreviewSurface(mSurfaceTexture);
         calculateImageSize();
-        mPreviewBuffer = new byte[mTextureWidth * mTextureHeight * 3/ 2];
+        mPreviewBuffer = new byte[mTextureWidth * mTextureHeight * 3 / 2];
         CameraEngine.getInstance().setPreviewCallbackWithBuffer(this, mPreviewBuffer);
         // 相机打开回调
         if (mCameraParam.cameraCallback != null) {
@@ -405,9 +421,23 @@ class RenderThread extends HandlerThread implements SurfaceTexture.OnFrameAvaila
     public StaticStickerNormalFilter touchDown(MotionEvent e) {
         synchronized (mSyncFrameNum) {
             if (mRenderManager != null) {
-               return mRenderManager.touchDown(e);
+                return mRenderManager.touchDown(e);
             }
         }
         return null;
     }
+
+    public void removeDynamicResource(DynamicColor obj) {
+        synchronized (mSynOperation) {
+            if (obj.getColorType() == ResourceType.CAMERA_FILTER.getIndex()) {
+                mRenderManager.removeDynamicCameraFilter();
+            } else {
+                Log.e("Harrison","removeDynamicResource removeDynamicColorFilter");
+                mRenderManager.removeDynamicColorFilter();
+            }
+        }
+
+    }
+
+
 }

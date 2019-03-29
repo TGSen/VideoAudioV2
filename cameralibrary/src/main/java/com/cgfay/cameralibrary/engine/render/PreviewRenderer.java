@@ -25,6 +25,7 @@ public final class PreviewRenderer {
         mCameraParam = CameraParam.getInstance();
     }
 
+
     private static class RenderHolder {
         private static PreviewRenderer instance = new PreviewRenderer();
     }
@@ -47,6 +48,7 @@ public final class PreviewRenderer {
 
     /**
      * 设置相机回调
+     *
      * @param callback
      * @return
      */
@@ -94,6 +96,7 @@ public final class PreviewRenderer {
 
     /**
      * 绑定需要渲染的SurfaceView
+     *
      * @param surfaceView
      */
     public void setSurfaceView(SurfaceView surfaceView) {
@@ -129,6 +132,7 @@ public final class PreviewRenderer {
 
     /**
      * Surface大小发生变化
+     *
      * @param width
      * @param height
      */
@@ -148,24 +152,40 @@ public final class PreviewRenderer {
         }
     }
 
-
-
     /**
-     * 切换Color滤镜
+     * 当分镜或者是滤镜效果设置为none 的时候就移除
+     *
      * @param color
      */
-    public void changeDynamicFilter(DynamicColor color) {
+    public void removeDynamic(Object color) {
         if (mRenderHandler == null) {
             return;
         }
         synchronized (mSynOperation) {
             mRenderHandler.sendMessage(mRenderHandler
-                    .obtainMessage(RenderHandler.MSG_CHANGE_DYNAMIC_COLOR, color));
+                    .obtainMessage(RenderHandler.MSG_CHANGE_DYNAMIC_REMOVE, color));
+        }
+    }
+
+
+    /**
+     * 切换Color滤镜
+     *
+     * @param color
+     */
+    public void changeDynamicColorFilter(DynamicColor color) {
+        if (mRenderHandler == null) {
+            return;
+        }
+        synchronized (mSynOperation) {
+            mRenderHandler.sendMessage(mRenderHandler
+                    .obtainMessage(RenderHandler.MSG_CHANGE_DYNAMIC_RESOURCE, color));
         }
     }
 
     /**
      * 切换分镜滤镜
+     *
      * @param color
      */
     public void changeDynamicCameraFilter(DynamicColor color) {
@@ -174,13 +194,14 @@ public final class PreviewRenderer {
         }
         synchronized (mSynOperation) {
             mRenderHandler.sendMessage(mRenderHandler
-                    .obtainMessage(RenderHandler.MSG_CHANGE_DYNAMIC_CAMERA_COLOR, color));
+                    .obtainMessage(RenderHandler.MSG_CHANGE_DYNAMIC_CAMERA_FILTER, color));
         }
     }
 
 
     /**
      * 切换动态资源
+     *
      * @param color
      */
     public void changeDynamicResource(DynamicColor color) {
@@ -195,6 +216,7 @@ public final class PreviewRenderer {
 
     /**
      * 切换动态资源
+     *
      * @param sticker
      */
     public void changeDynamicResource(DynamicSticker sticker) {
@@ -269,6 +291,7 @@ public final class PreviewRenderer {
 
     /**
      * 是否需要进行对比
+     *
      * @param enable
      */
     public void enableCompare(boolean enable) {
@@ -276,8 +299,10 @@ public final class PreviewRenderer {
             mCameraParam.showCompare = enable;
         }
     }
+
     /**
      * 测试贴纸触摸事件
+     *
      * @param e
      */
     public StaticStickerNormalFilter touchDown(MotionEvent e) {
