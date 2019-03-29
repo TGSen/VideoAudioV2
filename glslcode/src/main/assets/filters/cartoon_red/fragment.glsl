@@ -36,10 +36,10 @@ void main() {
     	// float lightColor = dot(baseColor.rgb, colorWeight);
     	float lightColor = baseColor.r;
     	 //这个参数得调一下
-    	 if(lightColor>0.4){
+    	 if(lightColor>0.05){
     	    lightColor = 1.0;
     	    baseColor = vec4(vec3(lightColor), 1.0);
-    	 }else if(lightColor<0.4 && lightColor>0.0  ){
+    	 }else if(lightColor<0.05 && lightColor>0.0  ){
     	    baseColor = vec4(1.0,0.0,0.0, 1.0);
     	 }else{
     	    lightColor =0.0;

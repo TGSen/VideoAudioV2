@@ -111,7 +111,7 @@ public class PreviewFiltersFragment extends Fragment {
 
         GridLayoutManager manager = new GridLayoutManager(mActivity, 5);
         mResourceView.setLayoutManager(manager);
-        mPreviewResourceAdapter = new PreviewResourceAdapter(mActivity, mFilterType==TYPE_COLOR_FILTER?ResourceHelper.getColorFilter():ResourceHelper.getCamerFilter());
+        mPreviewResourceAdapter = new PreviewResourceAdapter(mActivity, mFilterType == TYPE_COLOR_FILTER ? ResourceHelper.getColorFilter() : ResourceHelper.getCamerFilter());
         mResourceView.setAdapter(mPreviewResourceAdapter);
         mPreviewResourceAdapter.setOnResourceChangeListener(new PreviewResourceAdapter.OnResourceChangeListener() {
             @Override
@@ -151,7 +151,7 @@ public class PreviewFiltersFragment extends Fragment {
                     DynamicColor color = ResourceJsonCodec.decodeFilterData(folderPath);
                     PreviewRenderer.getInstance().changeDynamicResource(color);
                     break;
-                }// 单纯的滤镜
+                }// 摄像机分镜
                 case CAMERA_FILTER: {
                     String folderPath = ResourceHelper.getResourceDirectory(mActivity) + File.separator + unzipFolder;
                     DynamicColor color = ResourceJsonCodec.decodeFilterData(folderPath);
