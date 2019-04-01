@@ -1,4 +1,4 @@
-package com.cgfay.cameralibrary.engine.render;
+package com.cgfay.cameralibrary.media;
 
 import android.content.Context;
 import android.graphics.SurfaceTexture;
@@ -6,12 +6,13 @@ import android.hardware.Camera;
 import android.opengl.GLES30;
 import android.os.HandlerThread;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 
 import com.cgfay.cameralibrary.engine.camera.CameraEngine;
 import com.cgfay.cameralibrary.engine.camera.CameraParam;
 import com.cgfay.cameralibrary.engine.recorder.HardcodeEncoder;
+import com.cgfay.cameralibrary.engine.render.FrameRateMeter;
+import com.cgfay.cameralibrary.engine.render.RenderManager;
 import com.cgfay.filterlibrary.gles.EglCore;
 import com.cgfay.filterlibrary.gles.WindowSurface;
 import com.cgfay.filterlibrary.glfilter.color.bean.DynamicColor;
@@ -26,8 +27,7 @@ import java.nio.ByteBuffer;
  * Created by cain on 2017/11/4.
  */
 
-class RenderThread extends HandlerThread implements SurfaceTexture.OnFrameAvailableListener,
-        Camera.PreviewCallback {
+class VideoRenderThread extends HandlerThread implements SurfaceTexture.OnFrameAvailableListener {
 
     private static final String TAG = "VideoRenderThread";
     private static final boolean VERBOSE = false;
@@ -63,7 +63,7 @@ class RenderThread extends HandlerThread implements SurfaceTexture.OnFrameAvaila
     private int mFrameNum = 0;
 
     // 渲染Handler回调
-    private RenderHandler mRenderHandler;
+    private VideoRenderHandler mRenderHandler;
 
     // 计算帧率
     private FrameRateMeter mFrameRateMeter;
@@ -73,16 +73,15 @@ class RenderThread extends HandlerThread implements SurfaceTexture.OnFrameAvaila
 
     // 正在拍照
     private volatile boolean mTakingPicture;
-    // 预览参数
-    private CameraParam mCameraParam;
+
 
     // 渲染管理器
     private RenderManager mRenderManager;
 
-    public RenderThread(Context context, String name) {
+    public VideoRenderThread(Context context, String name) {
         super(name);
         mContext = context;
-        mCameraParam = CameraParam.getInstance();
+
         mRenderManager = RenderManager.getInstance();
         mFrameRateMeter = new FrameRateMeter();
     }
@@ -92,7 +91,7 @@ class RenderThread extends HandlerThread implements SurfaceTexture.OnFrameAvaila
      *
      * @param handler
      */
-    public void setRenderHandler(RenderHandler handler) {
+    public void setRenderHandler(VideoRenderHandler handler) {
         mRenderHandler = handler;
     }
 
@@ -101,28 +100,6 @@ class RenderThread extends HandlerThread implements SurfaceTexture.OnFrameAvaila
 
     }
 
-    private long time = 0;
-
-    @Override
-    public void onPreviewFrame(byte[] data, Camera camera) {
-        synchronized (mSynOperation) {
-            if (isPreviewing || isRecording) {
-                mRenderHandler.sendMessage(mRenderHandler
-                        .obtainMessage(RenderHandler.MSG_PREVIEW_CALLBACK, data));
-            }
-        }
-        if (mPreviewBuffer != null) {
-            camera.addCallbackBuffer(mPreviewBuffer);
-        }
-        // 计算fps
-        if (mRenderHandler != null && mCameraParam.showFps) {
-            mRenderHandler.sendEmptyMessage(RenderHandler.MSG_CALCULATE_FPS);
-        }
-        if (VERBOSE) {
-            Log.d("onPreviewFrame", "update time = " + (System.currentTimeMillis() - time));
-            time = System.currentTimeMillis();
-        }
-    }
 
     /**
      * 预览回调
@@ -130,9 +107,7 @@ class RenderThread extends HandlerThread implements SurfaceTexture.OnFrameAvaila
      * @param data
      */
     void onPreviewCallback(byte[] data) {
-        if (mCameraParam.cameraCallback != null) {
-            mCameraParam.cameraCallback.onPreviewCallback(data);
-        }
+
     }
 
     /**
@@ -155,9 +130,6 @@ class RenderThread extends HandlerThread implements SurfaceTexture.OnFrameAvaila
         mSurfaceTexture = new SurfaceTexture(mInputTexture);
         mSurfaceTexture.setOnFrameAvailableListener(this);
 
-        // 打开相机
-        openCamera();
-
     }
 
     /**
@@ -168,7 +140,6 @@ class RenderThread extends HandlerThread implements SurfaceTexture.OnFrameAvaila
      */
     void surfaceChanged(int width, int height) {
         mRenderManager.setDisplaySize(width, height);
-        startPreview();
     }
 
     /**
@@ -177,7 +148,6 @@ class RenderThread extends HandlerThread implements SurfaceTexture.OnFrameAvaila
     void surfaceDestroyed() {
         mTakingPicture = false;
         mRenderManager.release();
-        releaseCamera();
         if (mSurfaceTexture != null) {
             mSurfaceTexture.release();
             mSurfaceTexture = null;
@@ -221,13 +191,6 @@ class RenderThread extends HandlerThread implements SurfaceTexture.OnFrameAvaila
         // 显示到屏幕
         mDisplaySurface.swapBuffers();
 
-        // 执行拍照
-        if (mCameraParam.isTakePicture && !mTakingPicture) {
-            synchronized (mSyncFence) {
-                mTakingPicture = true;
-                mRenderHandler.sendEmptyMessage(RenderHandler.MSG_TAKE_PICTURE);
-            }
-        }
 
         // 是否处于录制状态
         if (isRecording && !isRecordingPause) {
@@ -235,44 +198,6 @@ class RenderThread extends HandlerThread implements SurfaceTexture.OnFrameAvaila
             HardcodeEncoder.getInstance()
                     .drawRecorderFrame(mCurrentTexture, mSurfaceTexture.getTimestamp());
         }
-    }
-
-    /**
-     * 拍照
-     */
-    void takePicture() {
-        synchronized (mSyncFence) {
-            ByteBuffer buffer = mDisplaySurface.getCurrentFrame();
-            mCameraParam.captureCallback.onCapture(buffer,
-                    mDisplaySurface.getWidth(), mDisplaySurface.getHeight());
-            mTakingPicture = false;
-            mCameraParam.isTakePicture = false;
-        }
-    }
-
-    /**
-     * 计算fps
-     */
-    void calculateFps() {
-        // 帧率回调
-        if ((mCameraParam).fpsCallback != null) {
-            mFrameRateMeter.drawFrameCount();
-            (mCameraParam).fpsCallback.onFpsCallback(mFrameRateMeter.getFPS());
-        }
-    }
-
-    /**
-     * 计算imageView 的宽高
-     */
-    private void calculateImageSize() {
-        if (mCameraParam.orientation == 90 || mCameraParam.orientation == 270) {
-            mTextureWidth = mCameraParam.previewHeight;
-            mTextureHeight = mCameraParam.previewWidth;
-        } else {
-            mTextureWidth = mCameraParam.previewWidth;
-            mTextureHeight = mCameraParam.previewHeight;
-        }
-        mRenderManager.setTextureSize(mTextureWidth, mTextureHeight);
     }
 
 
@@ -358,61 +283,12 @@ class RenderThread extends HandlerThread implements SurfaceTexture.OnFrameAvaila
             if (isPreviewing) {
                 ++mFrameNum;
                 if (mRenderHandler != null) {
-                    mRenderHandler.removeMessages(RenderHandler.MSG_RENDER);
+                    mRenderHandler.removeMessages(VideoRenderHandler.MSG_RENDER);
                     mRenderHandler.sendMessage(mRenderHandler
-                            .obtainMessage(RenderHandler.MSG_RENDER));
+                            .obtainMessage(VideoRenderHandler.MSG_RENDER));
                 }
             }
         }
-    }
-
-
-    // --------------------------------- 相机操作逻辑 ----------------------------------------------
-
-    /**
-     * 打开相机
-     */
-    void openCamera() {
-        releaseCamera();
-        CameraEngine.getInstance().openCamera(mContext);
-        CameraEngine.getInstance().setPreviewSurface(mSurfaceTexture);
-        calculateImageSize();
-        mPreviewBuffer = new byte[mTextureWidth * mTextureHeight * 3 / 2];
-        CameraEngine.getInstance().setPreviewCallbackWithBuffer(this, mPreviewBuffer);
-        // 相机打开回调
-        if (mCameraParam.cameraCallback != null) {
-            mCameraParam.cameraCallback.onCameraOpened();
-        }
-    }
-
-    /**
-     * 切换相机
-     */
-    void switchCamera() {
-        mCameraParam.backCamera = !mCameraParam.backCamera;
-        if (mCameraParam.backCamera) {
-            mCameraParam.cameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
-        } else {
-            mCameraParam.cameraId = Camera.CameraInfo.CAMERA_FACING_FRONT;
-        }
-        openCamera();
-        startPreview();
-    }
-
-    /**
-     * 开始预览
-     */
-    private void startPreview() {
-        CameraEngine.getInstance().startPreview();
-        isPreviewing = true;
-    }
-
-    /**
-     * 释放相机
-     */
-    private void releaseCamera() {
-        isPreviewing = false;
-        CameraEngine.getInstance().releaseCamera();
     }
 
 

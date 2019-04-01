@@ -1,14 +1,13 @@
-package com.cgfay.cameralibrary.engine.render;
+package com.cgfay.cameralibrary.media;
 
 import android.content.Context;
-import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import com.cgfay.cameralibrary.engine.camera.CameraParam;
 import com.cgfay.cameralibrary.engine.listener.OnCameraCallback;
+import com.cgfay.cameralibrary.engine.render.RenderBuilder;
 import com.cgfay.filterlibrary.glfilter.color.bean.DynamicColor;
-import com.cgfay.filterlibrary.glfilter.stickers.StaticStickerNormalFilter;
 import com.cgfay.filterlibrary.glfilter.stickers.bean.DynamicSticker;
 
 import java.lang.ref.WeakReference;
@@ -19,51 +18,39 @@ import java.lang.ref.WeakReference;
  * Created by cain on 2018/8/15.
  */
 
-public final class PreviewRenderer {
+public final class VideoRenderer {
 
-    private PreviewRenderer() {
-        mCameraParam = CameraParam.getInstance();
+    private VideoRenderer() {
     }
 
 
     private static class RenderHolder {
-        private static PreviewRenderer instance = new PreviewRenderer();
+        private static VideoRenderer instance = new VideoRenderer();
     }
 
-    public static PreviewRenderer getInstance() {
+    public static VideoRenderer getInstance() {
         return RenderHolder.instance;
     }
 
-    // 相机渲染参数
-    private CameraParam mCameraParam;
 
     // 渲染Handler
-    private RenderHandler mRenderHandler;
+    private VideoRenderHandler mRenderHandler;
     // 渲染线程
-    private RenderThread mPreviewRenderThread;
+    private VideoRenderThread mPreviewRenderThread;
     // 操作锁
     private final Object mSynOperation = new Object();
 
     private WeakReference<SurfaceView> mWeakSurfaceView;
 
-    /**
-     * 设置相机回调
-     *
-     * @param callback
-     * @return
-     */
-    public RenderBuilder setCameraCallback(OnCameraCallback callback) {
-        return new RenderBuilder(this, callback);
-    }
 
     /**
      * 初始化渲染器
      */
     void initRenderer(Context context) {
         synchronized (mSynOperation) {
-            mPreviewRenderThread = new RenderThread(context, "VideoRenderThread");
+            mPreviewRenderThread = new VideoRenderThread(context, "VideoRenderThread");
             mPreviewRenderThread.start();
-            mRenderHandler = new RenderHandler(mPreviewRenderThread);
+            mRenderHandler = new VideoRenderHandler(mPreviewRenderThread);
             // 绑定Handler
             mPreviewRenderThread.setRenderHandler(mRenderHandler);
         }
@@ -112,7 +99,7 @@ public final class PreviewRenderer {
         public void surfaceCreated(SurfaceHolder holder) {
             if (mRenderHandler != null) {
                 mRenderHandler.sendMessage(mRenderHandler
-                        .obtainMessage(RenderHandler.MSG_SURFACE_CREATED, holder));
+                        .obtainMessage(VideoRenderHandler.MSG_SURFACE_CREATED, holder));
             }
         }
 
@@ -125,7 +112,7 @@ public final class PreviewRenderer {
         public void surfaceDestroyed(SurfaceHolder holder) {
             if (mRenderHandler != null) {
                 mRenderHandler.sendMessage(mRenderHandler
-                        .obtainMessage(RenderHandler.MSG_SURFACE_DESTROYED));
+                        .obtainMessage(VideoRenderHandler.MSG_SURFACE_DESTROYED));
             }
         }
     };
@@ -139,7 +126,7 @@ public final class PreviewRenderer {
     public void surfaceSizeChanged(int width, int height) {
         if (mRenderHandler != null) {
             mRenderHandler.sendMessage(mRenderHandler
-                    .obtainMessage(RenderHandler.MSG_SURFACE_CHANGED, width, height));
+                    .obtainMessage(VideoRenderHandler.MSG_SURFACE_CHANGED, width, height));
         }
     }
 
@@ -163,7 +150,7 @@ public final class PreviewRenderer {
         }
         synchronized (mSynOperation) {
             mRenderHandler.sendMessage(mRenderHandler
-                    .obtainMessage(RenderHandler.MSG_CHANGE_DYNAMIC_REMOVE, color));
+                    .obtainMessage(VideoRenderHandler.MSG_CHANGE_DYNAMIC_REMOVE, color));
         }
     }
 
@@ -179,7 +166,7 @@ public final class PreviewRenderer {
         }
         synchronized (mSynOperation) {
             mRenderHandler.sendMessage(mRenderHandler
-                    .obtainMessage(RenderHandler.MSG_CHANGE_DYNAMIC_COLOR_FILTER, color));
+                    .obtainMessage(VideoRenderHandler.MSG_CHANGE_DYNAMIC_COLOR_FILTER, color));
         }
     }
 
@@ -194,7 +181,7 @@ public final class PreviewRenderer {
         }
         synchronized (mSynOperation) {
             mRenderHandler.sendMessage(mRenderHandler
-                    .obtainMessage(RenderHandler.MSG_CHANGE_DYNAMIC_CAMERA_FILTER, color));
+                    .obtainMessage(VideoRenderHandler.MSG_CHANGE_DYNAMIC_CAMERA_FILTER, color));
         }
     }
 
@@ -210,7 +197,7 @@ public final class PreviewRenderer {
         }
         synchronized (mSynOperation) {
             mRenderHandler.sendMessage(mRenderHandler
-                    .obtainMessage(RenderHandler.MSG_CHANGE_DYNAMIC_RESOURCE, color));
+                    .obtainMessage(VideoRenderHandler.MSG_CHANGE_DYNAMIC_RESOURCE, color));
         }
     }
 
@@ -225,7 +212,7 @@ public final class PreviewRenderer {
         }
         synchronized (mSynOperation) {
             mRenderHandler.sendMessage(mRenderHandler
-                    .obtainMessage(RenderHandler.MSG_CHANGE_DYNAMIC_RESOURCE, sticker));
+                    .obtainMessage(VideoRenderHandler.MSG_CHANGE_DYNAMIC_RESOURCE, sticker));
         }
     }
 
@@ -238,7 +225,7 @@ public final class PreviewRenderer {
         }
         synchronized (mSynOperation) {
             mRenderHandler.sendMessage(mRenderHandler
-                    .obtainMessage(RenderHandler.MSG_START_RECORDING));
+                    .obtainMessage(VideoRenderHandler.MSG_START_RECORDING));
         }
     }
 
@@ -250,45 +237,9 @@ public final class PreviewRenderer {
             return;
         }
         synchronized (mSynOperation) {
-            mRenderHandler.sendEmptyMessage(RenderHandler.MSG_STOP_RECORDING);
+            mRenderHandler.sendEmptyMessage(VideoRenderHandler.MSG_STOP_RECORDING);
         }
     }
-
-    /**
-     * 拍照
-     */
-    public void takePicture() {
-        synchronized (mSynOperation) {
-            if (!mCameraParam.isTakePicture) {
-                mCameraParam.isTakePicture = true;
-            }
-        }
-    }
-
-    /**
-     * 切换相机
-     */
-    public void switchCamera() {
-        if (mRenderHandler == null) {
-            return;
-        }
-        synchronized (mSynOperation) {
-            mRenderHandler.sendEmptyMessage(RenderHandler.MSG_SWITCH_CAMERA);
-        }
-    }
-
-    /**
-     * 重新打开相机
-     */
-    public void reopenCamera() {
-        if (mRenderHandler == null) {
-            return;
-        }
-        synchronized (mSynOperation) {
-            mRenderHandler.sendEmptyMessage(RenderHandler.MSG_REOPEN_CAMERA);
-        }
-    }
-
 
 
 }

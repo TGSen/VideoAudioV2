@@ -52,8 +52,6 @@ public class CainSurfaceView extends SurfaceView {
         init();
     }
 
-    //测试贴纸的移动
-    StaticStickerNormalFilter dragSticker=null;
     private void init() {
         setClickable(true);
         mGestureDetector = new GestureDetectorCompat(getContext(), new GestureDetector.OnGestureListener() {
@@ -63,8 +61,6 @@ public class CainSurfaceView extends SurfaceView {
                     Log.d(TAG, "onDown: ");
                 }
 
-                //测试贴纸触摸
-                dragSticker=PreviewRenderer.getInstance().touchDown(e);
                 return false;
             }
 
@@ -80,7 +76,6 @@ public class CainSurfaceView extends SurfaceView {
                 if (VERBOSE) {
                     Log.d(TAG, "onSingleTapUp: ");
                 }
-                dragSticker=null;
                 return false;
             }
 
@@ -90,10 +85,7 @@ public class CainSurfaceView extends SurfaceView {
                     Log.d(TAG, "onScroll: ");
                 }
 
-                if(dragSticker!=null) {
-                    dragSticker.onScroll(distanceX,distanceY);
-                    return true;
-                }
+
                 // 上下滑动
                 if (Math.abs(distanceX) < Math.abs(distanceY) * 1.5) {
                     // 是否从左边开始上下滑动
@@ -123,8 +115,7 @@ public class CainSurfaceView extends SurfaceView {
                 if (VERBOSE) {
                     Log.d(TAG, "onFling: ");
                 }
-                if(dragSticker!=null)
-                    return false;
+
                 // 快速左右滑动是
                 if (Math.abs(velocityX) > Math.abs(velocityY) * 1.5) {
                     if (velocityX < 0) {

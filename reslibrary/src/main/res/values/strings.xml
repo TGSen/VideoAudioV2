@@ -6,6 +6,10 @@
     <string name="upload_file">上传</string>
     <string name="camera_filter">滤镜</string>
     <string name="camera_flash">闪灯</string>
+    <string name="adjust_voice">声音</string>
+    <string name="video_effect">特效</string>
+    <string name="video_sticker">贴图</string>
+    <string name="adjust_bgm">BGM</string>
 
     <!-- 相机类型 -->
     <string-array name="gallery_indicator">
