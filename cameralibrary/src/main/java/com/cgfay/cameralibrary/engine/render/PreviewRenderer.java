@@ -179,7 +179,7 @@ public final class PreviewRenderer {
         }
         synchronized (mSynOperation) {
             mRenderHandler.sendMessage(mRenderHandler
-                    .obtainMessage(RenderHandler.MSG_CHANGE_DYNAMIC_RESOURCE, color));
+                    .obtainMessage(RenderHandler.MSG_CHANGE_DYNAMIC_COLOR_FILTER, color));
         }
     }
 
