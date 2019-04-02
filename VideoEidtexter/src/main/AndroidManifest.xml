@@ -39,6 +39,8 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".activity.EditextVideoActivity" />
+
 
         <activity android:name=".activity.CameraSettingActivity" />
         <activity android:name=".activity.WatermarkActivity"></activity>

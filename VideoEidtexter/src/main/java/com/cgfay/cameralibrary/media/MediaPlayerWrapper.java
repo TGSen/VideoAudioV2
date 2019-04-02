@@ -3,6 +3,7 @@ package com.cgfay.cameralibrary.media;
 import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
+import android.util.Log;
 import android.view.Surface;
 
 import java.io.IOException;

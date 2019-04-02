@@ -2,15 +2,16 @@ package com.cgfay.cameralibrary.activity;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 
 import com.cgfay.cameralibrary.R;
-import com.cgfay.cameralibrary.engine.render.PreviewRenderer;
-import com.cgfay.cameralibrary.widget.CainSurfaceView;
+import com.cgfay.cameralibrary.media.VideoRenderer;
 import com.cgfay.cameralibrary.widget.VideoPreviewView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Harrison 唐广森
@@ -25,6 +26,7 @@ public class EditextVideoActivity extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_editext_video);
+        VideoRenderer.getInstance().initRenderer(this.getApplicationContext());
         initView();
     }
 
@@ -41,8 +43,12 @@ public class EditextVideoActivity extends AppCompatActivity {
         mAspectLayout.addView(mVideoPreviewView);
         mAspectLayout.requestLayout();
         // 绑定需要渲染的SurfaceView
-        PreviewRenderer.getInstance().setSurfaceView(mVideoPreviewView);
-
+        VideoRenderer.getInstance().setSurfaceView(mVideoPreviewView);
+        VideoRenderer.getInstance().requestRender();
+//        List<String> paths = new ArrayList<>();
+//        String path = "/storage/emulated/0/Android/data/com.cgfay.cameralibrary/cache/CainCamera_1554114635517.mp4";
+//        paths.add(path);
+//        VideoRenderer.getInstance().setVideoPaths(paths);
 
     }
 

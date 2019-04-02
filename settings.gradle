@@ -1,1 +1,1 @@
-include ':app', ':cameralibrary', ':gdxlibrary', ':owohfilterlibrary', ':utilslibrary', ':reslibrary'
+include ':app', ':VideoEidtexter', ':gdxlibrary', ':owohfilterlibrary', ':utilslibrary', ':reslibrary'

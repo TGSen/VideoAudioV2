@@ -510,6 +510,8 @@ public class OpenGLUtils {
         return createTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES);
     }
 
+
+
     /**
      * 删除纹理
      * @param texture

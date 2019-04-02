@@ -2,16 +2,13 @@ package com.cgfay.cameralibrary.media;
 
 import android.content.Context;
 import android.graphics.SurfaceTexture;
-import android.hardware.Camera;
 import android.opengl.GLES30;
 import android.os.HandlerThread;
 import android.util.Log;
+import android.view.Surface;
 import android.view.SurfaceHolder;
 
-import com.cgfay.cameralibrary.engine.camera.CameraEngine;
-import com.cgfay.cameralibrary.engine.camera.CameraParam;
 import com.cgfay.cameralibrary.engine.recorder.HardcodeEncoder;
-import com.cgfay.cameralibrary.engine.render.FrameRateMeter;
 import com.cgfay.cameralibrary.engine.render.RenderManager;
 import com.cgfay.filterlibrary.gles.EglCore;
 import com.cgfay.filterlibrary.gles.WindowSurface;
@@ -20,7 +17,10 @@ import com.cgfay.filterlibrary.glfilter.resource.bean.ResourceType;
 import com.cgfay.filterlibrary.glfilter.stickers.bean.DynamicSticker;
 import com.cgfay.filterlibrary.glfilter.utils.OpenGLUtils;
 
-import java.nio.ByteBuffer;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 渲染线程
@@ -65,25 +65,21 @@ class VideoRenderThread extends HandlerThread implements SurfaceTexture.OnFrameA
     // 渲染Handler回调
     private VideoRenderHandler mRenderHandler;
 
-    // 计算帧率
-    private FrameRateMeter mFrameRateMeter;
 
     // 上下文
     private Context mContext;
 
-    // 正在拍照
-    private volatile boolean mTakingPicture;
-
 
     // 渲染管理器
-    private RenderManager mRenderManager;
+    private VideoRenderManager mRenderManager;
+    private MediaPlayerWrapper mMediaPlayer;
 
     public VideoRenderThread(Context context, String name) {
         super(name);
         mContext = context;
 
-        mRenderManager = RenderManager.getInstance();
-        mFrameRateMeter = new FrameRateMeter();
+        mRenderManager = VideoRenderManager.getInstance();
+
     }
 
     /**
@@ -97,7 +93,7 @@ class VideoRenderThread extends HandlerThread implements SurfaceTexture.OnFrameA
 
     @Override
     public void onFrameAvailable(SurfaceTexture surfaceTexture) {
-
+        requestRender();
     }
 
 
@@ -129,7 +125,39 @@ class VideoRenderThread extends HandlerThread implements SurfaceTexture.OnFrameA
         mInputTexture = OpenGLUtils.createOESTexture();
         mSurfaceTexture = new SurfaceTexture(mInputTexture);
         mSurfaceTexture.setOnFrameAvailableListener(this);
+        Surface surface = new Surface(mSurfaceTexture);
+        mMediaPlayer = new MediaPlayerWrapper();
+        mMediaPlayer.setSurface(surface);
+        List<String> paths = new ArrayList<>();
+        String path = "/storage/emulated/0/Android/data/com.cgfay.cameralibrary/cache/CainCamera_1554114635517.mp4";
+        paths.add(path);
+        mMediaPlayer.setDataSource(paths);
+        try {
+            mMediaPlayer.prepare();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        mMediaPlayer.start();
+    }
 
+    /**
+     * @param
+     */
+    /**
+     * 设置视频的播放地址
+     */
+    public void setVideoPath(List<String> paths) {
+        if (paths != null) {
+            if (mMediaPlayer != null) {
+                Log.e("Harrison", "mMediaPlayer!=null");
+                mMediaPlayer.setDataSource(paths);
+                mMediaPlayer.start();
+            } else {
+                Log.e("Harrison", "mMediaPlayer==null");
+            }
+        } else {
+            Log.e("Harrison", "setVideoPath");
+        }
     }
 
     /**
@@ -146,7 +174,6 @@ class VideoRenderThread extends HandlerThread implements SurfaceTexture.OnFrameA
      * Surface销毁
      */
     void surfaceDestroyed() {
-        mTakingPicture = false;
         mRenderManager.release();
         if (mSurfaceTexture != null) {
             mSurfaceTexture.release();
@@ -278,7 +305,7 @@ class VideoRenderThread extends HandlerThread implements SurfaceTexture.OnFrameA
     /**
      * 请求刷新
      */
-    public void requestRender() {
+    public void requestRender() {isPreviewing = true;
         synchronized (mSyncFrameNum) {
             if (isPreviewing) {
                 ++mFrameNum;

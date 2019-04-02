@@ -1,21 +1,19 @@
 package com.cgfay.cameralibrary.media;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-import com.cgfay.cameralibrary.engine.camera.CameraParam;
-import com.cgfay.cameralibrary.engine.listener.OnCameraCallback;
-import com.cgfay.cameralibrary.engine.render.RenderBuilder;
 import com.cgfay.filterlibrary.glfilter.color.bean.DynamicColor;
 import com.cgfay.filterlibrary.glfilter.stickers.bean.DynamicSticker;
 
 import java.lang.ref.WeakReference;
+import java.util.List;
 
 
 /**
  * 预览渲染器
- * Created by cain on 2018/8/15.
  */
 
 public final class VideoRenderer {
@@ -46,7 +44,7 @@ public final class VideoRenderer {
     /**
      * 初始化渲染器
      */
-    void initRenderer(Context context) {
+    public void initRenderer(Context context) {
         synchronized (mSynOperation) {
             mPreviewRenderThread = new VideoRenderThread(context, "VideoRenderThread");
             mPreviewRenderThread.start();
@@ -92,11 +90,25 @@ public final class VideoRenderer {
     }
 
     /**
+     * 录制视频的列表
+     *
+     * @param path
+     */
+    public void setVideoPaths(List<String> path) {
+        if (mRenderHandler != null) {
+            mRenderHandler.sendMessage(mRenderHandler
+                    .obtainMessage(VideoRenderHandler.MSG_SURFACE_SET_VIDEO_PATH, path));
+        }
+    }
+
+
+    /**
      * Surface回调
      */
     private SurfaceHolder.Callback mSurfaceCallback = new SurfaceHolder.Callback() {
         @Override
         public void surfaceCreated(SurfaceHolder holder) {
+            Log.e("Harrison","surfaceCreated");
             if (mRenderHandler != null) {
                 mRenderHandler.sendMessage(mRenderHandler
                         .obtainMessage(VideoRenderHandler.MSG_SURFACE_CREATED, holder));
@@ -105,11 +117,13 @@ public final class VideoRenderer {
 
         @Override
         public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+            Log.e("Harrison","surfaceChanged");
             surfaceSizeChanged(width, height);
         }
 
         @Override
         public void surfaceDestroyed(SurfaceHolder holder) {
+            Log.e("Harrison","surfaceDestroyed");
             if (mRenderHandler != null) {
                 mRenderHandler.sendMessage(mRenderHandler
                         .obtainMessage(VideoRenderHandler.MSG_SURFACE_DESTROYED));

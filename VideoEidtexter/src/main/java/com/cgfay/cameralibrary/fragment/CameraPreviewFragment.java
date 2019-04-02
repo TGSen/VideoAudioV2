@@ -25,6 +25,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.cgfay.cameralibrary.R;
+import com.cgfay.cameralibrary.activity.EditextVideoActivity;
 import com.cgfay.cameralibrary.engine.camera.CameraEngine;
 import com.cgfay.cameralibrary.engine.camera.CameraParam;
 import com.cgfay.cameralibrary.engine.listener.OnCameraCallback;
@@ -106,6 +107,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
 
     // 道具按钮
     private TextView mBtnTools;
+    private TextView btFlash;
     // 快门按钮
     private ShutterButton mBtnShutter;
     // 滤镜按钮
@@ -205,6 +207,8 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
 
 
         mBtnTools = view.findViewById(R.id.btnTools);
+        btFlash = view.findViewById(R.id.btFlash);
+        btFlash.setOnClickListener(this);
         mBtnTools.setOnClickListener(this);
         mBtnEffect = view.findViewById(R.id.btFilters);
         mBtnEffect.setOnClickListener(this);
@@ -304,6 +308,11 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
             case R.id.btnTools:
                 //打开道具
                 showCameraStyleTools();
+                break;
+                //测试视频编辑页面
+            case R.id.btFlash:
+                Intent intent = new Intent(mActivity, EditextVideoActivity.class);
+                startActivity(intent);
                 break;
             case R.id.btFilters:
                 showEffectView();
@@ -489,8 +498,6 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
         }
 
     };
-
-
 
 
     /**

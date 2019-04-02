@@ -1,4 +1,4 @@
-package com.cgfay.cameralibrary.engine.render;
+package com.cgfay.cameralibrary.media;
 
 import android.content.Context;
 import android.util.Log;
@@ -8,12 +8,11 @@ import android.view.MotionEvent;
 import com.badlogic.gdx.math.Vector3;
 import com.cgfay.cameralibrary.engine.camera.CameraParam;
 import com.cgfay.cameralibrary.engine.model.ScaleType;
+import com.cgfay.cameralibrary.engine.render.RenderIndex;
 import com.cgfay.filterlibrary.glfilter.base.GLImageFilter;
 import com.cgfay.filterlibrary.glfilter.base.GLImageOESInputFilter;
-
 import com.cgfay.filterlibrary.glfilter.color.GLImageDynamicColorFilter;
 import com.cgfay.filterlibrary.glfilter.color.bean.DynamicColor;
-import com.cgfay.filterlibrary.glfilter.multiframe.GLImageFrameEdgeBlurFilter;
 import com.cgfay.filterlibrary.glfilter.stickers.GLImageDynamicStickerFilter;
 import com.cgfay.filterlibrary.glfilter.stickers.GestureHelp;
 import com.cgfay.filterlibrary.glfilter.stickers.StaticStickerNormalFilter;
@@ -26,20 +25,18 @@ import java.nio.FloatBuffer;
 /**
  * 渲染管理器
  */
-public final class RenderManager {
-
-
+public final class VideoRenderManager {
 
 
     private static class RenderManagerHolder {
-        public static RenderManager instance = new RenderManager();
+        public static VideoRenderManager instance = new VideoRenderManager();
     }
 
-    private RenderManager() {
-        mCameraParam = CameraParam.getInstance();
+    private VideoRenderManager() {
+
     }
 
-    public static RenderManager getInstance() {
+    public static VideoRenderManager getInstance() {
         return RenderManagerHolder.instance;
     }
 
@@ -59,8 +56,6 @@ public final class RenderManager {
     // 输入图像大小
     private int mTextureWidth, mTextureHeight;
 
-    // 相机参数
-    private CameraParam mCameraParam;
     // 上下文
     private Context mContext;
 
@@ -149,7 +144,6 @@ public final class RenderManager {
     }
 
 
-
     /**
      * 切换动态滤镜
      *
@@ -175,7 +169,7 @@ public final class RenderManager {
      */
     public void removeDynamicCameraFilter() {
         if (mFilterArrays.get(RenderIndex.CameraFilterIndex) != null) {
-            Log.e("Harrison","removeDynamicCameraFilter");
+            Log.e("Harrison", "removeDynamicCameraFilter");
             mFilterArrays.get(RenderIndex.CameraFilterIndex).release();
             mFilterArrays.put(RenderIndex.CameraFilterIndex, null);
         }
@@ -184,11 +178,12 @@ public final class RenderManager {
 
     public void removeDynamicColorFilter() {
         if (mFilterArrays.get(RenderIndex.FilterIndex) != null) {
-            Log.e("Harrison","removeDynamicColorFilter");
+            Log.e("Harrison", "removeDynamicColorFilter");
             mFilterArrays.get(RenderIndex.FilterIndex).release();
             mFilterArrays.put(RenderIndex.FilterIndex, null);
         }
     }
+
     public void changeColorDynamicFilter(DynamicColor color) {
         if (mFilterArrays.get(RenderIndex.FilterIndex) != null) {
             mFilterArrays.get(RenderIndex.FilterIndex).release();
@@ -203,6 +198,7 @@ public final class RenderManager {
         filter.onDisplaySizeChanged(mViewWidth, mViewHeight);
         mFilterArrays.put(RenderIndex.FilterIndex, filter);
     }
+
     /**
      * 切换分镜滤镜
      *
@@ -274,6 +270,7 @@ public final class RenderManager {
      * @return
      */
     public int drawFrame(int inputTexture, float[] mMatrix) {
+        Log.e("Harrison","drawFrame--");
         int currentTexture = inputTexture;
         if (mFilterArrays.get(RenderIndex.CameraIndex) == null
                 || mFilterArrays.get(RenderIndex.DisplayIndex) == null) {
@@ -284,26 +281,23 @@ public final class RenderManager {
         }
         currentTexture = mFilterArrays.get(RenderIndex.CameraIndex)
                 .drawFrameBuffer(currentTexture, mVertexBuffer, mTextureBuffer);
-        // 如果处于对比状态，不做处理
-        if (!mCameraParam.showCompare) {
-
-            // 绘制颜色滤镜
-            if (mFilterArrays.get(RenderIndex.FilterIndex) != null) {
-                currentTexture = mFilterArrays.get(RenderIndex.FilterIndex).drawFrameBuffer(currentTexture, mVertexBuffer, mTextureBuffer);
-            }
-
-            // 绘制颜色滤镜
-            if (mFilterArrays.get(RenderIndex.CameraFilterIndex) != null) {
-                currentTexture = mFilterArrays.get(RenderIndex.CameraFilterIndex).drawFrameBuffer(currentTexture, mVertexBuffer, mTextureBuffer);
-            }
-
-            // 资源滤镜，可以是贴纸、滤镜甚至是彩妆类型
-            if (mFilterArrays.get(RenderIndex.ResourceIndex) != null) {
-                currentTexture = mFilterArrays.get(RenderIndex.ResourceIndex).drawFrameBuffer(currentTexture, mVertexBuffer, mTextureBuffer);
-            }
 
 
+        // 绘制颜色滤镜
+        if (mFilterArrays.get(RenderIndex.FilterIndex) != null) {
+            currentTexture = mFilterArrays.get(RenderIndex.FilterIndex).drawFrameBuffer(currentTexture, mVertexBuffer, mTextureBuffer);
         }
+
+        // 绘制颜色滤镜
+        if (mFilterArrays.get(RenderIndex.CameraFilterIndex) != null) {
+            currentTexture = mFilterArrays.get(RenderIndex.CameraFilterIndex).drawFrameBuffer(currentTexture, mVertexBuffer, mTextureBuffer);
+        }
+
+        // 资源滤镜，可以是贴纸、滤镜甚至是彩妆类型
+        if (mFilterArrays.get(RenderIndex.ResourceIndex) != null) {
+            currentTexture = mFilterArrays.get(RenderIndex.ResourceIndex).drawFrameBuffer(currentTexture, mVertexBuffer, mTextureBuffer);
+        }
+
 
         // 显示输出，需要调整视口大小
         mFilterArrays.get(RenderIndex.DisplayIndex).drawFrame(currentTexture, mDisplayVertexBuffer, mDisplayTextureBuffer);
@@ -409,26 +403,5 @@ public final class RenderManager {
         return coordinate == 0.0f ? distance : 1 - distance;
     }
 
-    public static final Vector3 tempVec = new Vector3();
 
-    public StaticStickerNormalFilter touchDown(MotionEvent e) {
-
-        if (mFilterArrays.get(RenderIndex.ResourceIndex) != null) {
-            GLImageFilter glImageFilter = mFilterArrays.get(RenderIndex.ResourceIndex);
-            if (glImageFilter instanceof GLImageDynamicStickerFilter) {
-                GLImageDynamicStickerFilter glImageDynamicStickerFilter = (GLImageDynamicStickerFilter) glImageFilter;
-                tempVec.set(e.getX(), e.getY(), 0);
-                StaticStickerNormalFilter staticStickerNormalFilter = GestureHelp.hit(tempVec, glImageDynamicStickerFilter.getmFilters());
-                if (staticStickerNormalFilter != null) {
-                    Log.d("touchSticker", "找到贴纸");
-                } else {
-                    Log.d("touchSticker", "没有贴纸");
-                }
-                return staticStickerNormalFilter;
-            }
-        }
-
-        return null;
-
-    }
 }

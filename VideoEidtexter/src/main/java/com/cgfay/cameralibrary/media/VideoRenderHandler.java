@@ -2,12 +2,14 @@ package com.cgfay.cameralibrary.media;
 
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.SurfaceHolder;
 
 import com.cgfay.filterlibrary.glfilter.color.bean.DynamicColor;
 import com.cgfay.filterlibrary.glfilter.stickers.bean.DynamicSticker;
 
 import java.lang.ref.WeakReference;
+import java.util.List;
 
 /**
  * 预览渲染Handler
@@ -29,7 +31,8 @@ class VideoRenderHandler extends Handler {
     // 停止录制
     public static final int MSG_STOP_RECORDING = 0x008;
 
-
+    // 设置video paths
+    public static final int MSG_SURFACE_SET_VIDEO_PATH = 0x009;
     // 预览帧回调
     public static final int MSG_PREVIEW_CALLBACK = 0x011;
 
@@ -80,6 +83,7 @@ class VideoRenderHandler extends Handler {
 
             // 帧可用（考虑同步的问题）
             case MSG_RENDER:
+                Log.e("Harrison","Draw --");
                 thread.drawFrame();
                 break;
 
@@ -97,6 +101,10 @@ class VideoRenderHandler extends Handler {
             // 预览帧回调
             case MSG_PREVIEW_CALLBACK:
                 thread.onPreviewCallback((byte[]) msg.obj);
+                break;  // 预览帧回调
+
+            case MSG_SURFACE_SET_VIDEO_PATH:
+                thread.setVideoPath((List<String>) msg.obj);
                 break;
 
 
