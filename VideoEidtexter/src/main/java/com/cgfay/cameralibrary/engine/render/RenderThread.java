@@ -26,7 +26,7 @@ import java.nio.ByteBuffer;
  * Created by cain on 2017/11/4.
  */
 
-class RenderThread extends HandlerThread implements SurfaceTexture.OnFrameAvailableListener,
+public class RenderThread extends HandlerThread implements SurfaceTexture.OnFrameAvailableListener,
         Camera.PreviewCallback {
 
     private static final String TAG = "VideoRenderThread";

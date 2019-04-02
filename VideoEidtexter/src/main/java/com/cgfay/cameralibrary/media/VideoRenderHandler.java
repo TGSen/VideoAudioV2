@@ -83,7 +83,7 @@ class VideoRenderHandler extends Handler {
 
             // 帧可用（考虑同步的问题）
             case MSG_RENDER:
-                Log.e("Harrison","Draw --");
+
                 thread.drawFrame();
                 break;
 

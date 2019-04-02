@@ -337,6 +337,7 @@ public final class RenderManager {
      * 调整滤镜
      */
     private void onFilterChanged() {
+        Log.e("Harrison","mTextureWidth"+mTextureWidth+mTextureHeight);
         for (int i = 0; i < mFilterArrays.size(); i++) {
             if (mFilterArrays.get(i) != null) {
                 mFilterArrays.get(i).onInputSizeChanged(mTextureWidth, mTextureHeight);

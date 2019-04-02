@@ -2,6 +2,8 @@ package com.cgfay.cameralibrary.media;
 
 import android.content.Context;
 import android.graphics.SurfaceTexture;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.opengl.GLES30;
 import android.os.HandlerThread;
 import android.util.Log;
@@ -72,7 +74,7 @@ class VideoRenderThread extends HandlerThread implements SurfaceTexture.OnFrameA
 
     // 渲染管理器
     private VideoRenderManager mRenderManager;
-    private MediaPlayerWrapper mMediaPlayer;
+    private MediaPlayer mMediaPlayer;
 
     public VideoRenderThread(Context context, String name) {
         super(name);
@@ -112,6 +114,7 @@ class VideoRenderThread extends HandlerThread implements SurfaceTexture.OnFrameA
      * @param holder
      */
     void surfaceCreated(SurfaceHolder holder) {
+
         mEglCore = new EglCore(null, EglCore.FLAG_RECORDABLE);
         mDisplaySurface = new WindowSurface(mEglCore, holder.getSurface(), false);
         mDisplaySurface.makeCurrent();
@@ -121,23 +124,46 @@ class VideoRenderThread extends HandlerThread implements SurfaceTexture.OnFrameA
 
         // 渲染器初始化
         mRenderManager.init(mContext);
-
         mInputTexture = OpenGLUtils.createOESTexture();
+        Log.e("Harrison","mInputTexture:"+mInputTexture);
         mSurfaceTexture = new SurfaceTexture(mInputTexture);
         mSurfaceTexture.setOnFrameAvailableListener(this);
         Surface surface = new Surface(mSurfaceTexture);
-        mMediaPlayer = new MediaPlayerWrapper();
+        mMediaPlayer = new MediaPlayer();
         mMediaPlayer.setSurface(surface);
         List<String> paths = new ArrayList<>();
         String path = "/storage/emulated/0/Android/data/com.cgfay.cameralibrary/cache/CainCamera_1554114635517.mp4";
         paths.add(path);
-        mMediaPlayer.setDataSource(paths);
+        mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         try {
-            mMediaPlayer.prepare();
+            mMediaPlayer.setDataSource(path);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        mMediaPlayer.start();
+        mMediaPlayer.prepareAsync();
+        mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+                Log.e("Harrison", "onPrepared______________________");
+                mMediaPlayer.start();
+            }
+        });
+        mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer player) {
+                Log.e("Harrison", "onCompletion————————");
+                player.start();
+                player.setLooping(true);
+            }
+        });
+        mMediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+            @Override
+            public boolean onError(MediaPlayer mp, int what, int extra) {
+                return false;
+            }
+        });
+
+      //  mMediaPlayer.start();
     }
 
     /**
@@ -150,7 +176,7 @@ class VideoRenderThread extends HandlerThread implements SurfaceTexture.OnFrameA
         if (paths != null) {
             if (mMediaPlayer != null) {
                 Log.e("Harrison", "mMediaPlayer!=null");
-                mMediaPlayer.setDataSource(paths);
+                //    mMediaPlayer.setDataSource(paths);
                 mMediaPlayer.start();
             } else {
                 Log.e("Harrison", "mMediaPlayer==null");
@@ -167,6 +193,9 @@ class VideoRenderThread extends HandlerThread implements SurfaceTexture.OnFrameA
      * @param height
      */
     void surfaceChanged(int width, int height) {
+        Log.e("Harrison","surfaceChanged"+width+height);
+        //这代码在调试中
+        mRenderManager.setTextureSize(width, height);
         mRenderManager.setDisplaySize(width, height);
     }
 
@@ -305,7 +334,8 @@ class VideoRenderThread extends HandlerThread implements SurfaceTexture.OnFrameA
     /**
      * 请求刷新
      */
-    public void requestRender() {isPreviewing = true;
+    public void requestRender() {
+        isPreviewing = true;
         synchronized (mSyncFrameNum) {
             if (isPreviewing) {
                 ++mFrameNum;

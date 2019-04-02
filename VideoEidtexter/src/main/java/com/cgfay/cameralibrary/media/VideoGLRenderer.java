@@ -5,6 +5,8 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import com.cgfay.cameralibrary.engine.render.RenderHandler;
+import com.cgfay.cameralibrary.engine.render.RenderThread;
 import com.cgfay.filterlibrary.glfilter.color.bean.DynamicColor;
 import com.cgfay.filterlibrary.glfilter.stickers.bean.DynamicSticker;
 
@@ -16,25 +18,25 @@ import java.util.List;
  * 预览渲染器
  */
 
-public final class VideoRenderer {
+public final class VideoGLRenderer {
 
-    private VideoRenderer() {
+    private VideoGLRenderer() {
     }
 
 
     private static class RenderHolder {
-        private static VideoRenderer instance = new VideoRenderer();
+        private static VideoGLRenderer instance = new VideoGLRenderer();
     }
 
-    public static VideoRenderer getInstance() {
+    public static VideoGLRenderer getInstance() {
         return RenderHolder.instance;
     }
 
 
     // 渲染Handler
-    private VideoRenderHandler mRenderHandler;
+    private RenderHandler mRenderHandler;
     // 渲染线程
-    private VideoRenderThread mPreviewRenderThread;
+    private RenderThread mPreviewRenderThread;
     // 操作锁
     private final Object mSynOperation = new Object();
 
@@ -46,9 +48,9 @@ public final class VideoRenderer {
      */
     public void initRenderer(Context context) {
         synchronized (mSynOperation) {
-            mPreviewRenderThread = new VideoRenderThread(context, "VideoRenderThread");
+            mPreviewRenderThread = new RenderThread(context, "VideoRenderThread");
             mPreviewRenderThread.start();
-            mRenderHandler = new VideoRenderHandler(mPreviewRenderThread);
+            mRenderHandler = new RenderHandler(mPreviewRenderThread);
             // 绑定Handler
             mPreviewRenderThread.setRenderHandler(mRenderHandler);
         }
@@ -108,6 +110,7 @@ public final class VideoRenderer {
     private SurfaceHolder.Callback mSurfaceCallback = new SurfaceHolder.Callback() {
         @Override
         public void surfaceCreated(SurfaceHolder holder) {
+            Log.e("Harrison","surfaceCreated");
             if (mRenderHandler != null) {
                 mRenderHandler.sendMessage(mRenderHandler
                         .obtainMessage(VideoRenderHandler.MSG_SURFACE_CREATED, holder));
@@ -116,11 +119,13 @@ public final class VideoRenderer {
 
         @Override
         public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+            Log.e("Harrison","surfaceChanged");
             surfaceSizeChanged(width, height);
         }
 
         @Override
         public void surfaceDestroyed(SurfaceHolder holder) {
+            Log.e("Harrison","surfaceDestroyed");
             if (mRenderHandler != null) {
                 mRenderHandler.sendMessage(mRenderHandler
                         .obtainMessage(VideoRenderHandler.MSG_SURFACE_DESTROYED));

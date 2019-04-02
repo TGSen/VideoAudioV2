@@ -14,7 +14,7 @@ import java.lang.ref.WeakReference;
  * Created by cain.huang on 2017/11/3.
  */
 
-class RenderHandler extends Handler {
+public class RenderHandler extends Handler {
 
     // Surface创建
     public static final int MSG_SURFACE_CREATED = 0x001;

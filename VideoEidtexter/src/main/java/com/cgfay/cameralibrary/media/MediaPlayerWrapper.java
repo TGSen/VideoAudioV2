@@ -62,6 +62,7 @@ public class MediaPlayerWrapper implements MediaPlayer.OnCompletionListener, Med
         return mInfoList;
     }
 
+
     public void setSurface(Surface surface) {
         this.surface = surface;
     }
@@ -74,7 +75,22 @@ public class MediaPlayerWrapper implements MediaPlayer.OnCompletionListener, Med
             player.setOnErrorListener(this);
             player.setOnPreparedListener(this);
             player.setDataSource(mSrcList.get(i));
-            player.prepare();
+            player.prepareAsync();
+            player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mp) {
+                    Log.e("Harrison","onPrepared______________________");
+                    mp.start();
+                }
+            });
+            player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer player) {
+                    player.start();
+                    player.setLooping(true);
+                }
+            });
+
             mPlayerList.add(player);
             if (i == 0) {
                 mCurMediaPlayer = player;

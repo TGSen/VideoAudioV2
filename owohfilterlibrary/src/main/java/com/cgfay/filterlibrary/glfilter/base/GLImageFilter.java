@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.PointF;
 import android.opengl.GLES30;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.badlogic.gdx.math.Camera;
 import com.badlogic.gdx.math.Vector3;
