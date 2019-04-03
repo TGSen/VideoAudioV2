@@ -33,8 +33,13 @@ class VideoRenderHandler extends Handler {
 
     // 设置video paths
     public static final int MSG_SURFACE_SET_VIDEO_PATH = 0x009;
+    //video stop play
+    public static final int MSG_VIDEO_STATUS_STOP = 0x010;
     // 预览帧回调
     public static final int MSG_PREVIEW_CALLBACK = 0x011;
+
+    //video start play
+    public static final int MSG_VIDEO_STATUS_PLAY = 0x012;
 
 
     // 切换动态滤镜
@@ -105,6 +110,12 @@ class VideoRenderHandler extends Handler {
 
             case MSG_SURFACE_SET_VIDEO_PATH:
                 thread.setVideoPath((List<String>) msg.obj);
+                break;
+            case MSG_VIDEO_STATUS_STOP:
+                thread.setVideoStop();
+                break;
+            case MSG_VIDEO_STATUS_PLAY:
+                thread.setVideoStart();
                 break;
 
 

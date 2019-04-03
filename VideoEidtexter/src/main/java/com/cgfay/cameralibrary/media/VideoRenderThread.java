@@ -125,10 +125,15 @@ class VideoRenderThread extends HandlerThread implements SurfaceTexture.OnFrameA
         // 渲染器初始化
         mRenderManager.init(mContext);
         mInputTexture = OpenGLUtils.createOESTexture();
-        Log.e("Harrison","mInputTexture:"+mInputTexture);
+        Log.e("Harrison", "mInputTexture:" + mInputTexture);
         mSurfaceTexture = new SurfaceTexture(mInputTexture);
         mSurfaceTexture.setOnFrameAvailableListener(this);
         Surface surface = new Surface(mSurfaceTexture);
+        //开始播放视频
+        playVideo(surface);
+    }
+
+    private void playVideo(Surface surface) {
         mMediaPlayer = new MediaPlayer();
         mMediaPlayer.setSurface(surface);
         List<String> paths = new ArrayList<>();
@@ -144,14 +149,13 @@ class VideoRenderThread extends HandlerThread implements SurfaceTexture.OnFrameA
         mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mp) {
-                Log.e("Harrison", "onPrepared______________________");
                 mMediaPlayer.start();
             }
         });
+        //设置无限循环
         mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer player) {
-                Log.e("Harrison", "onCompletion————————");
                 player.start();
                 player.setLooping(true);
             }
@@ -162,8 +166,6 @@ class VideoRenderThread extends HandlerThread implements SurfaceTexture.OnFrameA
                 return false;
             }
         });
-
-      //  mMediaPlayer.start();
     }
 
     /**
@@ -193,7 +195,7 @@ class VideoRenderThread extends HandlerThread implements SurfaceTexture.OnFrameA
      * @param height
      */
     void surfaceChanged(int width, int height) {
-        Log.e("Harrison","surfaceChanged"+width+height);
+        Log.e("Harrison", "surfaceChanged" + width + height);
         //这代码在调试中
         mRenderManager.setTextureSize(width, height);
         mRenderManager.setDisplaySize(width, height);
@@ -215,6 +217,12 @@ class VideoRenderThread extends HandlerThread implements SurfaceTexture.OnFrameA
         if (mEglCore != null) {
             mEglCore.release();
             mEglCore = null;
+        }
+        if(mMediaPlayer!=null){
+            mMediaPlayer.stop();
+            mMediaPlayer.reset();
+            mMediaPlayer.release();
+            mMediaPlayer = null;
         }
     }
 
@@ -360,5 +368,21 @@ class VideoRenderThread extends HandlerThread implements SurfaceTexture.OnFrameA
 
     }
 
+    /**
+     * 设置视频暂停
+     */
+    public void setVideoStop() {
+        if (mMediaPlayer != null && mMediaPlayer.isPlaying()) {
+            mMediaPlayer.pause();
+        }
+    }
 
+    /**
+     * 设置视频继续播放
+     */
+    public void setVideoStart() {
+        if (mMediaPlayer != null && !mMediaPlayer.isPlaying()) {
+            mMediaPlayer.start();
+        }
+    }
 }

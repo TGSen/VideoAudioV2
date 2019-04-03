@@ -2,6 +2,7 @@ package com.cgfay.cameralibrary.activity;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
@@ -42,7 +43,6 @@ public class EditextVideoActivity extends AppCompatActivity {
         mAspectLayout.requestLayout();
         // 绑定需要渲染的SurfaceView
         VideoRenderer.getInstance().setSurfaceView(mVideoPreviewView);
-        //VideoRenderer.getInstance().requestRender();
 //        List<String> paths = new ArrayList<>();
 //        String path = "/storage/emulated/0/Android/data/com.cgfay.cameralibrary/cache/CainCamera_1554114635517.mp4";
 //        paths.add(path);
@@ -50,5 +50,17 @@ public class EditextVideoActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.e("Harrison","停止播放");
+        VideoRenderer.getInstance().stopPlayVideo();
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.e("Harrison","开始播放");
+        VideoRenderer.getInstance().startPlayVideo();
+    }
 }

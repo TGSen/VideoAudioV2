@@ -1,7 +1,6 @@
 package com.cgfay.cameralibrary.media;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
@@ -127,6 +126,23 @@ public final class VideoRenderer {
             }
         }
     };
+
+    /**
+     * 暂停播放
+     */
+    public void stopPlayVideo() {
+        if (mRenderHandler != null) {
+            mRenderHandler.sendMessage(mRenderHandler
+                    .obtainMessage(VideoRenderHandler.MSG_VIDEO_STATUS_STOP));
+        }
+    }
+
+    public void startPlayVideo() {
+        if (mRenderHandler != null) {
+            mRenderHandler.sendMessage(mRenderHandler
+                    .obtainMessage(VideoRenderHandler.MSG_VIDEO_STATUS_PLAY));
+        }
+    }
 
     /**
      * Surface大小发生变化
