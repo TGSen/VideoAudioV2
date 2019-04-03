@@ -93,7 +93,7 @@ public final class VideoRenderer {
      *
      * @param path
      */
-    public void setVideoPaths(List<String> path) {
+    public void setVideoPaths(String path) {
         if (mRenderHandler != null) {
             mRenderHandler.sendMessage(mRenderHandler
                     .obtainMessage(VideoRenderHandler.MSG_SURFACE_SET_VIDEO_PATH, path));

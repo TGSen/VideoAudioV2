@@ -35,8 +35,7 @@ class VideoRenderHandler extends Handler {
     public static final int MSG_SURFACE_SET_VIDEO_PATH = 0x009;
     //video stop play
     public static final int MSG_VIDEO_STATUS_STOP = 0x010;
-    // 预览帧回调
-    public static final int MSG_PREVIEW_CALLBACK = 0x011;
+
 
     //video start play
     public static final int MSG_VIDEO_STATUS_PLAY = 0x012;
@@ -103,13 +102,10 @@ class VideoRenderHandler extends Handler {
                 break;
 
 
-            // 预览帧回调
-            case MSG_PREVIEW_CALLBACK:
-                thread.onPreviewCallback((byte[]) msg.obj);
-                break;  // 预览帧回调
+
 
             case MSG_SURFACE_SET_VIDEO_PATH:
-                thread.setVideoPath((List<String>) msg.obj);
+                thread.setVideoPath((String) msg.obj);
                 break;
             case MSG_VIDEO_STATUS_STOP:
                 thread.setVideoStop();

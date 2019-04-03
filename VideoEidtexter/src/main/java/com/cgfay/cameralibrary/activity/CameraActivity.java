@@ -16,7 +16,7 @@ import com.cgfay.cameralibrary.listener.OnPageOperationListener;
 /**
  * 相机预览页面
  */
-public class CameraActivity extends AppCompatActivity implements OnPageOperationListener {
+public class CameraActivity extends AppCompatActivity  {
 
     private static final String FRAGMENT_CAMERA = "fragment_camera";
 
@@ -29,7 +29,6 @@ public class CameraActivity extends AppCompatActivity implements OnPageOperation
         setContentView(R.layout.activity_camera);
         if (null == savedInstanceState) {
             CameraPreviewFragment fragment = new CameraPreviewFragment();
-            fragment.setOnPageOperationListener(this);
             getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.container, fragment, FRAGMENT_CAMERA)
@@ -66,30 +65,5 @@ public class CameraActivity extends AppCompatActivity implements OnPageOperation
         }
     }
 
-    @Override
-    public void onOpenGalleryPage() {
-        if (CameraParam.getInstance().gallerySelectedListener != null) {
-            CameraParam.getInstance().gallerySelectedListener.onGalleryClickListener(GalleryType.WITHOUT_GIF);
-        }
-    }
 
-    @Override
-    public void onOpenImageEditPage(String path) {
-        if (CameraParam.getInstance().captureListener != null) {
-            CameraParam.getInstance().captureListener.onMediaSelectedListener(path, GalleryType.PICTURE);
-        }
-    }
-
-    @Override
-    public void onOpenVideoEditPage(String path) {
-        if (CameraParam.getInstance().captureListener != null) {
-            CameraParam.getInstance().captureListener.onMediaSelectedListener(path, GalleryType.VIDEO);
-        }
-    }
-
-    @Override
-    public void onOpenCameraSettingPage() {
-        Intent intent = new Intent(CameraActivity.this, CameraSettingActivity.class);
-        startActivity(intent);
-    }
 }

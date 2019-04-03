@@ -1,5 +1,7 @@
 package com.cgfay.cameralibrary.activity;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -23,10 +25,14 @@ import com.cgfay.cameralibrary.widget.VideoPreviewView;
 public class EditextVideoActivity extends AppCompatActivity implements View.OnClickListener {
     // 显示滤镜页面
     private boolean isShowingFilters = false;
+    private static final String KEY_VIDEO_PATH = "videoPath";
+    private static final String BUNDLE_VIDEO_PATH = "bundle";
     // 滤镜页面
     private PreviewFiltersFragment mColorFilterFragment;
     private TextView btFilters;
     private TextView btEffect;
+    private String videoPath;
+    private VideoPreviewView mVideoPreviewView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +42,28 @@ public class EditextVideoActivity extends AppCompatActivity implements View.OnCl
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_editext_video);
         VideoRenderer.getInstance().initRenderer(this.getApplicationContext());
+
         initView();
+        initData();
+
+    }
+
+    private void initData() {
+        Bundle bundle = getIntent().getBundleExtra(BUNDLE_VIDEO_PATH);
+        videoPath = bundle.getString(KEY_VIDEO_PATH);
+        Log.e("Harrison", "initData:" + videoPath);
+        //设置播放的视频路径
+        VideoRenderer.getInstance().setVideoPaths(videoPath);
+        // 绑定需要渲染的SurfaceView
+        VideoRenderer.getInstance().setSurfaceView(mVideoPreviewView);
+    }
+
+    public static void gotoThis(Context context, String path) {
+        Intent intent = new Intent(context, EditextVideoActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putString(KEY_VIDEO_PATH, path);
+        intent.putExtra(BUNDLE_VIDEO_PATH, bundle);
+        context.startActivity(intent);
     }
 
     /**
@@ -47,7 +74,7 @@ public class EditextVideoActivity extends AppCompatActivity implements View.OnCl
     private void initView() {
         FrameLayout mAspectLayout = findViewById(R.id.layout_aspect);
         //mAspectLayout.setAspectRatio(mCameraParam.currentRatio);
-        VideoPreviewView mVideoPreviewView = new VideoPreviewView(this);
+        mVideoPreviewView = new VideoPreviewView(this);
         mVideoPreviewView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -56,8 +83,7 @@ public class EditextVideoActivity extends AppCompatActivity implements View.OnCl
         });
         mAspectLayout.addView(mVideoPreviewView);
         mAspectLayout.requestLayout();
-        // 绑定需要渲染的SurfaceView
-        VideoRenderer.getInstance().setSurfaceView(mVideoPreviewView);
+
         btFilters = findViewById(R.id.btFilters);
         btFilters.setOnClickListener(this);
 
@@ -66,7 +92,7 @@ public class EditextVideoActivity extends AppCompatActivity implements View.OnCl
 //        List<String> paths = new ArrayList<>();
 //        String path = "/storage/emulated/0/Android/data/com.cgfay.cameralibrary/cache/CainCamera_1554114635517.mp4";
 //        paths.add(path);
-//        VideoGLRenderer.getInstance().setVideoPaths(paths);
+//
 
     }
 

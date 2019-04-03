@@ -52,7 +52,7 @@ public class VideoCombiner {
          * 合并结束
          * @param success   是否合并成功
          */
-        void onCombineFinished(boolean success);
+        void onCombineFinished(boolean success,String path);
     }
 
 
@@ -74,9 +74,17 @@ public class VideoCombiner {
         boolean hasVideoFormat = false;
         Iterator videoIterator = mVideoList.iterator();
 
+
+
         // 开始合并
         if (mCombineListener != null) {
             mCombineListener.onCombineStart();
+        }
+        //如果只有一个视频就不用合并了，直接就是之前录制那个
+        if(mVideoList!=null && mVideoList.size()==1){
+            Log.e("Harrison","onCombineFinished:"+mVideoList.get(0));
+            mCombineListener.onCombineFinished(true,mVideoList.get(0));
+            return;
         }
 
         // MediaExtractor拿到多媒体信息，用于MediaMuxer创建文件
@@ -295,7 +303,8 @@ public class VideoCombiner {
 
         // 合并结束
         if (mCombineListener != null) {
-            mCombineListener.onCombineFinished(combineResult);
+            Log.e("Harrison","onCombineFinished:"+mDestPath);
+            mCombineListener.onCombineFinished(combineResult,mDestPath);
         }
     }
 

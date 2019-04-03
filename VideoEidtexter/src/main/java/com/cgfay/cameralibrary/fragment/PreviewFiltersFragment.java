@@ -121,9 +121,9 @@ public class PreviewFiltersFragment extends Fragment {
     //初始化分镜或者是滤镜资源
     private void initFilterData() {
         if (mFilterType == TYPE_CAMERA_FILTER) {
-            ResourceHelper.initCameraFilterResource(mActivity,mResourceData);
+            ResourceHelper.initCameraFilterResource(mActivity, mResourceData);
         } else if (mFilterType == TYPE_COLOR_FILTER) {
-            ResourceHelper.initColorFilterResource(mActivity,mResourceData);
+            ResourceHelper.initColorFilterResource(mActivity, mResourceData);
         }
 //        mResourceData.addAll( mFilterType == TYPE_COLOR_FILTER ? ResourceHelper.getColorFilter() : ResourceHelper.getCamerFilter());
         mPreviewResourceAdapter.notifyDataSetChanged();
@@ -136,7 +136,7 @@ public class PreviewFiltersFragment extends Fragment {
         GridLayoutManager manager = new GridLayoutManager(mActivity, 5);
         mResourceView.setLayoutManager(manager);
 
-        mPreviewResourceAdapter = new PreviewResourceAdapter(mActivity,mResourceData);
+        mPreviewResourceAdapter = new PreviewResourceAdapter(mActivity, mResourceData);
         mResourceView.setAdapter(mPreviewResourceAdapter);
         mPreviewResourceAdapter.setOnResourceChangeListener(new PreviewResourceAdapter.OnResourceChangeListener() {
             @Override
@@ -175,7 +175,7 @@ public class PreviewFiltersFragment extends Fragment {
                     String folderPath = ResourceHelper.getResourceDirectory(mActivity) + File.separator + unzipFolder;
                     DynamicColor color = ResourceJsonCodec.decodeFilterData(folderPath);
                     color.setColorType(ResourceType.FILTER.getIndex());
-                    //只有滤镜分拍摄模式还是编辑模式
+                    //滤镜分拍摄模式还是编辑模式
                     if (mVideoModeType == TYPE_VIDEO_EIDTEXT) {
                         VideoRenderer.getInstance().changeDynamicColorFilter(color);
                     } else if (mVideoModeType == TYPE_VIDEO_SHOT) {
@@ -207,13 +207,19 @@ public class PreviewFiltersFragment extends Fragment {
 
                 // 所有数据均为空
                 case NONE: {
+                    //滤镜分拍摄模式还是编辑模式
+                    if (mVideoModeType == TYPE_VIDEO_EIDTEXT) {
+                        VideoRenderer.getInstance().changeDynamicColorFilter(new DynamicColor().setColorType(ResourceType.FILTER.getIndex()));
+                    } else if (mVideoModeType == TYPE_VIDEO_SHOT) {
 
-                    if (mFilterType == TYPE_COLOR_FILTER) {
-                        PreviewRenderer.getInstance().removeDynamic(new DynamicColor().setColorType(ResourceType.FILTER.getIndex()));
-                    } else {
-                        //移除分镜的
-                        PreviewRenderer.getInstance().removeDynamic(new DynamicColor().setColorType(ResourceType.CAMERA_FILTER.getIndex()));
+                        if (mFilterType == TYPE_COLOR_FILTER) {
+                            PreviewRenderer.getInstance().removeDynamic(new DynamicColor().setColorType(ResourceType.FILTER.getIndex()));
+                        } else {
+                            //移除分镜的
+                            PreviewRenderer.getInstance().removeDynamic(new DynamicColor().setColorType(ResourceType.CAMERA_FILTER.getIndex()));
+                        }
                     }
+
                     break;
                 }
                 default:

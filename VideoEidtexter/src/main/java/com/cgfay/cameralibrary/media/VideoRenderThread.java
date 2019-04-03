@@ -6,6 +6,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.opengl.GLES30;
 import android.os.HandlerThread;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -52,6 +53,7 @@ class VideoRenderThread extends HandlerThread implements SurfaceTexture.OnFrameA
     private int mInputTexture;
     private int mCurrentTexture;
     private SurfaceTexture mSurfaceTexture;
+    private String mVideoPath;
 
     // 矩阵
     private final float[] mMatrix = new float[16];
@@ -99,14 +101,7 @@ class VideoRenderThread extends HandlerThread implements SurfaceTexture.OnFrameA
     }
 
 
-    /**
-     * 预览回调
-     *
-     * @param data
-     */
-    void onPreviewCallback(byte[] data) {
 
-    }
 
     /**
      * Surface创建
@@ -125,7 +120,6 @@ class VideoRenderThread extends HandlerThread implements SurfaceTexture.OnFrameA
         // 渲染器初始化
         mRenderManager.init(mContext);
         mInputTexture = OpenGLUtils.createOESTexture();
-        Log.e("Harrison", "mInputTexture:" + mInputTexture);
         mSurfaceTexture = new SurfaceTexture(mInputTexture);
         mSurfaceTexture.setOnFrameAvailableListener(this);
         Surface surface = new Surface(mSurfaceTexture);
@@ -136,12 +130,13 @@ class VideoRenderThread extends HandlerThread implements SurfaceTexture.OnFrameA
     private void playVideo(Surface surface) {
         mMediaPlayer = new MediaPlayer();
         mMediaPlayer.setSurface(surface);
-        List<String> paths = new ArrayList<>();
-        String path = "/storage/emulated/0/Android/data/com.cgfay.cameralibrary/cache/CainCamera_1554114635517.mp4";
-        paths.add(path);
         mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         try {
-            mMediaPlayer.setDataSource(path);
+            if(!TextUtils.isEmpty(mVideoPath) && new File(mVideoPath).exists()){
+                Log.e("Harrison","playVideo:"+mVideoPath);
+                mMediaPlayer.setDataSource(mVideoPath);
+            }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -174,18 +169,8 @@ class VideoRenderThread extends HandlerThread implements SurfaceTexture.OnFrameA
     /**
      * 设置视频的播放地址
      */
-    public void setVideoPath(List<String> paths) {
-        if (paths != null) {
-            if (mMediaPlayer != null) {
-                Log.e("Harrison", "mMediaPlayer!=null");
-                //    mMediaPlayer.setDataSource(paths);
-                mMediaPlayer.start();
-            } else {
-                Log.e("Harrison", "mMediaPlayer==null");
-            }
-        } else {
-            Log.e("Harrison", "setVideoPath");
-        }
+    public void setVideoPath(String paths) {
+        this.mVideoPath = paths;
     }
 
     /**

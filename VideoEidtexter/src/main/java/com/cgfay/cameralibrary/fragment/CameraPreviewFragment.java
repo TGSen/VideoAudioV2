@@ -72,7 +72,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
     private static final String FRAGMENT_DIALOG = "dialog";
 
     // 对焦大小
-    private static final int FocusSize = 100;
+    private static final int FocusSize = 80;
 
     // 相机权限使能标志
     private boolean mCameraEnable = false;
@@ -85,9 +85,6 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
     // 显示滤镜页面
     private boolean isShowingFilters = false;
 
-
-    // 处于延时拍照状态
-    private boolean mDelayTaking = false;
 
     // 预览参数
     private CameraParam mCameraParam;
@@ -126,8 +123,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
     private Handler mMainHandler;
     // 持有该Fragment的Activity，onAttach/onDetach中绑定/解绑，主要用于解决getActivity() = null的情况
     private Activity mActivity;
-    // 页面跳转监听器
-    private OnPageOperationListener mPageListener;
+
     // 分镜页面
     private PreviewFiltersFragment mCameraFilterFragment;
     // 滤镜页面
@@ -161,7 +157,6 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
         // 初始化相机渲染引擎
         PreviewRenderer.getInstance()
                 .setCameraCallback(mCameraCallback)
-                .setCaptureFrameCallback(mCaptureCallback)
                 .initRenderer(mActivity);
     }
 
@@ -266,7 +261,6 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
 
     @Override
     public void onDestroy() {
-        mPageListener = null;
 
         // 关掉渲染引擎
         PreviewRenderer.getInstance().destroyRenderer();
@@ -309,7 +303,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
                 //打开道具
                 showCameraStyleTools();
                 break;
-                //测试视频编辑页面
+            //测试视频编辑页面
             case R.id.btFlash:
                 Intent intent = new Intent(mActivity, EditextVideoActivity.class);
                 startActivity(intent);
@@ -318,7 +312,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
                 showEffectView();
                 break;
             case R.id.btShutter:
-                takePicture();
+
                 break;
             case R.id.btn_record_delete:
                 deleteRecordedVideo(false);
@@ -371,7 +365,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
         isShowingStickers = true;
         FragmentTransaction ft = getChildFragmentManager().beginTransaction();
         if (mCameraFilterFragment == null) {
-            mCameraFilterFragment = PreviewFiltersFragment.getInstance(PreviewFiltersFragment.TYPE_CAMERA_FILTER,PreviewFiltersFragment.TYPE_VIDEO_SHOT);
+            mCameraFilterFragment = PreviewFiltersFragment.getInstance(PreviewFiltersFragment.TYPE_CAMERA_FILTER, PreviewFiltersFragment.TYPE_VIDEO_SHOT);
             ft.add(R.id.fragment_container, mCameraFilterFragment);
         } else {
             ft.show(mCameraFilterFragment);
@@ -387,7 +381,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
         isShowingFilters = true;
         FragmentTransaction ft = getChildFragmentManager().beginTransaction();
         if (mColorFilterFragment == null) {
-            mColorFilterFragment = PreviewFiltersFragment.getInstance(PreviewFiltersFragment.TYPE_COLOR_FILTER,PreviewFiltersFragment.TYPE_VIDEO_SHOT);
+            mColorFilterFragment = PreviewFiltersFragment.getInstance(PreviewFiltersFragment.TYPE_COLOR_FILTER, PreviewFiltersFragment.TYPE_VIDEO_SHOT);
             ft.add(R.id.fragment_container, mColorFilterFragment);
         } else {
             ft.show(mColorFilterFragment);
@@ -445,30 +439,6 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
 
     }
 
-    /**
-     * 拍照
-     */
-    private void takePicture() {
-        if (mStorageWriteEnable) {
-            if (mCameraParam.mGalleryType == GalleryType.PICTURE) {
-                if (mCameraParam.takeDelay && !mDelayTaking) {
-                    mDelayTaking = true;
-                    mMainHandler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            mDelayTaking = false;
-                            PreviewRenderer.getInstance().takePicture();
-                        }
-                    }, 3000);
-                } else {
-                    PreviewRenderer.getInstance().takePicture();
-                }
-            }
-        } else {
-            requestStoragePermission();
-        }
-    }
-
 
     // ------------------------------- SurfaceView 滑动、点击回调 ----------------------------------
     private CainSurfaceView.OnTouchScroller mTouchScroller = new CainSurfaceView.OnTouchScroller() {
@@ -516,11 +486,6 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
                 }
             });
 
-            // 如果处于触屏拍照状态，则直接拍照，不做对焦处理
-            if (mCameraParam.touchTake) {
-                takePicture();
-                return;
-            }
 
             // 判断是否支持对焦模式
             if (CameraEngine.getInstance().getCamera() != null) {
@@ -545,79 +510,6 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
 
     };
 
-
-    // ----------------------------------- 顶部状态栏点击回调 ------------------------------------
-    private PopupSettingView.StateChangedListener mStateChangedListener = new PopupSettingView.StateChangedListener() {
-
-        @Override
-        public void flashStateChanged(boolean flashOn) {
-            CameraEngine.getInstance().setFlashLight(flashOn);
-        }
-
-        @Override
-        public void onOpenCameraSetting() {
-            if (mPageListener != null) {
-                mPageListener.onOpenCameraSettingPage();
-            }
-        }
-
-        @Override
-        public void delayTakenChanged(boolean enable) {
-            mCameraParam.takeDelay = enable;
-        }
-
-        @Override
-        public void luminousCompensationChanged(boolean enable) {
-            mCameraParam.luminousEnhancement = enable;
-            enhancementBrightness();
-        }
-
-        @Override
-        public void touchTakenChanged(boolean touchTake) {
-            mCameraParam.touchTake = touchTake;
-        }
-
-        @Override
-        public void changeEdgeBlur(boolean enable) {
-
-        }
-    };
-
-    // ------------------------------------- 长宽比改变回调 --------------------------------------
-    private RatioImageView.OnRatioChangedListener mRatioChangedListener = new RatioImageView.OnRatioChangedListener() {
-        @Override
-        public void onRatioChanged(AspectRatio type) {
-            mCameraParam.setAspectRatio(type);
-            mMainHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    mAspectLayout.setAspectRatio(mCameraParam.currentRatio);
-                    PreviewRenderer.getInstance().reopenCamera();
-
-                    PreviewRenderer.getInstance().surfaceSizeChanged(mCameraSurfaceView.getWidth(),
-                            mCameraSurfaceView.getHeight());
-                }
-            });
-        }
-    };
-
-
-    // ------------------------------------ 拍照回调 ---------------------------------------------
-    private OnCaptureListener mCaptureCallback = new OnCaptureListener() {
-        @Override
-        public void onCapture(final ByteBuffer buffer, final int width, final int height) {
-            mMainHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    String filePath = PathConstraints.getImageCachePath(mActivity);
-                    BitmapUtils.saveBitmap(filePath, buffer, width, height);
-                    if (mPageListener != null) {
-                        mPageListener.onOpenImageEditPage(filePath);
-                    }
-                }
-            });
-        }
-    };
 
     // ------------------------------------ 预览回调 ---------------------------------------------
     private OnCameraCallback mCameraCallback = new OnCameraCallback() {
@@ -656,7 +548,6 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
             if (mCameraParam.mGalleryType == GalleryType.PICTURE) {
                 return;
             }
-
             // 隐藏删除按钮
             if (mCameraParam.mGalleryType == GalleryType.VIDEO) {
                 mBtnRecordPreview.setVisibility(View.GONE);
@@ -736,7 +627,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
                 @Override
                 public void run() {
                     // 处于录制状态点击了预览按钮，则需要等待完成再跳转， 或者是处于录制GIF状态
-                    if (mNeedToWaitStop || mCameraParam.mGalleryType == GalleryType.GIF) {
+                    if (mNeedToWaitStop) {
                         // 开始预览
                         stopRecordOrPreviewVideo();
                     }
@@ -838,19 +729,20 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
         }
 
         @Override
-        public void onCombineFinished(final boolean success) {
+        public void onCombineFinished(final boolean success, final String path) {
             mMainHandler.post(new Runnable() {
                 @Override
                 public void run() {
                     if (mCombineDialog != null) {
                         mCombineDialog.dismiss();
                         mCombineDialog = null;
+                        if(success){
+                            EditextVideoActivity.gotoThis(mActivity,path);
+                        }
                     }
                 }
             });
-            if (mPageListener != null) {
-                mPageListener.onOpenVideoEditPage(combinePath);
-            }
+
         }
     };
 
@@ -974,12 +866,6 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
         }
     };
 
-    /**
-     * 设置页面监听器
-     *
-     * @param listener
-     */
-    public void setOnPageOperationListener(OnPageOperationListener listener) {
-        mPageListener = listener;
-    }
+
+
 }
