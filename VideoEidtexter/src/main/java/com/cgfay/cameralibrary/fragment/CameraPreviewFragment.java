@@ -371,7 +371,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
         isShowingStickers = true;
         FragmentTransaction ft = getChildFragmentManager().beginTransaction();
         if (mCameraFilterFragment == null) {
-            mCameraFilterFragment = PreviewFiltersFragment.getInstance(PreviewFiltersFragment.TYPE_CAMERA_FILTER);
+            mCameraFilterFragment = PreviewFiltersFragment.getInstance(PreviewFiltersFragment.TYPE_CAMERA_FILTER,PreviewFiltersFragment.TYPE_VIDEO_SHOT);
             ft.add(R.id.fragment_container, mCameraFilterFragment);
         } else {
             ft.show(mCameraFilterFragment);
@@ -387,7 +387,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
         isShowingFilters = true;
         FragmentTransaction ft = getChildFragmentManager().beginTransaction();
         if (mColorFilterFragment == null) {
-            mColorFilterFragment = PreviewFiltersFragment.getInstance(PreviewFiltersFragment.TYPE_COLOR_FILTER);
+            mColorFilterFragment = PreviewFiltersFragment.getInstance(PreviewFiltersFragment.TYPE_COLOR_FILTER,PreviewFiltersFragment.TYPE_VIDEO_SHOT);
             ft.add(R.id.fragment_container, mColorFilterFragment);
         } else {
             ft.show(mColorFilterFragment);

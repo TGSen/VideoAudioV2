@@ -19,6 +19,7 @@ import android.view.ViewGroup;
 import com.cgfay.cameralibrary.R;
 import com.cgfay.cameralibrary.adapter.PreviewResourceAdapter;
 import com.cgfay.cameralibrary.engine.render.PreviewRenderer;
+import com.cgfay.cameralibrary.media.VideoRenderer;
 import com.cgfay.filterlibrary.glfilter.color.bean.DynamicColor;
 import com.cgfay.filterlibrary.glfilter.resource.ResourceHelper;
 import com.cgfay.filterlibrary.glfilter.resource.ResourceJsonCodec;
@@ -38,11 +39,40 @@ public class PreviewFiltersFragment extends Fragment {
 
     private static final String TAG = "PreviewFiltersFragment";
     private static final String KEY_FILTER_TYPE = "filterType";
+    private static final String KEY_VIDEO_MODE_TYPE = "videoModeType";
     private PreviewResourceAdapter mPreviewResourceAdapter;
 
-    public static PreviewFiltersFragment getInstance(@FilterDef int filterType) {
+    //数据模式， 分镜
+    public static final int TYPE_CAMERA_FILTER = 0;
+    //颜色方面的滤镜
+    public static final int TYPE_COLOR_FILTER = 1;
+
+    //拍摄
+    public static final int TYPE_VIDEO_SHOT = 0;
+    //编辑
+    public static final int TYPE_VIDEO_EIDTEXT = 1;
+    //滤镜分类
+    private int mFilterType;
+    //视频的模式，1拍摄模式 2.编辑模式
+    private int mVideoModeType;
+
+    //Retention 是元注解，简单地讲就是系统提供的，用于定义注解的“注解”
+    @Retention(RetentionPolicy.SOURCE)
+    //这里指定int的取值只能是以下范围
+    @IntDef({TYPE_CAMERA_FILTER, TYPE_COLOR_FILTER})
+    @interface FilterDef {
+    }
+    @Retention(RetentionPolicy.SOURCE)
+    //这里指定int的取值只能是以下范围
+    @IntDef({TYPE_VIDEO_SHOT, TYPE_VIDEO_EIDTEXT})
+    @interface VideoModeDef {
+    }
+
+
+    public static PreviewFiltersFragment getInstance(@FilterDef int filterType,int videoModeType) {
         Bundle bundle = new Bundle();
         bundle.putInt(KEY_FILTER_TYPE, filterType);
+        bundle.putInt(KEY_VIDEO_MODE_TYPE, videoModeType);
         PreviewFiltersFragment filtersFragment = new PreviewFiltersFragment();
         filtersFragment.setArguments(bundle);
         return filtersFragment;
@@ -77,6 +107,7 @@ public class PreviewFiltersFragment extends Fragment {
         Bundle bundle = getArguments();
         if (bundle != null) {
             mFilterType = bundle.getInt(KEY_FILTER_TYPE);
+            mVideoModeType = bundle.getInt(KEY_VIDEO_MODE_TYPE);
         }
         initView(mContentView);
         initFilterData();
@@ -92,19 +123,9 @@ public class PreviewFiltersFragment extends Fragment {
         mPreviewResourceAdapter.notifyDataSetChanged();
     }
 
-    //数据模式， 分镜
-    public static final int TYPE_CAMERA_FILTER = 0;
-    //颜色方面的滤镜
-    public static final int TYPE_COLOR_FILTER = 1;
 
-    private int mFilterType;
 
-    //Retention 是元注解，简单地讲就是系统提供的，用于定义注解的“注解”
-    @Retention(RetentionPolicy.SOURCE)
-    //这里指定int的取值只能是以下范围
-    @IntDef({TYPE_CAMERA_FILTER, TYPE_COLOR_FILTER})
-    @interface FilterDef {
-    }
+
 
 
     private void initView(View view) {
@@ -151,7 +172,13 @@ public class PreviewFiltersFragment extends Fragment {
                     String folderPath = ResourceHelper.getResourceDirectory(mActivity) + File.separator + unzipFolder;
                     DynamicColor color = ResourceJsonCodec.decodeFilterData(folderPath);
                     color.setColorType(ResourceType.FILTER.getIndex());
-                    PreviewRenderer.getInstance().changeDynamicColorFilter(color);
+                    //只有滤镜分拍摄模式还是编辑模式
+                    if(mVideoModeType==TYPE_VIDEO_EIDTEXT){
+                        VideoRenderer.getInstance().changeDynamicColorFilter(color);
+                    }else if(mVideoModeType==TYPE_VIDEO_SHOT){
+                        PreviewRenderer.getInstance().changeDynamicColorFilter(color);
+                    }
+
                     break;
                 }// 摄像机分镜
                 case CAMERA_FILTER: {
