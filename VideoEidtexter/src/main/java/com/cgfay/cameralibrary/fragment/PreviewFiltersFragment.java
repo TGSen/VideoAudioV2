@@ -30,6 +30,8 @@ import com.cgfay.filterlibrary.glfilter.stickers.bean.DynamicSticker;
 import java.io.File;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
@@ -41,6 +43,8 @@ public class PreviewFiltersFragment extends Fragment {
     private static final String KEY_FILTER_TYPE = "filterType";
     private static final String KEY_VIDEO_MODE_TYPE = "videoModeType";
     private PreviewResourceAdapter mPreviewResourceAdapter;
+
+    private List<ResourceData> mResourceData = new ArrayList<>();
 
     //数据模式， 分镜
     public static final int TYPE_CAMERA_FILTER = 0;
@@ -62,6 +66,7 @@ public class PreviewFiltersFragment extends Fragment {
     @IntDef({TYPE_CAMERA_FILTER, TYPE_COLOR_FILTER})
     @interface FilterDef {
     }
+
     @Retention(RetentionPolicy.SOURCE)
     //这里指定int的取值只能是以下范围
     @IntDef({TYPE_VIDEO_SHOT, TYPE_VIDEO_EIDTEXT})
@@ -69,7 +74,7 @@ public class PreviewFiltersFragment extends Fragment {
     }
 
 
-    public static PreviewFiltersFragment getInstance(@FilterDef int filterType,int videoModeType) {
+    public static PreviewFiltersFragment getInstance(@FilterDef int filterType, @VideoModeDef int videoModeType) {
         Bundle bundle = new Bundle();
         bundle.putInt(KEY_FILTER_TYPE, filterType);
         bundle.putInt(KEY_VIDEO_MODE_TYPE, videoModeType);
@@ -83,7 +88,6 @@ public class PreviewFiltersFragment extends Fragment {
 
     // 贴纸列表
     private RecyclerView mResourceView;
-    private Handler mHandler = new Handler(Looper.myLooper());
 
     // 布局管理器
     private Activity mActivity;
@@ -109,6 +113,7 @@ public class PreviewFiltersFragment extends Fragment {
             mFilterType = bundle.getInt(KEY_FILTER_TYPE);
             mVideoModeType = bundle.getInt(KEY_VIDEO_MODE_TYPE);
         }
+
         initView(mContentView);
         initFilterData();
     }
@@ -116,16 +121,13 @@ public class PreviewFiltersFragment extends Fragment {
     //初始化分镜或者是滤镜资源
     private void initFilterData() {
         if (mFilterType == TYPE_CAMERA_FILTER) {
-            ResourceHelper.initCameraFilterResource(mActivity);
+            ResourceHelper.initCameraFilterResource(mActivity,mResourceData);
         } else if (mFilterType == TYPE_COLOR_FILTER) {
-            ResourceHelper.initColorFilterResource(mActivity);
+            ResourceHelper.initColorFilterResource(mActivity,mResourceData);
         }
+//        mResourceData.addAll( mFilterType == TYPE_COLOR_FILTER ? ResourceHelper.getColorFilter() : ResourceHelper.getCamerFilter());
         mPreviewResourceAdapter.notifyDataSetChanged();
     }
-
-
-
-
 
 
     private void initView(View view) {
@@ -133,7 +135,8 @@ public class PreviewFiltersFragment extends Fragment {
 
         GridLayoutManager manager = new GridLayoutManager(mActivity, 5);
         mResourceView.setLayoutManager(manager);
-        mPreviewResourceAdapter = new PreviewResourceAdapter(mActivity, mFilterType == TYPE_COLOR_FILTER ? ResourceHelper.getColorFilter() : ResourceHelper.getCamerFilter());
+
+        mPreviewResourceAdapter = new PreviewResourceAdapter(mActivity,mResourceData);
         mResourceView.setAdapter(mPreviewResourceAdapter);
         mPreviewResourceAdapter.setOnResourceChangeListener(new PreviewResourceAdapter.OnResourceChangeListener() {
             @Override
@@ -173,9 +176,9 @@ public class PreviewFiltersFragment extends Fragment {
                     DynamicColor color = ResourceJsonCodec.decodeFilterData(folderPath);
                     color.setColorType(ResourceType.FILTER.getIndex());
                     //只有滤镜分拍摄模式还是编辑模式
-                    if(mVideoModeType==TYPE_VIDEO_EIDTEXT){
+                    if (mVideoModeType == TYPE_VIDEO_EIDTEXT) {
                         VideoRenderer.getInstance().changeDynamicColorFilter(color);
-                    }else if(mVideoModeType==TYPE_VIDEO_SHOT){
+                    } else if (mVideoModeType == TYPE_VIDEO_SHOT) {
                         PreviewRenderer.getInstance().changeDynamicColorFilter(color);
                     }
 
@@ -205,12 +208,10 @@ public class PreviewFiltersFragment extends Fragment {
                 // 所有数据均为空
                 case NONE: {
 
-                    if(mFilterType==TYPE_COLOR_FILTER){
-                        Log.e("Harrison","TYPE_COLOR_FILTER");
+                    if (mFilterType == TYPE_COLOR_FILTER) {
                         PreviewRenderer.getInstance().removeDynamic(new DynamicColor().setColorType(ResourceType.FILTER.getIndex()));
-                    }else{
+                    } else {
                         //移除分镜的
-                        Log.e("Harrison","TYPE_COLOR_FILTER 分镜");
                         PreviewRenderer.getInstance().removeDynamic(new DynamicColor().setColorType(ResourceType.CAMERA_FILTER.getIndex()));
                     }
                     break;
@@ -223,4 +224,8 @@ public class PreviewFiltersFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
 }

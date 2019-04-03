@@ -20,32 +20,19 @@ public final class ResourceHelper extends ResourceBaseHelper {
     // 资源存储路径
     private static final String ResourceDirectory = "Resource";
     // 资源列表
-    private static final List<ResourceData> mColorFilter = new ArrayList<>();
-    private static final List<ResourceData> mCameraFileter = new ArrayList<>();
+
 
     private ResourceHelper() {
 
     }
 
-    /**
-     * 获取资源列表
-     *
-     * @return
-     */
-    public static List<ResourceData> getColorFilter() {
-        return mColorFilter;
-    }
-
-    public static List<ResourceData> getCamerFilter() {
-        return mCameraFileter;
-    }
 
     /**
      * 初始化分镜资源
      *
      * @param context
      */
-    public static void initCameraFilterResource(Context context) {
+    public static void initCameraFilterResource(Context context,List<ResourceData> mCameraFileter) {
         FileUtils.createNoMediaFile(getResourceDirectory(context.getApplicationContext()));
         // 清空之前的数据
         mCameraFileter.clear();
@@ -57,6 +44,7 @@ public final class ResourceHelper extends ResourceBaseHelper {
 
         // 解压所有资源
         decompressResource(context, mCameraFileter);
+
     }
 
     /**
@@ -64,7 +52,7 @@ public final class ResourceHelper extends ResourceBaseHelper {
      *
      * @param context
      */
-    public static void initColorFilterResource(Context context) {
+    public static void initColorFilterResource(Context context,List<ResourceData> mColorFilter) {
         FileUtils.createNoMediaFile(getResourceDirectory(context.getApplicationContext()));
         // 清空之前的数据
         mColorFilter.clear();

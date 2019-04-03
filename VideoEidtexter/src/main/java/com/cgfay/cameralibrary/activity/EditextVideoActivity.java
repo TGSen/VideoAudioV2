@@ -124,10 +124,8 @@ public class EditextVideoActivity extends AppCompatActivity implements View.OnCl
         int id = v.getId();
         switch (id) {
             case R.id.btEffect:
-                Log.e("Harrison", "特效----");
                 break;
             case R.id.btFilters:
-                Log.e("Harrison", "滤镜----");
                 showFilterView();
                 break;
         }
