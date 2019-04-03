@@ -28,6 +28,7 @@ import com.cgfay.cameralibrary.R;
 import com.cgfay.cameralibrary.activity.EditextVideoActivity;
 import com.cgfay.cameralibrary.engine.camera.CameraEngine;
 import com.cgfay.cameralibrary.engine.camera.CameraParam;
+import com.cgfay.cameralibrary.engine.camera.SensorControler;
 import com.cgfay.cameralibrary.engine.listener.OnCameraCallback;
 import com.cgfay.cameralibrary.engine.listener.OnCaptureListener;
 import com.cgfay.cameralibrary.engine.listener.OnRecordListener;
@@ -130,6 +131,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
     private PreviewFiltersFragment mColorFilterFragment;
     private Group mGroupViewTop;
     private Group mGroupViewBottom;
+    private SensorControler mSensorControler;
 
     public CameraPreviewFragment() {
         mCameraParam = CameraParam.getInstance();
@@ -158,6 +160,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
         PreviewRenderer.getInstance()
                 .setCameraCallback(mCameraCallback)
                 .initRenderer(mActivity);
+
     }
 
     @Nullable
@@ -485,7 +488,6 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
                     hideEffectView();
                 }
             });
-
 
             // 判断是否支持对焦模式
             if (CameraEngine.getInstance().getCamera() != null) {

@@ -2,9 +2,11 @@ package com.cgfay.cameralibrary.engine.camera;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
+import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 
@@ -76,6 +78,12 @@ public class CameraEngine {
         cameraParam.supportFlash = checkSupportFlashLight(parameters);
         cameraParam.previewFps = chooseFixedPreviewFps(parameters, expectFps * 1000);
         parameters.setRecordingHint(true);
+        //设置对焦模式
+        List<String> focusModes = parameters.getSupportedFocusModes();
+        if (focusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO))
+            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+
+
         mCamera.setParameters(parameters);
         setPreviewSize(mCamera, expectWidth, expectHeight);
         setPictureSize(mCamera, expectWidth, expectHeight);
@@ -503,6 +511,9 @@ public class CameraEngine {
     public  Camera getCamera() {
         return mCamera;
     }
+
+
+
 
     /**
      * 计算最完美的Size

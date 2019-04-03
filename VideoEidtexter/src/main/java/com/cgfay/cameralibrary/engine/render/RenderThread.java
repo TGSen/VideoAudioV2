@@ -11,6 +11,7 @@ import android.view.SurfaceHolder;
 
 import com.cgfay.cameralibrary.engine.camera.CameraEngine;
 import com.cgfay.cameralibrary.engine.camera.CameraParam;
+import com.cgfay.cameralibrary.engine.camera.SensorControler;
 import com.cgfay.cameralibrary.engine.recorder.HardcodeEncoder;
 import com.cgfay.filterlibrary.gles.EglCore;
 import com.cgfay.filterlibrary.gles.WindowSurface;
@@ -78,6 +79,7 @@ public class RenderThread extends HandlerThread implements SurfaceTexture.OnFram
 
     // 渲染管理器
     private RenderManager mRenderManager;
+
 
     public RenderThread(Context context, String name) {
         super(name);
@@ -157,7 +159,8 @@ public class RenderThread extends HandlerThread implements SurfaceTexture.OnFram
 
         // 打开相机
         openCamera();
-
+        //初始化
+        SensorControler.getInstance().init(mContext);
     }
 
     /**
@@ -383,6 +386,7 @@ public class RenderThread extends HandlerThread implements SurfaceTexture.OnFram
         if (mCameraParam.cameraCallback != null) {
             mCameraParam.cameraCallback.onCameraOpened();
         }
+
     }
 
     /**
@@ -397,6 +401,7 @@ public class RenderThread extends HandlerThread implements SurfaceTexture.OnFram
         }
         openCamera();
         startPreview();
+
     }
 
     /**

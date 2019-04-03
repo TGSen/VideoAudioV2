@@ -211,7 +211,6 @@ public class PreviewFiltersFragment extends Fragment {
                     if (mVideoModeType == TYPE_VIDEO_EIDTEXT) {
                         VideoRenderer.getInstance().changeDynamicColorFilter(new DynamicColor().setColorType(ResourceType.FILTER.getIndex()));
                     } else if (mVideoModeType == TYPE_VIDEO_SHOT) {
-
                         if (mFilterType == TYPE_COLOR_FILTER) {
                             PreviewRenderer.getInstance().removeDynamic(new DynamicColor().setColorType(ResourceType.FILTER.getIndex()));
                         } else {

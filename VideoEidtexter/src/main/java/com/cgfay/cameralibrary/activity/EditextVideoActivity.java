@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -51,7 +50,6 @@ public class EditextVideoActivity extends AppCompatActivity implements View.OnCl
     private void initData() {
         Bundle bundle = getIntent().getBundleExtra(BUNDLE_VIDEO_PATH);
         videoPath = bundle.getString(KEY_VIDEO_PATH);
-        Log.e("Harrison", "initData:" + videoPath);
         //设置播放的视频路径
         VideoRenderer.getInstance().setVideoPaths(videoPath);
         // 绑定需要渲染的SurfaceView
