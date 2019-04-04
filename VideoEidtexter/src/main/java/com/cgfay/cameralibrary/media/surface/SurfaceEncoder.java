@@ -20,11 +20,8 @@ public class SurfaceEncoder {
     private static final String TAG = "EncodeDecodeSurface";
     private static final boolean VERBOSE = false;           // lots of logging
     private static final String MIME_TYPE = "video/avc";    // H.264 Advanced Video Coding
-//    private static final int WIDTH = 1920;
-//    private static final int HEIGHT = 1080;
-//    private static final int BIT_RATE = 1920 * 1080 * 10;            // 2Mbps
-    public static final int FRAME_RATE = 30;               // 30fps
-    private static final int IFRAME_INTERVAL = 30;          // 10 seconds between I-frames
+
+    private static final int IFRAME_INTERVAL = 1;          // 10 seconds between I-frames
 
     MediaCodec encoder = null;
     Surface encodesurface;
@@ -41,7 +38,7 @@ public class SurfaceEncoder {
 
 
     public void VideoEncodePrepare() {
-        if(mVideoInfo== null){
+        if (mVideoInfo == null) {
             return;
         }
         mBufferInfo = new MediaCodec.BufferInfo();
@@ -50,11 +47,13 @@ public class SurfaceEncoder {
 
         // Set some properties.  Failing to specify some of these can cause the MediaCodec
         // configure() call to throw an unhelpful exception.
-         int BIT_RATE =mVideoInfo.getWidth()*mVideoInfo.getHeight()* 10;
-        format.setInteger(MediaFormat.KEY_COLOR_FORMAT,
-                MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
-        format.setInteger(MediaFormat.KEY_BIT_RATE, BIT_RATE);
-        format.setInteger(MediaFormat.KEY_FRAME_RATE, FRAME_RATE);
+        format.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
+        format.setInteger(MediaFormat.KEY_FRAME_RATE, mVideoInfo.getFrameRate());
+        if (mVideoInfo.getBitRate() > 0) {
+            format.setInteger(MediaFormat.KEY_BIT_RATE, mVideoInfo.getBitRate());
+        } else {
+            format.setInteger(MediaFormat.KEY_BIT_RATE, calcBitRate(mVideoInfo.getFrameRate(),mVideoInfo.getWidth(),mVideoInfo.getHeight()));
+        }
         format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, IFRAME_INTERVAL);
 
 
@@ -75,6 +74,10 @@ public class SurfaceEncoder {
         mTrackIndex = -1;
         mMuxerStarted = false;
 
+    }
+
+    private int calcBitRate(int frameRate, int width, int height) {
+        return (int) (0.25f * frameRate * width * height) * 2;
     }
 
 

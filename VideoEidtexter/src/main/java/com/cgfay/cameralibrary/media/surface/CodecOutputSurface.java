@@ -18,7 +18,7 @@ import java.nio.ByteOrder;
 /**
  * Created by guoheng-iri on 2016/9/1.
  */
-public class DeCodecOutputSurface implements SurfaceTexture.OnFrameAvailableListener {
+public class CodecOutputSurface implements SurfaceTexture.OnFrameAvailableListener {
 
     private static final String TAG = "EncodeDecodeSurface";
     private static final boolean VERBOSE = false;           // lots of logging
@@ -46,7 +46,7 @@ public class DeCodecOutputSurface implements SurfaceTexture.OnFrameAvailableList
      * new EGL context and surface will be made current.  Creates a Surface that can be passed
      * to MediaCodec.configure().
      */
-    public DeCodecOutputSurface(int width, int height,Surface surface) {
+    public CodecOutputSurface(int width, int height, Surface surface) {
         if (width <= 0 || height <= 0) {
             throw new IllegalArgumentException();
         }

@@ -22,7 +22,7 @@ public class SurfaceDecoder {
 
     MediaCodec decoder = null;
 
-    DeCodecOutputSurface outputSurface = null;
+    CodecOutputSurface outputSurface = null;
 
     MediaExtractor extractor = null;
 
@@ -52,11 +52,7 @@ public class SurfaceDecoder {
             extractor.selectTrack(DecodetrackIndex);
 
             MediaFormat format = extractor.getTrackFormat(DecodetrackIndex);
-            if (VERBOSE) {
-                Log.d(TAG, "Video size is " + format.getInteger(MediaFormat.KEY_WIDTH) + "x" +
-                        format.getInteger(MediaFormat.KEY_HEIGHT));
-            }
-            outputSurface = new DeCodecOutputSurface(mVideoInfo.getWidth(), mVideoInfo.getHeight(), encodersurface);
+            outputSurface = new CodecOutputSurface(mVideoInfo.getWidth(), mVideoInfo.getHeight(), encodersurface);
             String mime = format.getString(MediaFormat.KEY_MIME);
             decoder = MediaCodec.createDecoderByType(mime);
             decoder.configure(format, outputSurface.getSurface(), null, 0);

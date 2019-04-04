@@ -84,6 +84,8 @@ public class EncodeDecodeSurface {
             String width = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
             String height = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
 
+            Log.e("Harrison","width"+width+"-"+height+"-"+bitrate);
+
             videoInfo.setWidth(Integer.parseInt(width));
             videoInfo.setBitRate(Integer.parseInt(bitrate));
             videoInfo.setHeight(Integer.parseInt(height));
