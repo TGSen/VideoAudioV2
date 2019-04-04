@@ -3,12 +3,12 @@ package com.cgfay.cameralibrary.media.surface;
 import android.media.MediaCodec;
 import android.media.MediaExtractor;
 import android.media.MediaFormat;
-import android.os.Environment;
 import android.util.Log;
 import android.view.Surface;
 
+import com.cgfay.cameralibrary.media.VideoInfo;
+
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 /**
@@ -19,35 +19,35 @@ public class SurfaceDecoder {
     private static final String TAG = "EncodeDecodeSurface";
     private static final boolean VERBOSE = false;           // lots of logging
 
-    int saveWidth = 1920;
-    int saveHeight = 1080;
 
     MediaCodec decoder = null;
 
-    CodecOutputSurface outputSurface = null;
+    DeCodecOutputSurface outputSurface = null;
 
     MediaExtractor extractor = null;
 
     public int DecodetrackIndex;
+    private VideoInfo mVideoInfo;
 
-    // where to find files (note: requires WRITE_EXTERNAL_STORAGE permission)
-    private static final File FILES_DIR = Environment.getExternalStorageDirectory();
-    private static final String INPUT_FILE = "Download/test.mp4";
+    public void setVideoInfo(VideoInfo info) {
+        this.mVideoInfo = info;
+    }
 
-
-    void SurfaceDecoderPrePare(Surface encodersurface)
-    {
+    void SurfaceDecoderPrePare(Surface encodersurface) {
         try {
-            File inputFile = new File(FILES_DIR, INPUT_FILE);   // must be an absolute path
+            if (mVideoInfo == null) {
+                return;
+            }
+            File inputFile = new File(mVideoInfo.getPath());   // must be an absolute path
 
             if (!inputFile.canRead()) {
-                throw new FileNotFoundException("Unable to read " + inputFile);
+                return;
             }
             extractor = new MediaExtractor();
             extractor.setDataSource(inputFile.toString());
             DecodetrackIndex = selectTrack(extractor);
             if (DecodetrackIndex < 0) {
-                throw new RuntimeException("No video track found in " + inputFile);
+                return;
             }
             extractor.selectTrack(DecodetrackIndex);
 
@@ -56,15 +56,12 @@ public class SurfaceDecoder {
                 Log.d(TAG, "Video size is " + format.getInteger(MediaFormat.KEY_WIDTH) + "x" +
                         format.getInteger(MediaFormat.KEY_HEIGHT));
             }
-
-            outputSurface = new CodecOutputSurface(saveWidth, saveHeight,encodersurface);
-
+            outputSurface = new DeCodecOutputSurface(mVideoInfo.getWidth(), mVideoInfo.getHeight(), encodersurface);
             String mime = format.getString(MediaFormat.KEY_MIME);
             decoder = MediaCodec.createDecoderByType(mime);
             decoder.configure(format, outputSurface.getSurface(), null, 0);
             decoder.start();
-        }catch (IOException e)
-        {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -90,8 +87,7 @@ public class SurfaceDecoder {
     }
 
 
-    void release()
-    {
+    void release() {
         if (decoder != null) {
             decoder.stop();
             decoder.release();

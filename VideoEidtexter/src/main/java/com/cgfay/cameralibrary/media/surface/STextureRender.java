@@ -16,19 +16,19 @@ public  class STextureRender {
     private static final String TAG = "STextureRendering";
 
     private static final float TRANSFORM_RECTANGLE_COORDS[] = {
-            -0.914337f, -0.949318f,1.0f,
-            0.494437f, -0.683502f,1.0f,
-            -0.895833f, 0.62963f,1.0f,
-            0.76524f, 0.689287f,1.0f
+            -1.0f, -1.0f,1.0f,
+            1.0f, -1.0f,1.0f,
+            -1.0f, 1.0f,1.0f,
+            1.0f, 1.0f,1.0f
 
     };
 
 
     private static final float TRANSFORM_RECTANGLE_TEX_COORDS[] = {
-            0f, 0.822368f, 0.822368f,1.0f,
-            0.710227f, 0.710227f, 0.710227f,1.0f,
+            0f, 1.0f, 1.0f,1.0f,
+            1.0f, 1.0f, 1.0f,1.0f,
             0f, 0f, 1f,1.0f,
-            0.838926f, 0f, 0.838926f,1.0f
+            1.0f, 0f, 1.0f,1.0f
 
     };
 
@@ -79,7 +79,7 @@ public  class STextureRender {
                     "varying vec4 vTextureCoord;\n" +
                     "uniform samplerExternalOES sTexture;\n" +
                     "void main() {\n" +
-                    "    gl_FragColor = texture2D(sTexture, vTextureCoord.xy/vTextureCoord.z);" +
+                    "    gl_FragColor = texture2D(sTexture, vTextureCoord.xy);" +
                     "}\n";
 
 
@@ -171,7 +171,7 @@ public  class STextureRender {
      * Initializes GL state.  Call this after the EGL surface has been created and made current.
      */
     public void surfaceCreated() {
-        mProgram = createProgram(VERTEX_SHADER, FRAGMENT_SHADER);
+        mProgram = GlUtil.createProgram(VERTEX_SHADER, FRAGMENT_SHADER);
         if (mProgram == 0) {
             throw new RuntimeException("failed creating program");
         }
@@ -212,7 +212,7 @@ public  class STextureRender {
             fragmentShader = FRAGMENT_SHADER;
         }
         GLES20.glDeleteProgram(mProgram);
-        mProgram = createProgram(VERTEX_SHADER, fragmentShader);
+        mProgram = GlUtil.createProgram(VERTEX_SHADER, fragmentShader);
         if (mProgram == 0) {
             throw new RuntimeException("failed creating program");
         }
@@ -234,35 +234,6 @@ public  class STextureRender {
         return shader;
     }
 
-    private int createProgram(String vertexSource, String fragmentSource) {
-        int vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, vertexSource);
-        if (vertexShader == 0) {
-            return 0;
-        }
-        int pixelShader = loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentSource);
-        if (pixelShader == 0) {
-            return 0;
-        }
-
-        int program = GLES20.glCreateProgram();
-        if (program == 0) {
-            Log.e(TAG, "Could not create program");
-        }
-        GLES20.glAttachShader(program, vertexShader);
-        checkGlError("glAttachShader");
-        GLES20.glAttachShader(program, pixelShader);
-        checkGlError("glAttachShader");
-        GLES20.glLinkProgram(program);
-        int[] linkStatus = new int[1];
-        GLES20.glGetProgramiv(program, GLES20.GL_LINK_STATUS, linkStatus, 0);
-        if (linkStatus[0] != GLES20.GL_TRUE) {
-            Log.e(TAG, "Could not link program: ");
-            Log.e(TAG, GLES20.glGetProgramInfoLog(program));
-            GLES20.glDeleteProgram(program);
-            program = 0;
-        }
-        return program;
-    }
 
     public void checkGlError(String op) {
         int error;

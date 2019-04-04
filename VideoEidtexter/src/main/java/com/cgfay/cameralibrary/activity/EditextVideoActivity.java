@@ -3,6 +3,7 @@ package com.cgfay.cameralibrary.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -14,6 +15,7 @@ import android.widget.TextView;
 import com.cgfay.cameralibrary.R;
 import com.cgfay.cameralibrary.fragment.PreviewFiltersFragment;
 import com.cgfay.cameralibrary.media.VideoRenderer;
+import com.cgfay.cameralibrary.media.surface.EncodeDecodeSurface;
 import com.cgfay.cameralibrary.widget.VideoPreviewView;
 
 /**
@@ -54,6 +56,14 @@ public class EditextVideoActivity extends AppCompatActivity implements View.OnCl
         VideoRenderer.getInstance().setVideoPaths(videoPath);
         // 绑定需要渲染的SurfaceView
         VideoRenderer.getInstance().setSurfaceView(mVideoPreviewView);
+        EncodeDecodeSurface test=new EncodeDecodeSurface();
+        String outputPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download/out.mp4";
+        test.setVideoPath(videoPath,outputPath);
+        try {
+            test.testEncodeDecodeSurface();
+        }catch (Throwable a){
+            a.printStackTrace();
+        }
     }
 
     public static void gotoThis(Context context, String path) {

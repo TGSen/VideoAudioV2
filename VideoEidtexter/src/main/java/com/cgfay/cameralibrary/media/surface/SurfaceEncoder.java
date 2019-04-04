@@ -4,11 +4,11 @@ import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.media.MediaMuxer;
-import android.os.Environment;
 import android.util.Log;
 import android.view.Surface;
 
-import java.io.File;
+import com.cgfay.cameralibrary.media.VideoInfo;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
@@ -20,9 +20,9 @@ public class SurfaceEncoder {
     private static final String TAG = "EncodeDecodeSurface";
     private static final boolean VERBOSE = false;           // lots of logging
     private static final String MIME_TYPE = "video/avc";    // H.264 Advanced Video Coding
-    private static final int WIDTH = 1920;
-    private static final int HEIGHT = 1080;
-    private static final int BIT_RATE = 1920*1080*10;            // 2Mbps
+//    private static final int WIDTH = 1920;
+//    private static final int HEIGHT = 1080;
+//    private static final int BIT_RATE = 1920 * 1080 * 10;            // 2Mbps
     public static final int FRAME_RATE = 30;               // 30fps
     private static final int IFRAME_INTERVAL = 30;          // 10 seconds between I-frames
 
@@ -33,19 +33,24 @@ public class SurfaceEncoder {
 
     public int mTrackIndex;
     public boolean mMuxerStarted;
+    private VideoInfo mVideoInfo;
+
+    public void setVideoInfo(VideoInfo videoInfo) {
+        this.mVideoInfo = videoInfo;
+    }
 
 
-    public void VideoEncodePrepare()
-    {
-        String outputPath = new File(Environment.getExternalStorageDirectory(),
-                "mytest." + WIDTH + "x" + HEIGHT + ".mp4").toString();
-
+    public void VideoEncodePrepare() {
+        if(mVideoInfo== null){
+            return;
+        }
         mBufferInfo = new MediaCodec.BufferInfo();
 
-        MediaFormat format = MediaFormat.createVideoFormat(MIME_TYPE, WIDTH, HEIGHT);
+        MediaFormat format = MediaFormat.createVideoFormat(MIME_TYPE, mVideoInfo.getWidth(), mVideoInfo.getHeight());
 
         // Set some properties.  Failing to specify some of these can cause the MediaCodec
         // configure() call to throw an unhelpful exception.
+         int BIT_RATE =mVideoInfo.getWidth()*mVideoInfo.getHeight()* 10;
         format.setInteger(MediaFormat.KEY_COLOR_FORMAT,
                 MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
         format.setInteger(MediaFormat.KEY_BIT_RATE, BIT_RATE);
@@ -59,19 +64,18 @@ public class SurfaceEncoder {
             encoder = MediaCodec.createEncoderByType(MIME_TYPE);
 
             encoder.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
-            encodesurface=encoder.createInputSurface();
+            encodesurface = encoder.createInputSurface();
             encoder.start();
-            mMuxer = new MediaMuxer(outputPath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
+            mMuxer = new MediaMuxer(mVideoInfo.getOutPath(), MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
 
-        }catch (IOException ioe) {
-            throw new RuntimeException("failed init encoder", ioe);
+        } catch (IOException ioe) {
+
         }
 
         mTrackIndex = -1;
         mMuxerStarted = false;
 
     }
-
 
 
     public void drainEncoder(boolean endOfStream) {
@@ -125,7 +129,7 @@ public class SurfaceEncoder {
                     if (VERBOSE) Log.d(TAG, "ignoring BUFFER_FLAG_CODEC_CONFIG");
 
                     MediaFormat format =
-                            MediaFormat.createVideoFormat(MIME_TYPE, WIDTH, HEIGHT);
+                            MediaFormat.createVideoFormat(MIME_TYPE, mVideoInfo.getWidth(), mVideoInfo.getHeight());
                     format.setByteBuffer("csd-0", encodedData);
 
                     mBufferInfo.size = 0;
@@ -159,10 +163,8 @@ public class SurfaceEncoder {
     }
 
 
-    void release()
-    {
-        if (encoder!=null)
-        {
+    void release() {
+        if (encoder != null) {
             encoder.stop();
             encoder.release();
         }
@@ -174,11 +176,9 @@ public class SurfaceEncoder {
     }
 
 
-
-
-    Surface getEncoderSurface()
-    {
+    Surface getEncoderSurface() {
         return encodesurface;
     }
+
 
 }
