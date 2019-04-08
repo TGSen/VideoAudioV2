@@ -45,6 +45,8 @@ public class SurfaceDecoder {
             }
             extractor = new MediaExtractor();
             extractor.setDataSource(inputFile.toString());
+
+
             DecodetrackIndex = selectTrack(extractor);
             if (DecodetrackIndex < 0) {
                 return;
@@ -52,6 +54,8 @@ public class SurfaceDecoder {
             extractor.selectTrack(DecodetrackIndex);
 
             MediaFormat format = extractor.getTrackFormat(DecodetrackIndex);
+            //在这里设置，因为只有这里才可以获取
+            mVideoInfo.setFrameRate(format.getInteger(MediaFormat.KEY_FRAME_RATE));
             outputSurface = new CodecOutputSurface(mVideoInfo.getWidth(), mVideoInfo.getHeight(), encodersurface);
             String mime = format.getString(MediaFormat.KEY_MIME);
             decoder = MediaCodec.createDecoderByType(mime);

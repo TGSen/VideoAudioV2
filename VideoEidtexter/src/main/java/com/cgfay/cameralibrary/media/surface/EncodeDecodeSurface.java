@@ -1,6 +1,7 @@
 package com.cgfay.cameralibrary.media.surface;
 
 import android.media.MediaCodec;
+import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.media.MediaMetadataRetriever;
 import android.util.Log;
@@ -19,13 +20,14 @@ public class EncodeDecodeSurface {
     private static final String TAG = "EncodeDecodeSurface";
     private static final boolean VERBOSE = false;           // lots of logging
 
-    private int MAX_FRAMES = 400;       // stop extracting after this many
 
     SurfaceDecoder mDecoder = new SurfaceDecoder();
     SurfaceEncoder mEncoder = new SurfaceEncoder();
 
     private String videoPath;
     private String outVideoPath;
+    private VideoInfo videoInfo;
+    private final static long ONE_BILLION = 1000000000;
 
     public void setVideoPath(String inputPath, String outVideoPath) {
         this.videoPath = inputPath;
@@ -74,27 +76,33 @@ public class EncodeDecodeSurface {
         try {
             //获取原视频的帧率，宽高，等信息并传递给Mediaceodec
             MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+
             File file = new File(videoPath);
             if (!file.canRead()) {
                 return;
             }
             mmr.setDataSource(videoPath);
-            VideoInfo videoInfo = new VideoInfo();
+            videoInfo = new VideoInfo();
             String bitrate = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE);
             String width = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
             String height = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
-            String frameCont = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_FRAME_COUNT);
+            //这个api 有限制，帧率可以在SurfaDecoder 那边设置
+            String frameRate = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CAPTURE_FRAMERATE);
             videoInfo.setWidth(Integer.parseInt(width))
                     .setHeight(Integer.parseInt(height))
                     .setBitRate(Integer.parseInt(bitrate))
                     .setPath(videoPath)
                     .setOutPath(outVideoPath);
+
+            // MAX_FRAMES = videoInfo.getFrameCount();
             mEncoder.setVideoInfo(videoInfo);
             mEncoder.VideoEncodePrepare();
             //将解码的surface
             mDecoder.setVideoInfo(videoInfo);
             mDecoder.SurfaceDecoderPrePare(mEncoder.getEncoderSurface());
             doExtract();
+        } catch (Exception e) {
+            Log.e("Harrison", "e" + e.getLocalizedMessage());
         } finally {
             mDecoder.release();
             mEncoder.release();
@@ -123,7 +131,7 @@ public class EncodeDecodeSurface {
                     if (chunkSize < 0) {
                         mDecoder.decoder.queueInputBuffer(inputBufIndex, 0, 0, 0L,
                                 MediaCodec.BUFFER_FLAG_END_OF_STREAM);
-                        inputDone = true;
+                        //   inputDone = true;
                         if (VERBOSE) Log.d(TAG, "sent input EOS");
                     } else {
                         if (mDecoder.extractor.getSampleTrackIndex() != mDecoder.DecodetrackIndex) {
@@ -131,8 +139,7 @@ public class EncodeDecodeSurface {
                                     mDecoder.extractor.getSampleTrackIndex() + ", expected " + mDecoder.DecodetrackIndex);
                         }
                         long presentationTimeUs = mDecoder.extractor.getSampleTime();
-                        mDecoder.decoder.queueInputBuffer(inputBufIndex, 0, chunkSize,
-                                presentationTimeUs, 0 /*flags*/);
+                        mDecoder.decoder.queueInputBuffer(inputBufIndex, 0, chunkSize, presentationTimeUs, 0 /*flags*/);
                         if (VERBOSE) {
                             Log.d(TAG, "submitted frame " + inputChunk + " to dec, size=" +
                                     chunkSize);
@@ -167,22 +174,18 @@ public class EncodeDecodeSurface {
                     }
 
                     boolean doRender = (info.size != 0);
-
                     mDecoder.decoder.releaseOutputBuffer(decoderStatus, doRender);
                     if (doRender) {
-                        if (VERBOSE) Log.d(TAG, "awaiting decode of frame " + decodeCount);
+                        mDecoder.outputSurface.makeCurrent(1);
+                        mDecoder.outputSurface.awaitNewImage();
+                        mDecoder.outputSurface.drawImage(true);
 
-                        if (decodeCount < MAX_FRAMES) {
-                            mDecoder.outputSurface.makeCurrent(1);
-                            mDecoder.outputSurface.awaitNewImage();
-                            mDecoder.outputSurface.drawImage(true);
+                        mEncoder.drainEncoder(false);
 
-                            mEncoder.drainEncoder(false);
-                            mDecoder.outputSurface.setPresentationTime(computePresentationTimeNsec(decodeCount));
-                            mDecoder.outputSurface.swapBuffers();
-
-                        }
+                        mDecoder.outputSurface.setPresentationTime(computePresentationTimeNsec(decodeCount));
+                        mDecoder.outputSurface.swapBuffers();
                         decodeCount++;
+                        Log.e("Harrison", "decodeCont" + decodeCount);
                     }
 
                 }
@@ -190,15 +193,16 @@ public class EncodeDecodeSurface {
         }
 
         mEncoder.drainEncoder(true);
-        int numSaved = (MAX_FRAMES < decodeCount) ? MAX_FRAMES : decodeCount;
-        Log.d(TAG, "Saving " + numSaved + " frames took " +
-                (frameSaveTime / numSaved / 1000) + " us per frame");
     }
 
+    //30 18 是该视频的fps,得获取该视频的帧率才行，否则最终MP4的时长是不对的
+    private long computePresentationTimeNsec(int frameIndex) {
 
-    private static long computePresentationTimeNsec(int frameIndex) {
-        final long ONE_BILLION = 1000000000;
-        return frameIndex * ONE_BILLION / 30;
+        int frameRate = 25;
+        if (videoInfo != null && videoInfo.getFrameRate() > 0) {
+            frameRate = videoInfo.getFrameRate();
+        }
+        return frameIndex * ONE_BILLION / frameRate;
     }
 
 
