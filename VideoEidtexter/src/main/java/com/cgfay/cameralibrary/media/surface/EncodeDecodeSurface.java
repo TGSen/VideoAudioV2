@@ -19,7 +19,7 @@ public class EncodeDecodeSurface {
     private static final String TAG = "EncodeDecodeSurface";
     private static final boolean VERBOSE = false;           // lots of logging
 
-    private static final int MAX_FRAMES = 400;       // stop extracting after this many
+    private int MAX_FRAMES = 400;       // stop extracting after this many
 
     SurfaceDecoder mDecoder = new SurfaceDecoder();
     SurfaceEncoder mEncoder = new SurfaceEncoder();
@@ -83,14 +83,12 @@ public class EncodeDecodeSurface {
             String bitrate = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE);
             String width = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
             String height = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
-
-            Log.e("Harrison","width"+width+"-"+height+"-"+bitrate);
-
-            videoInfo.setWidth(Integer.parseInt(width));
-            videoInfo.setBitRate(Integer.parseInt(bitrate));
-            videoInfo.setHeight(Integer.parseInt(height));
-            videoInfo.setPath(videoPath);
-            videoInfo.setOutPath(outVideoPath);
+            String frameCont = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_FRAME_COUNT);
+            videoInfo.setWidth(Integer.parseInt(width))
+                    .setHeight(Integer.parseInt(height))
+                    .setBitRate(Integer.parseInt(bitrate))
+                    .setPath(videoPath)
+                    .setOutPath(outVideoPath);
             mEncoder.setVideoInfo(videoInfo);
             mEncoder.VideoEncodePrepare();
             //将解码的surface
