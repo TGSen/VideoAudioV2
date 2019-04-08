@@ -37,7 +37,7 @@ public class SurfaceEncoder {
     }
 
 
-    public void VideoEncodePrepare() {
+    public void videoEncodePrepare() {
         if (mVideoInfo == null) {
             return;
         }
@@ -48,7 +48,7 @@ public class SurfaceEncoder {
         // Set some properties.  Failing to specify some of these can cause the MediaCodec
         // configure() call to throw an unhelpful exception.
         format.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
-        format.setInteger(MediaFormat.KEY_FRAME_RATE, 25);
+        format.setInteger(MediaFormat.KEY_FRAME_RATE, mVideoInfo.getFrameRate());
         Log.e("Harrison","帧率："+mVideoInfo.getFrameRate());
         if (mVideoInfo.getBitRate() > 0) {
             format.setInteger(MediaFormat.KEY_BIT_RATE, mVideoInfo.getBitRate());

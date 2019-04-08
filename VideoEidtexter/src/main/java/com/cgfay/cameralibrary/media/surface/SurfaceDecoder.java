@@ -28,16 +28,19 @@ public class SurfaceDecoder {
 
     public int DecodetrackIndex;
     private VideoInfo mVideoInfo;
+    private MediaFormat mediaFormat;
 
-    public void setVideoInfo(VideoInfo info) {
-        this.mVideoInfo = info;
-    }
 
-    void SurfaceDecoderPrePare(Surface encodersurface) {
+    /**
+     * 首先将本地的Mp4 经过MediaExtractor 处理后，会有比如frameRate（貌似只有这个api 可以获取到） ,bitRate 这些
+     */
+    public void initDecodeVideoInfo(VideoInfo info) {
         try {
-            if (mVideoInfo == null) {
+            if (info == null) {
+                Log.e("Harrison", "mVideoInfo ==null" );
                 return;
             }
+            this.mVideoInfo = info;
             File inputFile = new File(mVideoInfo.getPath());   // must be an absolute path
 
             if (!inputFile.canRead()) {
@@ -53,13 +56,27 @@ public class SurfaceDecoder {
             }
             extractor.selectTrack(DecodetrackIndex);
 
-            MediaFormat format = extractor.getTrackFormat(DecodetrackIndex);
+            mediaFormat = extractor.getTrackFormat(DecodetrackIndex);
             //在这里设置，因为只有这里才可以获取
-            mVideoInfo.setFrameRate(format.getInteger(MediaFormat.KEY_FRAME_RATE));
+            mVideoInfo.setFrameRate(mediaFormat.getInteger(MediaFormat.KEY_FRAME_RATE))
+                  //  .setBitRate(mediaFormat.getInteger(MediaFormat.KEY_BIT_RATE))
+                    .setWidth(mediaFormat.getInteger(MediaFormat.KEY_WIDTH))
+                    .setHeight(mediaFormat.getInteger(MediaFormat.KEY_HEIGHT));
+            Log.e("Harrison", "mediaformat" + mediaFormat.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * @param encodersurface
+     */
+    void surfaceDecoderPrePare(Surface encodersurface) {
+        try {
             outputSurface = new CodecOutputSurface(mVideoInfo.getWidth(), mVideoInfo.getHeight(), encodersurface);
-            String mime = format.getString(MediaFormat.KEY_MIME);
+            String mime = mediaFormat.getString(MediaFormat.KEY_MIME);
             decoder = MediaCodec.createDecoderByType(mime);
-            decoder.configure(format, outputSurface.getSurface(), null, 0);
+            decoder.configure(mediaFormat, outputSurface.getSurface(), null, 0);
             decoder.start();
         } catch (IOException e) {
             e.printStackTrace();

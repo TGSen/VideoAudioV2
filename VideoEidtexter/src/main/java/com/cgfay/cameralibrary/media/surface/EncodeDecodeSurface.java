@@ -52,7 +52,7 @@ public class EncodeDecodeSurface {
         @Override
         public void run() {
             try {
-                mTest.Prepare();
+                mTest.prepare();
             } catch (Throwable th) {
                 mThrowable = th;
             }
@@ -72,34 +72,36 @@ public class EncodeDecodeSurface {
         }
     }
 
-    private void Prepare() throws IOException {
+    /**
+     * 本方法：最主要的是需要frameRate bitRate
+     * 能获取bitRate 只有在MediaMetadataRetriever
+     * 能获取frameRate 在 mediaFormat = extractor.getTrackFormat(DecodetrackIndex);
+     * 所以先调用initDecodeVideoInfo，补全videoInfo 在使用
+     *
+     * @throws IOException
+     */
+    private void prepare() throws IOException {
         try {
-            //获取原视频的帧率，宽高，等信息并传递给Mediaceodec
-            MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+
 
             File file = new File(videoPath);
             if (!file.canRead()) {
                 return;
             }
+            //获取原视频的帧率，宽高，等信息并传递给Mediaceodec
+            MediaMetadataRetriever mmr = new MediaMetadataRetriever();
             mmr.setDataSource(videoPath);
-            videoInfo = new VideoInfo();
             String bitrate = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE);
-            String width = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
-            String height = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
-            //这个api 有限制，帧率可以在SurfaDecoder 那边设置
-            String frameRate = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CAPTURE_FRAMERATE);
-            videoInfo.setWidth(Integer.parseInt(width))
-                    .setHeight(Integer.parseInt(height))
-                    .setBitRate(Integer.parseInt(bitrate))
-                    .setPath(videoPath)
-                    .setOutPath(outVideoPath);
 
-            // MAX_FRAMES = videoInfo.getFrameCount();
+            videoInfo = new VideoInfo()
+                    .setPath(videoPath)
+                    .setOutPath(outVideoPath)
+                    .setBitRate(Integer.parseInt(bitrate));
+            //首先先完善videoInfo,供其他的地方使用
+            mDecoder.initDecodeVideoInfo(videoInfo);
             mEncoder.setVideoInfo(videoInfo);
-            mEncoder.VideoEncodePrepare();
-            //将解码的surface
-            mDecoder.setVideoInfo(videoInfo);
-            mDecoder.SurfaceDecoderPrePare(mEncoder.getEncoderSurface());
+            mEncoder.videoEncodePrepare();
+            mDecoder.surfaceDecoderPrePare(mEncoder.getEncoderSurface());
             doExtract();
         } catch (Exception e) {
             Log.e("Harrison", "e" + e.getLocalizedMessage());
