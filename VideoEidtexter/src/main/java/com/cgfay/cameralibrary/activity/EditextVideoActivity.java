@@ -102,6 +102,7 @@ public class EditextVideoActivity extends AppCompatActivity implements View.OnCl
 //        paths.add(path);
 //
 
+
     }
 
     /**

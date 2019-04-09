@@ -2,6 +2,7 @@ package com.cgfay.cameralibrary.media.surface;
 
 import android.os.Handler;
 import android.os.Message;
+import android.view.Surface;
 import android.view.SurfaceHolder;
 
 import com.cgfay.filterlibrary.glfilter.color.bean.DynamicColor;
@@ -28,15 +29,6 @@ class OffSVideoRenderHandler extends Handler {
     public static final int MSG_START_RECORDING = 0x006;
     // 停止录制
     public static final int MSG_STOP_RECORDING = 0x008;
-
-    // 设置video paths
-    public static final int MSG_SURFACE_SET_VIDEO_PATH = 0x009;
-    //video stop play
-    public static final int MSG_VIDEO_STATUS_STOP = 0x010;
-
-
-    //video start play
-    public static final int MSG_VIDEO_STATUS_PLAY = 0x012;
 
 
     // 切换动态滤镜
@@ -70,7 +62,7 @@ class OffSVideoRenderHandler extends Handler {
 
             // surfaceCreated
             case MSG_SURFACE_CREATED:
-                thread.surfaceCreated((SurfaceHolder) msg.obj);
+                thread.surfaceCreated((Surface) msg.obj);
                 break;
 
             // surfaceChanged
@@ -99,18 +91,6 @@ class OffSVideoRenderHandler extends Handler {
                 thread.stopRecording();
                 break;
 
-
-
-
-            case MSG_SURFACE_SET_VIDEO_PATH:
-                thread.setVideoPath((String) msg.obj);
-                break;
-            case MSG_VIDEO_STATUS_STOP:
-                thread.setVideoStop();
-                break;
-            case MSG_VIDEO_STATUS_PLAY:
-                thread.setVideoStart();
-                break;
 
 
             // 切换动态滤镜

@@ -87,17 +87,7 @@ public final class OffScreenVideoRenderer {
         surfaceView.getHolder().addCallback(mSurfaceCallback);
     }
 
-    /**
-     * 录制视频的列表
-     *
-     * @param path
-     */
-    public void setVideoPaths(String path) {
-        if (mRenderHandler != null) {
-            mRenderHandler.sendMessage(mRenderHandler
-                    .obtainMessage(OffSVideoRenderHandler.MSG_SURFACE_SET_VIDEO_PATH, path));
-        }
-    }
+
 
 
     /**
@@ -126,22 +116,6 @@ public final class OffScreenVideoRenderer {
         }
     };
 
-    /**
-     * 暂停播放
-     */
-    public void stopPlayVideo() {
-        if (mRenderHandler != null) {
-            mRenderHandler.sendMessage(mRenderHandler
-                    .obtainMessage(OffSVideoRenderHandler.MSG_VIDEO_STATUS_STOP));
-        }
-    }
-
-    public void startPlayVideo() {
-        if (mRenderHandler != null) {
-            mRenderHandler.sendMessage(mRenderHandler
-                    .obtainMessage(OffSVideoRenderHandler.MSG_VIDEO_STATUS_PLAY));
-        }
-    }
 
     /**
      * Surface大小发生变化

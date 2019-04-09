@@ -50,7 +50,7 @@ class OffSVideoRenderThread extends HandlerThread implements SurfaceTexture.OnFr
     private int mInputTexture;
     private int mCurrentTexture;
     private SurfaceTexture mSurfaceTexture;
-    private String mVideoPath;
+
 
     // 矩阵
     private final float[] mMatrix = new float[16];
@@ -73,7 +73,9 @@ class OffSVideoRenderThread extends HandlerThread implements SurfaceTexture.OnFr
 
     // 渲染管理器
     private OffSVideoRenderManager mRenderManager;
-    private MediaPlayer mMediaPlayer;
+    public Surface EncodeSurface;
+    public Surface mSurface;
+
 
     public OffSVideoRenderThread(Context context, String name) {
         super(name);
@@ -98,17 +100,15 @@ class OffSVideoRenderThread extends HandlerThread implements SurfaceTexture.OnFr
     }
 
 
-
-
     /**
      * Surface创建
      *
-     * @param holder
+     * @param
      */
-    void surfaceCreated(SurfaceHolder holder) {
+    void surfaceCreated(Surface surface) {
 
         mEglCore = new EglCore(null, EglCore.FLAG_RECORDABLE);
-        mDisplaySurface = new WindowSurface(mEglCore, holder.getSurface(), false);
+        mDisplaySurface = new WindowSurface(mEglCore, surface, false);
         mDisplaySurface.makeCurrent();
 
         GLES30.glDisable(GLES30.GL_DEPTH_TEST);
@@ -119,56 +119,12 @@ class OffSVideoRenderThread extends HandlerThread implements SurfaceTexture.OnFr
         mInputTexture = OpenGLUtils.createOESTexture();
         mSurfaceTexture = new SurfaceTexture(mInputTexture);
         mSurfaceTexture.setOnFrameAvailableListener(this);
-        Surface surface = new Surface(mSurfaceTexture);
-        //开始播放视频
-        playVideo(surface);
+
+        mSurface = new Surface(mSurfaceTexture);
+        EncodeSurface = surface;
+
     }
 
-    private void playVideo(Surface surface) {
-        mMediaPlayer = new MediaPlayer();
-        mMediaPlayer.setSurface(surface);
-        mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        try {
-            if(!TextUtils.isEmpty(mVideoPath) && new File(mVideoPath).exists()){
-                Log.e("Harrison","playVideo:"+mVideoPath);
-                mMediaPlayer.setDataSource(mVideoPath);
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        mMediaPlayer.prepareAsync();
-        mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(MediaPlayer mp) {
-                mMediaPlayer.start();
-            }
-        });
-        //设置无限循环
-        mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer player) {
-                player.start();
-                player.setLooping(true);
-            }
-        });
-        mMediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
-            @Override
-            public boolean onError(MediaPlayer mp, int what, int extra) {
-                return false;
-            }
-        });
-    }
-
-    /**
-     * @param
-     */
-    /**
-     * 设置视频的播放地址
-     */
-    public void setVideoPath(String paths) {
-        this.mVideoPath = paths;
-    }
 
     /**
      * Surface改变
@@ -200,11 +156,8 @@ class OffSVideoRenderThread extends HandlerThread implements SurfaceTexture.OnFr
             mEglCore.release();
             mEglCore = null;
         }
-        if(mMediaPlayer!=null){
-            mMediaPlayer.stop();
-            mMediaPlayer.reset();
-            mMediaPlayer.release();
-            mMediaPlayer = null;
+        if (mSurface != null) {
+            mSurface.release();
         }
     }
 
@@ -232,8 +185,6 @@ class OffSVideoRenderThread extends HandlerThread implements SurfaceTexture.OnFr
 
         // 绘制渲染
         mCurrentTexture = mRenderManager.drawFrame(mInputTexture, mMatrix);
-
-
         // 显示到屏幕
         mDisplaySurface.swapBuffers();
 
@@ -350,21 +301,5 @@ class OffSVideoRenderThread extends HandlerThread implements SurfaceTexture.OnFr
 
     }
 
-    /**
-     * 设置视频暂停
-     */
-    public void setVideoStop() {
-        if (mMediaPlayer != null && mMediaPlayer.isPlaying()) {
-            mMediaPlayer.pause();
-        }
-    }
 
-    /**
-     * 设置视频继续播放
-     */
-    public void setVideoStart() {
-        if (mMediaPlayer != null && !mMediaPlayer.isPlaying()) {
-            mMediaPlayer.start();
-        }
-    }
 }

@@ -10,14 +10,13 @@ import android.opengl.EGLSurface;
 import android.util.Log;
 import android.view.Surface;
 
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
  * Created by guoheng-iri on 2016/9/1.
  */
-public class CodecOutputSurface implements SurfaceTexture.OnFrameAvailableListener {
+public class CodecOutputSurfaceV implements SurfaceTexture.OnFrameAvailableListener {
 
     private static final String TAG = "EncodeDecodeSurface";
     private static final boolean VERBOSE = false;           // lots of logging
@@ -45,7 +44,7 @@ public class CodecOutputSurface implements SurfaceTexture.OnFrameAvailableListen
      * new EGL context and surface will be made current.  Creates a Surface that can be passed
      * to MediaCodec.configure().
      */
-    public CodecOutputSurface(int width, int height, Surface surface) {
+    public CodecOutputSurfaceV(int width, int height, Surface surface) {
         if (width <= 0 || height <= 0) {
             return;
         }
@@ -62,6 +61,7 @@ public class CodecOutputSurface implements SurfaceTexture.OnFrameAvailableListen
      */
     private void setSurfaceCreated() {
         mTextureRender = new TextureRender();
+
         //
         mTextureRender.surfaceCreated();
         mSurfaceTexture = new SurfaceTexture(mTextureRender.getTextureId());
