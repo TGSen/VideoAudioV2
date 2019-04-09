@@ -1,17 +1,16 @@
-package com.cgfay.cameralibrary.engine.render;
+package com.cgfay.cameralibrary.media.surface;
 
 import android.content.Context;
 import android.graphics.SurfaceTexture;
-import android.hardware.Camera;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.opengl.GLES30;
 import android.os.HandlerThread;
+import android.text.TextUtils;
 import android.util.Log;
-import android.view.MotionEvent;
+import android.view.Surface;
 import android.view.SurfaceHolder;
 
-import com.cgfay.cameralibrary.engine.camera.CameraEngine;
-import com.cgfay.cameralibrary.engine.camera.CameraParam;
-import com.cgfay.cameralibrary.engine.camera.SensorControler;
 import com.cgfay.cameralibrary.engine.recorder.HardcodeEncoder;
 import com.cgfay.filterlibrary.gles.EglCore;
 import com.cgfay.filterlibrary.gles.WindowSurface;
@@ -20,15 +19,15 @@ import com.cgfay.filterlibrary.glfilter.resource.bean.ResourceType;
 import com.cgfay.filterlibrary.glfilter.stickers.bean.DynamicSticker;
 import com.cgfay.filterlibrary.glfilter.utils.OpenGLUtils;
 
-import java.nio.ByteBuffer;
+import java.io.File;
+import java.io.IOException;
 
 /**
  * 渲染线程
  * Created by cain on 2017/11/4.
  */
 
-public class RenderThread extends HandlerThread implements SurfaceTexture.OnFrameAvailableListener,
-        Camera.PreviewCallback {
+class OffSVideoRenderThread extends HandlerThread implements SurfaceTexture.OnFrameAvailableListener {
 
     private static final String TAG = "OffSVideoRenderThread";
     private static final boolean VERBOSE = false;
@@ -51,6 +50,7 @@ public class RenderThread extends HandlerThread implements SurfaceTexture.OnFram
     private int mInputTexture;
     private int mCurrentTexture;
     private SurfaceTexture mSurfaceTexture;
+    private String mVideoPath;
 
     // 矩阵
     private final float[] mMatrix = new float[16];
@@ -64,29 +64,23 @@ public class RenderThread extends HandlerThread implements SurfaceTexture.OnFram
     private int mFrameNum = 0;
 
     // 渲染Handler回调
-    private RenderHandler mRenderHandler;
+    private OffSVideoRenderHandler mRenderHandler;
 
-    // 计算帧率
-    private FrameRateMeter mFrameRateMeter;
 
     // 上下文
     private Context mContext;
 
-    // 正在拍照
-    private volatile boolean mTakingPicture;
-    // 预览参数
-    private CameraParam mCameraParam;
 
     // 渲染管理器
-    private RenderManager mRenderManager;
+    private OffSVideoRenderManager mRenderManager;
+    private MediaPlayer mMediaPlayer;
 
-
-    public RenderThread(Context context, String name) {
+    public OffSVideoRenderThread(Context context, String name) {
         super(name);
         mContext = context;
-        mCameraParam = CameraParam.getInstance();
-        mRenderManager = RenderManager.getInstance();
-        mFrameRateMeter = new FrameRateMeter();
+
+        mRenderManager = OffSVideoRenderManager.getInstance();
+
     }
 
     /**
@@ -94,48 +88,17 @@ public class RenderThread extends HandlerThread implements SurfaceTexture.OnFram
      *
      * @param handler
      */
-    public void setRenderHandler(RenderHandler handler) {
+    public void setRenderHandler(OffSVideoRenderHandler handler) {
         mRenderHandler = handler;
     }
 
     @Override
     public void onFrameAvailable(SurfaceTexture surfaceTexture) {
-
+        requestRender();
     }
 
-    private long time = 0;
 
-    @Override
-    public void onPreviewFrame(byte[] data, Camera camera) {
-        synchronized (mSynOperation) {
-            if (isPreviewing || isRecording) {
-                mRenderHandler.sendMessage(mRenderHandler
-                        .obtainMessage(RenderHandler.MSG_PREVIEW_CALLBACK, data));
-            }
-        }
-        if (mPreviewBuffer != null) {
-            camera.addCallbackBuffer(mPreviewBuffer);
-        }
-        // 计算fps
-        if (mRenderHandler != null && mCameraParam.showFps) {
-            mRenderHandler.sendEmptyMessage(RenderHandler.MSG_CALCULATE_FPS);
-        }
-        if (VERBOSE) {
-            Log.d("onPreviewFrame", "update time = " + (System.currentTimeMillis() - time));
-            time = System.currentTimeMillis();
-        }
-    }
 
-    /**
-     * 预览回调
-     *
-     * @param data
-     */
-    void onPreviewCallback(byte[] data) {
-        if (mCameraParam.cameraCallback != null) {
-            mCameraParam.cameraCallback.onPreviewCallback(data);
-        }
-    }
 
     /**
      * Surface创建
@@ -143,6 +106,7 @@ public class RenderThread extends HandlerThread implements SurfaceTexture.OnFram
      * @param holder
      */
     void surfaceCreated(SurfaceHolder holder) {
+
         mEglCore = new EglCore(null, EglCore.FLAG_RECORDABLE);
         mDisplaySurface = new WindowSurface(mEglCore, holder.getSurface(), false);
         mDisplaySurface.makeCurrent();
@@ -152,15 +116,58 @@ public class RenderThread extends HandlerThread implements SurfaceTexture.OnFram
 
         // 渲染器初始化
         mRenderManager.init(mContext);
-
         mInputTexture = OpenGLUtils.createOESTexture();
         mSurfaceTexture = new SurfaceTexture(mInputTexture);
         mSurfaceTexture.setOnFrameAvailableListener(this);
+        Surface surface = new Surface(mSurfaceTexture);
+        //开始播放视频
+        playVideo(surface);
+    }
 
-        // 打开相机
-        openCamera();
-        //初始化
-        SensorControler.getInstance().init(mContext);
+    private void playVideo(Surface surface) {
+        mMediaPlayer = new MediaPlayer();
+        mMediaPlayer.setSurface(surface);
+        mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        try {
+            if(!TextUtils.isEmpty(mVideoPath) && new File(mVideoPath).exists()){
+                Log.e("Harrison","playVideo:"+mVideoPath);
+                mMediaPlayer.setDataSource(mVideoPath);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        mMediaPlayer.prepareAsync();
+        mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+                mMediaPlayer.start();
+            }
+        });
+        //设置无限循环
+        mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer player) {
+                player.start();
+                player.setLooping(true);
+            }
+        });
+        mMediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+            @Override
+            public boolean onError(MediaPlayer mp, int what, int extra) {
+                return false;
+            }
+        });
+    }
+
+    /**
+     * @param
+     */
+    /**
+     * 设置视频的播放地址
+     */
+    public void setVideoPath(String paths) {
+        this.mVideoPath = paths;
     }
 
     /**
@@ -170,17 +177,17 @@ public class RenderThread extends HandlerThread implements SurfaceTexture.OnFram
      * @param height
      */
     void surfaceChanged(int width, int height) {
+        Log.e("Harrison", "surfaceChanged" + width + height);
+        //这代码在调试中
+        mRenderManager.setTextureSize(width, height);
         mRenderManager.setDisplaySize(width, height);
-        startPreview();
     }
 
     /**
      * Surface销毁
      */
     void surfaceDestroyed() {
-        mTakingPicture = false;
         mRenderManager.release();
-        releaseCamera();
         if (mSurfaceTexture != null) {
             mSurfaceTexture.release();
             mSurfaceTexture = null;
@@ -192,6 +199,12 @@ public class RenderThread extends HandlerThread implements SurfaceTexture.OnFram
         if (mEglCore != null) {
             mEglCore.release();
             mEglCore = null;
+        }
+        if(mMediaPlayer!=null){
+            mMediaPlayer.stop();
+            mMediaPlayer.reset();
+            mMediaPlayer.release();
+            mMediaPlayer = null;
         }
     }
 
@@ -224,13 +237,6 @@ public class RenderThread extends HandlerThread implements SurfaceTexture.OnFram
         // 显示到屏幕
         mDisplaySurface.swapBuffers();
 
-        // 执行拍照
-        if (mCameraParam.isTakePicture && !mTakingPicture) {
-            synchronized (mSyncFence) {
-                mTakingPicture = true;
-                mRenderHandler.sendEmptyMessage(RenderHandler.MSG_TAKE_PICTURE);
-            }
-        }
 
         // 是否处于录制状态
         if (isRecording && !isRecordingPause) {
@@ -238,44 +244,6 @@ public class RenderThread extends HandlerThread implements SurfaceTexture.OnFram
             HardcodeEncoder.getInstance()
                     .drawRecorderFrame(mCurrentTexture, mSurfaceTexture.getTimestamp());
         }
-    }
-
-    /**
-     * 拍照
-     */
-    void takePicture() {
-        synchronized (mSyncFence) {
-            ByteBuffer buffer = mDisplaySurface.getCurrentFrame();
-            mCameraParam.captureCallback.onCapture(buffer,
-                    mDisplaySurface.getWidth(), mDisplaySurface.getHeight());
-            mTakingPicture = false;
-            mCameraParam.isTakePicture = false;
-        }
-    }
-
-    /**
-     * 计算fps
-     */
-    void calculateFps() {
-        // 帧率回调
-        if ((mCameraParam).fpsCallback != null) {
-            mFrameRateMeter.drawFrameCount();
-            (mCameraParam).fpsCallback.onFpsCallback(mFrameRateMeter.getFPS());
-        }
-    }
-
-    /**
-     * 计算imageView 的宽高
-     */
-    private void calculateImageSize() {
-        if (mCameraParam.orientation == 90 || mCameraParam.orientation == 270) {
-            mTextureWidth = mCameraParam.previewHeight;
-            mTextureHeight = mCameraParam.previewWidth;
-        } else {
-            mTextureWidth = mCameraParam.previewWidth;
-            mTextureHeight = mCameraParam.previewHeight;
-        }
-        mRenderManager.setTextureSize(mTextureWidth, mTextureHeight);
     }
 
 
@@ -357,67 +325,17 @@ public class RenderThread extends HandlerThread implements SurfaceTexture.OnFram
      * 请求刷新
      */
     public void requestRender() {
+        isPreviewing = true;
         synchronized (mSyncFrameNum) {
             if (isPreviewing) {
                 ++mFrameNum;
                 if (mRenderHandler != null) {
-                    mRenderHandler.removeMessages(RenderHandler.MSG_RENDER);
+                    mRenderHandler.removeMessages(OffSVideoRenderHandler.MSG_RENDER);
                     mRenderHandler.sendMessage(mRenderHandler
-                            .obtainMessage(RenderHandler.MSG_RENDER));
+                            .obtainMessage(OffSVideoRenderHandler.MSG_RENDER));
                 }
             }
         }
-    }
-
-
-    // --------------------------------- 相机操作逻辑 ----------------------------------------------
-
-    /**
-     * 打开相机
-     */
-    void openCamera() {
-        releaseCamera();
-        CameraEngine.getInstance().openCamera(mContext);
-        CameraEngine.getInstance().setPreviewSurface(mSurfaceTexture);
-        calculateImageSize();
-        mPreviewBuffer = new byte[mTextureWidth * mTextureHeight * 3 / 2];
-        CameraEngine.getInstance().setPreviewCallbackWithBuffer(this, mPreviewBuffer);
-        // 相机打开回调
-        if (mCameraParam.cameraCallback != null) {
-            mCameraParam.cameraCallback.onCameraOpened();
-        }
-
-    }
-
-    /**
-     * 切换相机
-     */
-    void switchCamera() {
-        mCameraParam.backCamera = !mCameraParam.backCamera;
-        if (mCameraParam.backCamera) {
-            mCameraParam.cameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
-        } else {
-            mCameraParam.cameraId = Camera.CameraInfo.CAMERA_FACING_FRONT;
-        }
-        openCamera();
-        startPreview();
-
-    }
-
-    /**
-     * 开始预览
-     */
-    private void startPreview() {
-        CameraEngine.getInstance().startPreview();
-        isPreviewing = true;
-    }
-
-    /**
-     * 释放相机
-     */
-    private void releaseCamera() {
-        isPreviewing = false;
-        CameraEngine.getInstance().releaseCamera();
     }
 
 
@@ -432,5 +350,21 @@ public class RenderThread extends HandlerThread implements SurfaceTexture.OnFram
 
     }
 
+    /**
+     * 设置视频暂停
+     */
+    public void setVideoStop() {
+        if (mMediaPlayer != null && mMediaPlayer.isPlaying()) {
+            mMediaPlayer.pause();
+        }
+    }
 
+    /**
+     * 设置视频继续播放
+     */
+    public void setVideoStart() {
+        if (mMediaPlayer != null && !mMediaPlayer.isPlaying()) {
+            mMediaPlayer.start();
+        }
+    }
 }

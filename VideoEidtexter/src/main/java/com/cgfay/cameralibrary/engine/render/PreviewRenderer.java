@@ -61,7 +61,7 @@ public final class PreviewRenderer {
      */
     void initRenderer(Context context) {
         synchronized (mSynOperation) {
-            mPreviewRenderThread = new RenderThread(context, "VideoRenderThread");
+            mPreviewRenderThread = new RenderThread(context, "OffSVideoRenderThread");
             mPreviewRenderThread.start();
             mRenderHandler = new RenderHandler(mPreviewRenderThread);
             // 绑定Handler

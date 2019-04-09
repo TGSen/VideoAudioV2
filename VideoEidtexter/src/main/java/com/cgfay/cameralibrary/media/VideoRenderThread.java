@@ -32,7 +32,7 @@ import java.util.List;
 
 class VideoRenderThread extends HandlerThread implements SurfaceTexture.OnFrameAvailableListener {
 
-    private static final String TAG = "VideoRenderThread";
+    private static final String TAG = "OffSVideoRenderThread";
     private static final boolean VERBOSE = false;
 
     // 操作锁

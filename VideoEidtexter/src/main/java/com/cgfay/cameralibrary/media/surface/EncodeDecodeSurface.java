@@ -78,7 +78,6 @@ public class EncodeDecodeSurface {
      * 能获取frameRate 在 mediaFormat = extractor.getTrackFormat(DecodetrackIndex);
      * 所以先调用initDecodeVideoInfo，补全videoInfo 在使用
      *
-     * @throws IOException
      */
     private void prepare() throws IOException {
         try {

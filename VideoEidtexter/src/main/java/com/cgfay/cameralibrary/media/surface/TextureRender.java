@@ -11,7 +11,7 @@ import java.nio.FloatBuffer;
 /**
  * Created by guoheng on 2016/8/31.
  */
-public  class STextureRender {
+public  class TextureRender {
     private static final int FLOAT_SIZE_BYTES = 4;
     private static final String TAG = "STextureRendering";
 
@@ -95,7 +95,7 @@ public  class STextureRender {
     private int maPositionHandle;
     private int maTextureHandle;
 
-    public STextureRender() {
+    public TextureRender() {
         Matrix.setIdentityM(mSTMatrix, 0);
     }
 

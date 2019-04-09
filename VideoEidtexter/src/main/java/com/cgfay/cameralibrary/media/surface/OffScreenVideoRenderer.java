@@ -1,4 +1,4 @@
-package com.cgfay.cameralibrary.media;
+package com.cgfay.cameralibrary.media.surface;
 
 import android.content.Context;
 import android.view.SurfaceHolder;
@@ -8,32 +8,31 @@ import com.cgfay.filterlibrary.glfilter.color.bean.DynamicColor;
 import com.cgfay.filterlibrary.glfilter.stickers.bean.DynamicSticker;
 
 import java.lang.ref.WeakReference;
-import java.util.List;
 
 
 /**
- * 预览渲染器
+ * 离屏渲染器
  */
 
-public final class VideoRenderer {
+public final class OffScreenVideoRenderer {
 
-    private VideoRenderer() {
+    private OffScreenVideoRenderer() {
     }
 
 
     private static class RenderHolder {
-        private static VideoRenderer instance = new VideoRenderer();
+        private static OffScreenVideoRenderer instance = new OffScreenVideoRenderer();
     }
 
-    public static VideoRenderer getInstance() {
+    public static OffScreenVideoRenderer getInstance() {
         return RenderHolder.instance;
     }
 
 
     // 渲染Handler
-    private VideoRenderHandler mRenderHandler;
+    private OffSVideoRenderHandler mRenderHandler;
     // 渲染线程
-    private VideoRenderThread mPreviewRenderThread;
+    private OffSVideoRenderThread mPreviewRenderThread;
     // 操作锁
     private final Object mSynOperation = new Object();
 
@@ -45,9 +44,9 @@ public final class VideoRenderer {
      */
     public void initRenderer(Context context) {
         synchronized (mSynOperation) {
-            mPreviewRenderThread = new VideoRenderThread(context, "OffSVideoRenderThread");
+            mPreviewRenderThread = new OffSVideoRenderThread(context, "OffSVideoRenderThread");
             mPreviewRenderThread.start();
-            mRenderHandler = new VideoRenderHandler(mPreviewRenderThread);
+            mRenderHandler = new OffSVideoRenderHandler(mPreviewRenderThread);
             // 绑定Handler
             mPreviewRenderThread.setRenderHandler(mRenderHandler);
         }
@@ -96,7 +95,7 @@ public final class VideoRenderer {
     public void setVideoPaths(String path) {
         if (mRenderHandler != null) {
             mRenderHandler.sendMessage(mRenderHandler
-                    .obtainMessage(VideoRenderHandler.MSG_SURFACE_SET_VIDEO_PATH, path));
+                    .obtainMessage(OffSVideoRenderHandler.MSG_SURFACE_SET_VIDEO_PATH, path));
         }
     }
 
@@ -109,7 +108,7 @@ public final class VideoRenderer {
         public void surfaceCreated(SurfaceHolder holder) {
             if (mRenderHandler != null) {
                 mRenderHandler.sendMessage(mRenderHandler
-                        .obtainMessage(VideoRenderHandler.MSG_SURFACE_CREATED, holder));
+                        .obtainMessage(OffSVideoRenderHandler.MSG_SURFACE_CREATED, holder));
             }
         }
 
@@ -122,7 +121,7 @@ public final class VideoRenderer {
         public void surfaceDestroyed(SurfaceHolder holder) {
             if (mRenderHandler != null) {
                 mRenderHandler.sendMessage(mRenderHandler
-                        .obtainMessage(VideoRenderHandler.MSG_SURFACE_DESTROYED));
+                        .obtainMessage(OffSVideoRenderHandler.MSG_SURFACE_DESTROYED));
             }
         }
     };
@@ -133,14 +132,14 @@ public final class VideoRenderer {
     public void stopPlayVideo() {
         if (mRenderHandler != null) {
             mRenderHandler.sendMessage(mRenderHandler
-                    .obtainMessage(VideoRenderHandler.MSG_VIDEO_STATUS_STOP));
+                    .obtainMessage(OffSVideoRenderHandler.MSG_VIDEO_STATUS_STOP));
         }
     }
 
     public void startPlayVideo() {
         if (mRenderHandler != null) {
             mRenderHandler.sendMessage(mRenderHandler
-                    .obtainMessage(VideoRenderHandler.MSG_VIDEO_STATUS_PLAY));
+                    .obtainMessage(OffSVideoRenderHandler.MSG_VIDEO_STATUS_PLAY));
         }
     }
 
@@ -153,7 +152,7 @@ public final class VideoRenderer {
     public void surfaceSizeChanged(int width, int height) {
         if (mRenderHandler != null) {
             mRenderHandler.sendMessage(mRenderHandler
-                    .obtainMessage(VideoRenderHandler.MSG_SURFACE_CHANGED, width, height));
+                    .obtainMessage(OffSVideoRenderHandler.MSG_SURFACE_CHANGED, width, height));
         }
     }
 
@@ -177,7 +176,7 @@ public final class VideoRenderer {
         }
         synchronized (mSynOperation) {
             mRenderHandler.sendMessage(mRenderHandler
-                    .obtainMessage(VideoRenderHandler.MSG_CHANGE_DYNAMIC_REMOVE, color));
+                    .obtainMessage(OffSVideoRenderHandler.MSG_CHANGE_DYNAMIC_REMOVE, color));
         }
     }
 
@@ -193,7 +192,7 @@ public final class VideoRenderer {
         }
         synchronized (mSynOperation) {
             mRenderHandler.sendMessage(mRenderHandler
-                    .obtainMessage(VideoRenderHandler.MSG_CHANGE_DYNAMIC_COLOR_FILTER, color));
+                    .obtainMessage(OffSVideoRenderHandler.MSG_CHANGE_DYNAMIC_COLOR_FILTER, color));
         }
     }
 
@@ -208,7 +207,7 @@ public final class VideoRenderer {
         }
         synchronized (mSynOperation) {
             mRenderHandler.sendMessage(mRenderHandler
-                    .obtainMessage(VideoRenderHandler.MSG_CHANGE_DYNAMIC_CAMERA_FILTER, color));
+                    .obtainMessage(OffSVideoRenderHandler.MSG_CHANGE_DYNAMIC_CAMERA_FILTER, color));
         }
     }
 
@@ -224,7 +223,7 @@ public final class VideoRenderer {
         }
         synchronized (mSynOperation) {
             mRenderHandler.sendMessage(mRenderHandler
-                    .obtainMessage(VideoRenderHandler.MSG_CHANGE_DYNAMIC_RESOURCE, color));
+                    .obtainMessage(OffSVideoRenderHandler.MSG_CHANGE_DYNAMIC_RESOURCE, color));
         }
     }
 
@@ -239,7 +238,7 @@ public final class VideoRenderer {
         }
         synchronized (mSynOperation) {
             mRenderHandler.sendMessage(mRenderHandler
-                    .obtainMessage(VideoRenderHandler.MSG_CHANGE_DYNAMIC_RESOURCE, sticker));
+                    .obtainMessage(OffSVideoRenderHandler.MSG_CHANGE_DYNAMIC_RESOURCE, sticker));
         }
     }
 
@@ -252,7 +251,7 @@ public final class VideoRenderer {
         }
         synchronized (mSynOperation) {
             mRenderHandler.sendMessage(mRenderHandler
-                    .obtainMessage(VideoRenderHandler.MSG_START_RECORDING));
+                    .obtainMessage(OffSVideoRenderHandler.MSG_START_RECORDING));
         }
     }
 
@@ -264,7 +263,7 @@ public final class VideoRenderer {
             return;
         }
         synchronized (mSynOperation) {
-            mRenderHandler.sendEmptyMessage(VideoRenderHandler.MSG_STOP_RECORDING);
+            mRenderHandler.sendEmptyMessage(OffSVideoRenderHandler.MSG_STOP_RECORDING);
         }
     }
 

@@ -10,7 +10,6 @@ import android.opengl.EGLSurface;
 import android.util.Log;
 import android.view.Surface;
 
-import com.cgfay.cameralibrary.media.surface.STextureRender;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -23,7 +22,7 @@ public class CodecOutputSurface implements SurfaceTexture.OnFrameAvailableListen
     private static final String TAG = "EncodeDecodeSurface";
     private static final boolean VERBOSE = false;           // lots of logging
 
-    private STextureRender mTextureRender;
+    private TextureRender mTextureRender;
     private SurfaceTexture mSurfaceTexture;
     private Surface mSurface;
     public Surface EncodeSurface;
@@ -55,17 +54,19 @@ public class CodecOutputSurface implements SurfaceTexture.OnFrameAvailableListen
 
         eglSetup(surface);
         makeCurrent();
-        setup();
+        setSurfaceCreated();
     }
 
     /**
      * Creates interconnected instances of TextureRender, SurfaceTexture, and Surface.
      */
-    private void setup() {
-        mTextureRender = new STextureRender();
+    private void setSurfaceCreated() {
+        mTextureRender = new TextureRender();
+
+        //
         mTextureRender.surfaceCreated();
 
-        if (VERBOSE) Log.d(TAG, "textureID=" + mTextureRender.getTextureId());
+
         mSurfaceTexture = new SurfaceTexture(mTextureRender.getTextureId());
 
         mSurfaceTexture.setOnFrameAvailableListener(this);
@@ -152,7 +153,7 @@ public class CodecOutputSurface implements SurfaceTexture.OnFrameAvailableListen
         if (mEGLSurfaceEncoder == null) {
             throw new RuntimeException("surface was null");
         }
-        EncodeSurface=surface;
+        EncodeSurface = surface;
 
     }
 
@@ -174,7 +175,7 @@ public class CodecOutputSurface implements SurfaceTexture.OnFrameAvailableListen
 
         mTextureRender = null;
         mSurface = null;
-        EncodeSurface=null;
+        EncodeSurface = null;
         mSurfaceTexture = null;
     }
 
@@ -232,13 +233,11 @@ public class CodecOutputSurface implements SurfaceTexture.OnFrameAvailableListen
 
     public void makeCurrent(int index) {
 
-        if (index==0)
-        {
+        if (index == 0) {
             if (!EGL14.eglMakeCurrent(mEGLDisplay, mEGLSurface, mEGLSurface, mEGLContext)) {
                 throw new RuntimeException("eglMakeCurrent failed");
             }
-        }else
-        {
+        } else {
             if (!EGL14.eglMakeCurrent(mEGLDisplay, mEGLSurfaceEncoder, mEGLSurfaceEncoder, mEGLContextEncoder)) {
                 throw new RuntimeException("eglMakeCurrent failed");
             }
@@ -292,10 +291,11 @@ public class CodecOutputSurface implements SurfaceTexture.OnFrameAvailableListen
     // SurfaceTexture callback
     @Override
     public void onFrameAvailable(SurfaceTexture st) {
-        if (VERBOSE) Log.d(TAG, "new frame available");
+        //new frame available
         synchronized (mFrameSyncObject) {
             if (mFrameAvailable) {
-                throw new RuntimeException("mFrameAvailable already set, frame could be dropped");
+                // throw new RuntimeException("mFrameAvailable already set, frame could be dropped");
+                return;
             }
             mFrameAvailable = true;
             mFrameSyncObject.notifyAll();
