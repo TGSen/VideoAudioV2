@@ -22,7 +22,6 @@ public class SurfaceDecoder {
 
     MediaCodec decoder = null;
 
-    CodecOutputSurface outputSurface = null;
 
     MediaExtractor extractor = null;
 
@@ -59,6 +58,7 @@ public class SurfaceDecoder {
             mediaFormat = extractor.getTrackFormat(DecodetrackIndex);
             //在这里设置，因为只有这里才可以获取
             mVideoInfo.setFrameRate(mediaFormat.getInteger(MediaFormat.KEY_FRAME_RATE))
+                  //  .setBitRate(mediaFormat.getInteger(MediaFormat.KEY_BIT_RATE))
                     .setWidth(mediaFormat.getInteger(MediaFormat.KEY_WIDTH))
                     .setHeight(mediaFormat.getInteger(MediaFormat.KEY_HEIGHT));
             Log.e("Harrison", "mediaformat" + mediaFormat.toString());
@@ -72,10 +72,14 @@ public class SurfaceDecoder {
      */
     void surfaceDecoderPrePare(Surface encodersurface) {
         try {
-            outputSurface = new CodecOutputSurface(mVideoInfo.getWidth(), mVideoInfo.getHeight(), encodersurface);
+
+         //   outputSurface = Innew OffSVideoRenderThread(mVideoInfo.getWidth(), mVideoInfo.getHeight(), encodersurface);
+            //执行GL onSurfaceCreate
+            OffScreenVideoRenderer.getInstance().onSurfaceCreate(encodersurface);
+            OffScreenVideoRenderer.getInstance().onSurfaceChanged(mVideoInfo.getWidth(),mVideoInfo.getHeight());
             String mime = mediaFormat.getString(MediaFormat.KEY_MIME);
             decoder = MediaCodec.createDecoderByType(mime);
-            decoder.configure(mediaFormat, outputSurface.getSurface(), null, 0);
+            decoder.configure(mediaFormat, OffScreenVideoRenderer.getInstance().getSurface(), null, 0);
             decoder.start();
         } catch (IOException e) {
             e.printStackTrace();
@@ -113,9 +117,20 @@ public class SurfaceDecoder {
             extractor.release();
             extractor = null;
         }
-        if (outputSurface != null) {
-            outputSurface.release();
-            outputSurface = null;
+        if (OffScreenVideoRenderer.getInstance().getOutputSurface() != null) {
+            OffScreenVideoRenderer.getInstance().getOutputSurface().surfaceDestroyed();
         }
+    }
+
+    public void setPresentationTime(long nsec) {
+        OffScreenVideoRenderer.getInstance().getOutputSurface().setPresentationTime(nsec);
+    }
+
+    public void swapBuffers() {
+        OffScreenVideoRenderer.getInstance().getOutputSurface().swapBuffers();
+    }
+
+    public void drawImage() {
+        OffScreenVideoRenderer.getInstance().getOutputSurface().drawFrame();
     }
 }

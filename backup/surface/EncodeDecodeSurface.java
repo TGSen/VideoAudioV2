@@ -22,6 +22,7 @@ public class EncodeDecodeSurface {
 
     SurfaceDecoder mDecoder = new SurfaceDecoder();
     SurfaceEncoder mEncoder = new SurfaceEncoder();
+    private int frameRate = 25;
 
     private String videoPath;
     private String outVideoPath;
@@ -76,7 +77,6 @@ public class EncodeDecodeSurface {
      * 能获取bitRate 只有在MediaMetadataRetriever
      * 能获取frameRate 在 mediaFormat = extractor.getTrackFormat(DecodetrackIndex);
      * 所以先调用initDecodeVideoInfo，补全videoInfo 在使用
-     *
      */
     private void prepare() throws IOException {
         try {
@@ -174,14 +174,12 @@ public class EncodeDecodeSurface {
                     boolean doRender = (info.size != 0);
                     mDecoder.decoder.releaseOutputBuffer(decoderStatus, doRender);
                     if (doRender) {
-                        mDecoder.outputSurface.makeCurrent(1);
-                        mDecoder.outputSurface.awaitNewImage();
-                        mDecoder.outputSurface.drawImage(true);
-
+//                        mDecoder.outputSurface.awaitNewImage();
+//                        mDecoder.outputSurface.drawImage(true);
+                        mDecoder.drawImage();
                         mEncoder.drainEncoder(false);
-
-                        mDecoder.outputSurface.setPresentationTime(computePresentationTimeNsec(decodeCount));
-                        mDecoder.outputSurface.swapBuffers();
+                        mDecoder.setPresentationTime(computePresentationTimeNsec(decodeCount));
+                      //  mDecoder.swapBuffers();
                         decodeCount++;
                         Log.e("Harrison", "decodeCont" + decodeCount);
                     }
@@ -196,7 +194,7 @@ public class EncodeDecodeSurface {
     //30 18 是该视频的fps,得获取该视频的帧率才行，否则最终MP4的时长是不对的
     private long computePresentationTimeNsec(int frameIndex) {
 
-        int frameRate = 25;
+
         if (videoInfo != null && videoInfo.getFrameRate() > 0) {
             frameRate = videoInfo.getFrameRate();
         }

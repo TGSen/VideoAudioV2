@@ -16,6 +16,7 @@ import com.cgfay.cameralibrary.R;
 import com.cgfay.cameralibrary.fragment.PreviewFiltersFragment;
 import com.cgfay.cameralibrary.media.VideoRenderer;
 import com.cgfay.cameralibrary.media.surface.EncodeDecodeSurface;
+import com.cgfay.cameralibrary.media.surface.OffScreenVideoRenderer;
 import com.cgfay.cameralibrary.widget.VideoPreviewView;
 
 /**
@@ -59,6 +60,8 @@ public class EditextVideoActivity extends AppCompatActivity implements View.OnCl
         EncodeDecodeSurface test=new EncodeDecodeSurface();
         String outputPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download/out.mp4";
         test.setVideoPath(videoPath,outputPath);
+
+        OffScreenVideoRenderer.getInstance().initRenderer(this.getApplicationContext());
         try {
             test.testEncodeDecodeSurface();
         }catch (Throwable a){
