@@ -13,7 +13,7 @@ import java.nio.FloatBuffer;
 /**
  * Created by guoheng on 2016/8/31.
  */
-public class TextureRender {
+public class TextureRenderV {
     private static final int FLOAT_SIZE_BYTES = 4;
     private static final String TAG = "STextureRendering";
 
@@ -93,7 +93,7 @@ public class TextureRender {
     private int maPositionHandle;
     private int maTextureHandle;
 
-    public TextureRender() {
+    public TextureRenderV() {
         Matrix.setIdentityM(mSTMatrix, 0);
     }
 
@@ -113,7 +113,7 @@ public class TextureRender {
         }
 
         // (optional) clear to green so we can see if we're failing to set pixels
-        GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        GLES20.glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
 
         GLES20.glUseProgram(mProgram);

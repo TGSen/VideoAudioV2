@@ -163,18 +163,18 @@ class OffSVideoRenderThread extends HandlerThread implements SurfaceTexture.OnFr
      */
     void drawFrame() {
         // 如果存在新的帧，则更新帧
-//        synchronized (mSyncFrameNum) {
-//            synchronized (mSyncFence) {
-//                if (mSurfaceTexture != null) {
-//                    while (mFrameNum != 0) {
-//                        mSurfaceTexture.updateTexImage();
-//                        --mFrameNum;
-//                    }
-//                } else {
-//                    return;
-//                }
-//            }
-//        }
+        synchronized (mSyncFrameNum) {
+            synchronized (mSyncFence) {
+                if (mSurfaceTexture != null) {
+                    while (mFrameNum != 0) {
+                        mSurfaceTexture.updateTexImage();
+                        --mFrameNum;
+                    }
+                } else {
+                    return;
+                }
+            }
+        }
 
         // 切换渲染上下文
         mDisplaySurface.makeCurrent();

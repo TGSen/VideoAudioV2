@@ -276,8 +276,6 @@ public final class OffSVideoRenderManager {
         }
         currentTexture = mFilterArrays.get(RenderIndex.CameraIndex)
                 .drawFrameBuffer(currentTexture, mVertexBuffer, mTextureBuffer);
-        // 如果处于对比状态，不做处理
-
 
         // 绘制颜色滤镜
         if (mFilterArrays.get(RenderIndex.FilterIndex) != null) {
@@ -330,7 +328,7 @@ public final class OffSVideoRenderManager {
      * 调整滤镜
      */
     private void onFilterChanged() {
-        Log.e("Harrison","mTextureWidth"+mTextureWidth+mTextureHeight);
+        Log.e("Harrison", "mTextureWidth" + mTextureWidth + mTextureHeight);
         for (int i = 0; i < mFilterArrays.size(); i++) {
             if (mFilterArrays.get(i) != null) {
                 mFilterArrays.get(i).onInputSizeChanged(mTextureWidth, mTextureHeight);

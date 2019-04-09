@@ -179,7 +179,6 @@ public class GLImageFilter {
                 || !mIsInitialized || !mFilterEnable) {
             return textureId;
         }
-
         // 绑定FBO
         GLES30.glViewport(0, 0, mFrameWidth, mFrameHeight);
         GLES30.glBindFramebuffer(GLES30.GL_FRAMEBUFFER, mFrameBuffers[0]);

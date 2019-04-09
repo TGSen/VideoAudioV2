@@ -16,6 +16,7 @@ import com.cgfay.cameralibrary.R;
 import com.cgfay.cameralibrary.fragment.PreviewFiltersFragment;
 import com.cgfay.cameralibrary.media.VideoRenderer;
 import com.cgfay.cameralibrary.media.surface.EncodeDecodeSurface;
+import com.cgfay.cameralibrary.media.surface.OffSVideoRenderManager;
 import com.cgfay.cameralibrary.media.surface.OffScreenVideoRenderer;
 import com.cgfay.cameralibrary.widget.VideoPreviewView;
 
@@ -57,14 +58,14 @@ public class EditextVideoActivity extends AppCompatActivity implements View.OnCl
         VideoRenderer.getInstance().setVideoPaths(videoPath);
         // 绑定需要渲染的SurfaceView
         VideoRenderer.getInstance().setSurfaceView(mVideoPreviewView);
-        EncodeDecodeSurface test=new EncodeDecodeSurface();
+        EncodeDecodeSurface test = new EncodeDecodeSurface();
         String outputPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download/out.mp4";
-        test.setVideoPath(videoPath,outputPath);
-
-        OffScreenVideoRenderer.getInstance().initRenderer(this.getApplicationContext());
+        test.setVideoPath(videoPath, outputPath);
+        //初始化渲染的管理
+        OffSVideoRenderManager.getInstance().init(this.getApplicationContext());
         try {
             test.testEncodeDecodeSurface();
-        }catch (Throwable a){
+        } catch (Throwable a) {
             a.printStackTrace();
         }
     }

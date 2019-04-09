@@ -76,7 +76,6 @@ public class EncodeDecodeSurface {
      * 能获取bitRate 只有在MediaMetadataRetriever
      * 能获取frameRate 在 mediaFormat = extractor.getTrackFormat(DecodetrackIndex);
      * 所以先调用initDecodeVideoInfo，补全videoInfo 在使用
-     *
      */
     private void prepare() throws IOException {
         try {
@@ -179,7 +178,6 @@ public class EncodeDecodeSurface {
                         mDecoder.outputSurface.drawImage(true);
 
                         mEncoder.drainEncoder(false);
-
                         mDecoder.outputSurface.setPresentationTime(computePresentationTimeNsec(decodeCount));
                         mDecoder.outputSurface.swapBuffers();
                         decodeCount++;

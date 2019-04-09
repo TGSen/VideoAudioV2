@@ -11,6 +11,8 @@ import android.util.Log;
 import android.view.Surface;
 
 
+import com.cgfay.filterlibrary.glfilter.utils.OpenGLUtils;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -26,7 +28,9 @@ public class CodecOutputSurface implements SurfaceTexture.OnFrameAvailableListen
     private SurfaceTexture mSurfaceTexture;
     private Surface mSurface;
     public Surface EncodeSurface;
-
+    private int mInputTexture;
+    // 矩阵
+    private final float[] mMatrix = new float[16];
     private EGLDisplay mEGLDisplay = EGL14.EGL_NO_DISPLAY;
     private EGLContext mEGLContext = EGL14.EGL_NO_CONTEXT;
     private EGLContext mEGLContextEncoder = EGL14.EGL_NO_CONTEXT;
@@ -55,6 +59,9 @@ public class CodecOutputSurface implements SurfaceTexture.OnFrameAvailableListen
         eglSetup(surface);
         makeCurrent();
         setSurfaceCreated();
+        OffSVideoRenderManager.getInstance().setTextureSize(width, height);
+        OffSVideoRenderManager.getInstance().setDisplaySize(width, height);
+
     }
 
     /**
@@ -62,9 +69,10 @@ public class CodecOutputSurface implements SurfaceTexture.OnFrameAvailableListen
      */
     private void setSurfaceCreated() {
         mTextureRender = new TextureRender();
-        //
         mTextureRender.surfaceCreated();
-        mSurfaceTexture = new SurfaceTexture(mTextureRender.getTextureId());
+        // mInputTexture = OpenGLUtils.createOESTexture();
+        mInputTexture = mTextureRender.getTextureId();
+        mSurfaceTexture = new SurfaceTexture(mInputTexture);
 
         mSurfaceTexture.setOnFrameAvailableListener(this);
 
@@ -85,7 +93,7 @@ public class CodecOutputSurface implements SurfaceTexture.OnFrameAvailableListen
         int[] version = new int[2];
         if (!EGL14.eglInitialize(mEGLDisplay, version, 0, version, 1)) {
             mEGLDisplay = null;
-            throw new RuntimeException("unable to initialize EGL14");
+            return;
         }
 
         // Configure EGL for pbuffer and OpenGL ES 2.0, 24-bit RGB.
@@ -223,20 +231,16 @@ public class CodecOutputSurface implements SurfaceTexture.OnFrameAvailableListen
      */
     public void makeCurrent() {
         if (!EGL14.eglMakeCurrent(mEGLDisplay, mEGLSurface, mEGLSurface, mEGLContext)) {
-            throw new RuntimeException("eglMakeCurrent failed");
+            return;
         }
     }
 
 
     public void makeCurrent(int index) {
         if (index == 0) {
-            if (!EGL14.eglMakeCurrent(mEGLDisplay, mEGLSurface, mEGLSurface, mEGLContext)) {
-                throw new RuntimeException("eglMakeCurrent failed");
-            }
+            EGL14.eglMakeCurrent(mEGLDisplay, mEGLSurface, mEGLSurface, mEGLContext);
         } else {
-            if (!EGL14.eglMakeCurrent(mEGLDisplay, mEGLSurfaceEncoder, mEGLSurfaceEncoder, mEGLContextEncoder)) {
-                throw new RuntimeException("eglMakeCurrent failed");
-            }
+            EGL14.eglMakeCurrent(mEGLDisplay, mEGLSurfaceEncoder, mEGLSurfaceEncoder, mEGLContextEncoder);
         }
 
     }
@@ -281,7 +285,11 @@ public class CodecOutputSurface implements SurfaceTexture.OnFrameAvailableListen
      * @param invert if set, render the image with Y inverted (0,0 in top left)
      */
     public void drawImage(boolean invert) {
-        mTextureRender.drawFrame(mSurfaceTexture, invert);
+           mTextureRender.drawFrame(mSurfaceTexture, invert);
+      //  mSurfaceTexture.getTransformMatrix(mMatrix);
+//        // 绘制渲染
+      //  OffSVideoRenderManager.getInstance().drawFrame(mInputTexture, mMatrix);
+
     }
 
     // SurfaceTexture callback
