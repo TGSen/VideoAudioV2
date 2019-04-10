@@ -10,10 +10,13 @@ import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
+import android.widget.ProgressBar;
+import android.widget.SeekBar;
 
 import com.cgfay.cameralibrary.R;
 import com.cgfay.cameralibrary.media.VideoRenderer;
@@ -43,6 +46,8 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
 
     private Handler mHandler = new Handler(Looper.myLooper());
     private View mRootView;
+    private RecyclerView mRecyclerView;
+    private SeekBar mSeekBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +77,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
             public void run() {
                 //获取第一帧图片并模糊
                 final Bitmap bitmap = BitmapUtils.createVideoThumbnail(videoPath);
-                ImageBlur.blurBitmap(bitmap, 20);
+                ImageBlur.blurBitmap(bitmap, 10);
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -99,7 +104,11 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
      */
     private void initView() {
         FrameLayout mAspectLayout = findViewById(R.id.layout_aspect);
+        mRecyclerView = findViewById(R.id.recyclerView);
+
         mRootView = findViewById(R.id.rootView);
+        mSeekBar = findViewById(R.id.seekBar);
+
         //mAspectLayout.setAspectRatio(mCameraParam.currentRatio);
         mVideoPreviewView = new VideoPreviewView(this);
         mVideoPreviewView.setOnClickListener(new View.OnClickListener() {
@@ -110,7 +119,6 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
         });
         mAspectLayout.addView(mVideoPreviewView);
         mAspectLayout.requestLayout();
-
 
     }
 

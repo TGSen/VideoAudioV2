@@ -7,6 +7,7 @@
 #include "ImageBlur.h"
 /**
  * 动态注册相关的
+ * JNIREG_CLASS 如果该类改变的时候，就只改这里就可以
  */
 
 #define JNIREG_CLASS "com/cgfay/cameralibrary/utils/ImageBlur"
@@ -62,7 +63,7 @@ static int registerNativeMethods(JNIEnv *env, const char *className, JNINativeMe
     return JNI_TRUE;
 };
 
-//BaseGLNative 的所有方法
+// 的所有方法
 static JNINativeMethod mMethods[] = {
         {"blurBitmap", "(Landroid/graphics/Bitmap;I)V", (void *) blurBitmap}
 };
@@ -80,7 +81,7 @@ static int registerNatives(JNIEnv *env) {
 * System.loadLibrary("lib")时会调用
 * 如果成功返回JNI版本, 失败返回-1
 */
-JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved){
+JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     JNIEnv *env = NULL;
     jint result = -1;
     if (vm->GetEnv((void **) &env, JNI_VERSION_1_6) != JNI_OK) {
