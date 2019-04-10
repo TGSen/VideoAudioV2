@@ -39,7 +39,12 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activity.EditextVideoActivity" />
+        <activity
+            android:name=".activity.EditextVideoActivity"
+            android:launchMode="singleTop" />
+        <activity
+            android:name=".activity.EffectVideoActivity"
+           />
 
 
         <activity android:name=".activity.CameraSettingActivity" />

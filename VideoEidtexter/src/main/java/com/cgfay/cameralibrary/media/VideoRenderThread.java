@@ -82,7 +82,7 @@ class VideoRenderThread extends HandlerThread implements SurfaceTexture.OnFrameA
         super(name);
         mContext = context;
 
-        mRenderManager = VideoRenderManager.getInstance();
+        mRenderManager = new VideoRenderManager();
 
     }
 
@@ -132,7 +132,7 @@ class VideoRenderThread extends HandlerThread implements SurfaceTexture.OnFrameA
         mMediaPlayer.setSurface(surface);
         mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         try {
-            if(!TextUtils.isEmpty(mVideoPath) && new File(mVideoPath).exists()){
+            if(!TextUtils.isEmpty(mVideoPath) && new File(mVideoPath).canRead()){
                 Log.e("Harrison","playVideo:"+mVideoPath);
                 mMediaPlayer.setDataSource(mVideoPath);
             }

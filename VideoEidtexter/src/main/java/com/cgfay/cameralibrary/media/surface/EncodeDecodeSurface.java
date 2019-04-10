@@ -94,6 +94,7 @@ public class EncodeDecodeSurface {
                     .setPath(videoPath)
                     .setOutPath(outVideoPath)
                     .setBitRate(Integer.parseInt(bitrate));
+            mmr.release();
             //首先先完善videoInfo,供其他的地方使用
             mDecoder.initDecodeVideoInfo(videoInfo);
             mEncoder.setVideoInfo(videoInfo);

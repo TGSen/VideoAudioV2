@@ -272,7 +272,7 @@ public final class OffSVideoRenderManager {
             return currentTexture;
         }
         if (mFilterArrays.get(RenderIndex.CameraIndex) instanceof GLImageOESInputFilter) {
-            ((GLImageOESInputFilter) mFilterArrays.get(RenderIndex.CameraIndex)).setTextureTransformMatrix(mMatrix);
+           ((GLImageOESInputFilter) mFilterArrays.get(RenderIndex.CameraIndex)).setTextureTransformMatrix(mMatrix);
         }
         currentTexture = mFilterArrays.get(RenderIndex.CameraIndex)
                 .drawFrameBuffer(currentTexture, mVertexBuffer, mTextureBuffer);

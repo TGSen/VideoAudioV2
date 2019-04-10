@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/rootView"
+    android:background="@color/black">
+
+
+    <!-- 预览视图 -->
+    <com.cgfay.cameralibrary.widget.AspectFrameLayout
+        android:id="@+id/layout_aspect"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginLeft="61dp"
+        android:layout_marginTop="110dp"
+        android:layout_marginRight="61dp"
+        app:layout_constraintDimensionRatio="h,1:1.3"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/btCloseImag"
+        android:layout_width="@dimen/dp24"
+        android:layout_height="@dimen/dp24"
+        android:layout_marginLeft="@dimen/dp16"
+        android:layout_marginTop="58dp"
+        android:padding="@dimen/dp4"
+        android:src="@mipmap/ic_close"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/btSave"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="@dimen/dp16"
+        android:gravity="center"
+        android:padding="@dimen/dp4"
+        android:text="@string/save"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp16"
+        app:layout_constraintBottom_toBottomOf="@+id/btCloseImag"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/btCloseImag" />
+
+    <TextView
+        android:id="@+id/btUseingTip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="27dp"
+        android:layout_marginRight="@dimen/dp11"
+        android:layout_marginTop="@dimen/dp18"
+        android:gravity="center"
+        android:textColor="@color/white"
+        android:padding="@dimen/dp4"
+        android:text="@string/filter_use_tip"
+        android:textSize="@dimen/sp12"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/layout_aspect" />
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="@dimen/dp16"
+        android:background="@drawable/ic_revoke_bg"
+        android:padding="@dimen/dp4"
+        android:text="@string/revoke"
+        android:textColor="#ffffffff"
+        android:textSize="12sp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/btUseingTip"
+        app:layout_constraintRight_toRightOf="parent" />
+
+
+</android.support.constraint.ConstraintLayout>

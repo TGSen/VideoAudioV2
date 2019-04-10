@@ -2,5 +2,6 @@
 <resources>
     <!-- 指示器颜色 -->
     <color name="colorWhilte">#ffffffff</color>
+    <color name="colorBlackV2">#192736</color>
 
 </resources>

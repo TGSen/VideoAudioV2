@@ -59,6 +59,7 @@ public class PreviewFiltersFragment extends Fragment {
     private int mFilterType;
     //视频的模式，1拍摄模式 2.编辑模式
     private int mVideoModeType;
+    private VideoRenderer mVideoRenderer;
 
     //Retention 是元注解，简单地讲就是系统提供的，用于定义注解的“注解”
     @Retention(RetentionPolicy.SOURCE)
@@ -127,6 +128,7 @@ public class PreviewFiltersFragment extends Fragment {
         }
 //        mResourceData.addAll( mFilterType == TYPE_COLOR_FILTER ? ResourceHelper.getColorFilter() : ResourceHelper.getCamerFilter());
         mPreviewResourceAdapter.notifyDataSetChanged();
+        mVideoRenderer = new VideoRenderer();
     }
 
 
@@ -177,7 +179,7 @@ public class PreviewFiltersFragment extends Fragment {
                     color.setColorType(ResourceType.FILTER.getIndex());
                     //滤镜分拍摄模式还是编辑模式
                     if (mVideoModeType == TYPE_VIDEO_EIDTEXT) {
-                        VideoRenderer.getInstance().changeDynamicColorFilter(color);
+                        mVideoRenderer.changeDynamicColorFilter(color);
                     } else if (mVideoModeType == TYPE_VIDEO_SHOT) {
                         PreviewRenderer.getInstance().changeDynamicColorFilter(color);
                     }
@@ -209,7 +211,7 @@ public class PreviewFiltersFragment extends Fragment {
                 case NONE: {
                     //滤镜分拍摄模式还是编辑模式
                     if (mVideoModeType == TYPE_VIDEO_EIDTEXT) {
-                        VideoRenderer.getInstance().changeDynamicColorFilter(new DynamicColor().setColorType(ResourceType.FILTER.getIndex()));
+                        mVideoRenderer.changeDynamicColorFilter(new DynamicColor().setColorType(ResourceType.FILTER.getIndex()));
                     } else if (mVideoModeType == TYPE_VIDEO_SHOT) {
                         if (mFilterType == TYPE_COLOR_FILTER) {
                             PreviewRenderer.getInstance().removeDynamic(new DynamicColor().setColorType(ResourceType.FILTER.getIndex()));

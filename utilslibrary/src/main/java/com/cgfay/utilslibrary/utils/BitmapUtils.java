@@ -12,8 +12,10 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.media.ExifInterface;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -59,6 +61,7 @@ public class BitmapUtils {
 
     /**
      * 从Buffer中创建Bitmap
+     *
      * @param buffer
      * @param width
      * @param height
@@ -70,6 +73,7 @@ public class BitmapUtils {
 
     /**
      * 从Buffer中创建Bitmap
+     *
      * @param buffer
      * @param width
      * @param height
@@ -94,6 +98,7 @@ public class BitmapUtils {
 
     /**
      * 从普通文件中读入图片
+     *
      * @param fileName
      * @return
      */
@@ -114,6 +119,7 @@ public class BitmapUtils {
 
     /**
      * 加载Assets文件夹下的图片
+     *
      * @param context
      * @param fileName
      * @return
@@ -133,6 +139,7 @@ public class BitmapUtils {
 
     /**
      * 加载Assets文件夹下的图片
+     *
      * @param context
      * @param fileName
      * @return
@@ -163,6 +170,7 @@ public class BitmapUtils {
 
     /**
      * 计算 inSampleSize的值
+     *
      * @param options
      * @param reqWidth
      * @param reqHeight
@@ -197,6 +205,7 @@ public class BitmapUtils {
 
     /**
      * 从文件读取Bitmap
+     *
      * @param dst       目标路径
      * @param maxWidth  读入最大宽度, 为0时，直接读入原图
      * @param maxHeight 读入最大高度，为0时，直接读入原图
@@ -226,10 +235,11 @@ public class BitmapUtils {
 
     /**
      * 从文件读取Bitmap
-     * @param dst                   目标路径
-     * @param maxWidth              读入最大宽度，为0时，直接读入原图
-     * @param maxHeight             读入最大高度，为0时，直接读入原图
-     * @param processOrientation    是否处理图片旋转角度
+     *
+     * @param dst                目标路径
+     * @param maxWidth           读入最大宽度，为0时，直接读入原图
+     * @param maxHeight          读入最大高度，为0时，直接读入原图
+     * @param processOrientation 是否处理图片旋转角度
      * @return
      */
     public static Bitmap getBitmapFromFile(File dst, int maxWidth, int maxHeight, boolean processOrientation) {
@@ -265,8 +275,18 @@ public class BitmapUtils {
         return null;
     }
 
+    public static Bitmap createScaleBitmap(Bitmap src, int dstWidth, int dstHeight, int inSampleSize) {
+        // 如果是放大图片，filter决定是否平滑，如果是缩小图片，filter无影响，我们这里是缩小图片，所以直接设置为false
+        Bitmap dst = Bitmap.createScaledBitmap(src, dstWidth, dstHeight, false);
+        if (src != dst) { // 如果没有缩放，那么不回收
+            src.recycle(); // 释放Bitmap的native像素数组
+        }
+        return dst;
+    }
+
     /**
      * 从Drawable中获取Bitmap图片
+     *
      * @param drawable
      * @return
      */
@@ -287,6 +307,7 @@ public class BitmapUtils {
 
     /**
      * 图片等比缩放
+     *
      * @param bitmap
      * @param newWidth
      * @param newHeight
@@ -315,8 +336,48 @@ public class BitmapUtils {
         return result;
     }
 
+    public static Bitmap createVideoThumbnail(String filePath) {
+        Bitmap bitmap = null;
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        try {
+            retriever.setDataSource(filePath);
+            //这个比较准点
+            bitmap = retriever.getFrameAtTime(1000, MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
+        } catch (IllegalArgumentException ex) {
+            // Assume this is a corrupt video file
+        } catch (RuntimeException ex) {
+            // Assume this is a corrupt video file.
+        } finally {
+            try {
+                retriever.release();
+            } catch (RuntimeException ex) {
+                // Ignore failures while cleaning up.
+            }
+        }
+
+        if (bitmap == null) return null;
+
+
+        // Scale down the bitmap if it's too large.
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+
+        int max = Math.max(width, height);
+        //缩小
+        if(max>80){
+            float scale = 80f / max;
+            int w = Math.round(scale * width);
+            int h = Math.round(scale * height);
+            bitmap = Bitmap.createScaledBitmap(bitmap, w, h, true);
+            Log.e("Harrison", w + "*" + h);
+        }
+        return bitmap;
+    }
+
+
     /**
      * 保存图片
+     *
      * @param context
      * @param path
      * @param bitmap
@@ -327,6 +388,7 @@ public class BitmapUtils {
 
     /**
      * 保存图片
+     *
      * @param context
      * @param path
      * @param bitmap
@@ -371,6 +433,7 @@ public class BitmapUtils {
 
     /**
      * 保存图片
+     *
      * @param filePath
      * @param buffer
      * @param width
@@ -401,6 +464,7 @@ public class BitmapUtils {
 
     /**
      * 获取图片旋转角度
+     *
      * @param path
      * @return
      */
@@ -436,6 +500,7 @@ public class BitmapUtils {
 
     /**
      * 获取Uri路径图片的旋转角度
+     *
      * @param context
      * @param uri
      * @return
@@ -454,9 +519,9 @@ public class BitmapUtils {
             if (provider != null) {
                 Cursor cursor;
                 try {
-                    cursor = provider.query(uri, new String[] {
-                            MediaStore.Images.ImageColumns.ORIENTATION,
-                            MediaStore.Images.ImageColumns.DATA},
+                    cursor = provider.query(uri, new String[]{
+                                    MediaStore.Images.ImageColumns.ORIENTATION,
+                                    MediaStore.Images.ImageColumns.DATA},
                             null, null, null);
                 } catch (RemoteException e) {
                     e.printStackTrace();
@@ -496,6 +561,7 @@ public class BitmapUtils {
 
     /**
      * 获取图片大小
+     *
      * @param path
      * @return
      */
@@ -508,6 +574,7 @@ public class BitmapUtils {
 
     /**
      * 将Bitmap图片旋转90度
+     *
      * @param data
      * @return
      */
@@ -517,6 +584,7 @@ public class BitmapUtils {
 
     /**
      * 将Bitmap图片旋转一定角度
+     *
      * @param data
      * @param rotate
      * @return
@@ -535,6 +603,7 @@ public class BitmapUtils {
 
     /**
      * 将Bitmap图片旋转90度
+     *
      * @param bitmap
      * @param isRecycled
      * @return
@@ -545,6 +614,7 @@ public class BitmapUtils {
 
     /**
      * 将Bitmap图片旋转一定角度
+     *
      * @param bitmap
      * @param rotate
      * @param isRecycled
@@ -568,6 +638,7 @@ public class BitmapUtils {
 
     /**
      * 镜像翻转图片
+     *
      * @param bitmap
      * @param isRecycled
      * @return
@@ -578,6 +649,7 @@ public class BitmapUtils {
 
     /**
      * 翻转图片
+     *
      * @param bitmap
      * @param flipX
      * @param flipY
@@ -602,6 +674,7 @@ public class BitmapUtils {
 
     /**
      * 裁剪
+     *
      * @param bitmap
      * @param x
      * @param y
@@ -631,6 +704,7 @@ public class BitmapUtils {
 
     /**
      * 获取Exif参数
+     *
      * @param path
      * @param bundle
      * @return
@@ -651,6 +725,7 @@ public class BitmapUtils {
 
     /**
      * 保存Exif属性
+     *
      * @param path
      * @param bundle
      * @return 是否保存成功

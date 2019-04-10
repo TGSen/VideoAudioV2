@@ -130,7 +130,6 @@ class OffSVideoRenderThread extends HandlerThread implements SurfaceTexture.OnFr
      * @param height
      */
     void surfaceChanged(int width, int height) {
-        Log.e("Harrison", "surfaceChanged" + width + height);
         //这代码在调试中
         mRenderManager.setTextureSize(width, height);
         mRenderManager.setDisplaySize(width, height);

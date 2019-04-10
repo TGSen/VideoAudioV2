@@ -17,17 +17,17 @@ import java.util.List;
 
 public final class VideoRenderer {
 
-    private VideoRenderer() {
-    }
-
-
-    private static class RenderHolder {
-        private static VideoRenderer instance = new VideoRenderer();
-    }
-
-    public static VideoRenderer getInstance() {
-        return RenderHolder.instance;
-    }
+//    private VideoRenderer() {
+//    }
+//
+//
+//    private static class RenderHolder {
+//        private static VideoRenderer instance = new VideoRenderer();
+//    }
+//
+//    public static VideoRenderer getInstance() {
+//        return RenderHolder.instance;
+//    }
 
 
     // 渲染Handler

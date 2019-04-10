@@ -26,6 +26,7 @@ import android.widget.TextView;
 
 import com.cgfay.cameralibrary.R;
 import com.cgfay.cameralibrary.activity.EditextVideoActivity;
+import com.cgfay.cameralibrary.activity.EffectVideoActivity;
 import com.cgfay.cameralibrary.engine.camera.CameraEngine;
 import com.cgfay.cameralibrary.engine.camera.CameraParam;
 import com.cgfay.cameralibrary.engine.camera.SensorControler;
@@ -308,8 +309,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
                 break;
             //测试视频编辑页面
             case R.id.btFlash:
-                Intent intent = new Intent(mActivity, EditextVideoActivity.class);
-                startActivity(intent);
+
                 break;
             case R.id.btFilters:
                 showEffectView();

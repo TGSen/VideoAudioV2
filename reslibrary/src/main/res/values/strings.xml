@@ -10,6 +10,9 @@
     <string name="video_effect">特效</string>
     <string name="video_sticker">贴图</string>
     <string name="adjust_bgm">BGM</string>
+    <string name="save">保存</string>
+    <string name="revoke">撤销</string>
+    <string name="filter_use_tip">选择位置后,按住使用效果</string>
 
     <!-- 相机类型 -->
     <string-array name="gallery_indicator">

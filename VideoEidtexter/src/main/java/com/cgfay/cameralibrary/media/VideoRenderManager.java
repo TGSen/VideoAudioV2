@@ -21,6 +21,8 @@ import com.cgfay.filterlibrary.glfilter.utils.OpenGLUtils;
 import com.cgfay.filterlibrary.glfilter.utils.TextureRotationUtils;
 
 import java.nio.FloatBuffer;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 渲染管理器
@@ -28,17 +30,17 @@ import java.nio.FloatBuffer;
 public final class VideoRenderManager {
 
 
-    private static class RenderManagerHolder {
-        public static VideoRenderManager instance = new VideoRenderManager();
-    }
-
-    private VideoRenderManager() {
-
-    }
-
-    public static VideoRenderManager getInstance() {
-        return RenderManagerHolder.instance;
-    }
+//    private static class RenderManagerHolder {
+//        public static VideoRenderManager instance = new VideoRenderManager();
+//    }
+//
+//    private VideoRenderManager() {
+//
+//    }
+//
+//    public static VideoRenderManager getInstance() {
+//        return RenderManagerHolder.instance;
+//    }
 
     // 滤镜列表
     private SparseArray<GLImageFilter> mFilterArrays = new SparseArray<GLImageFilter>();
@@ -63,9 +65,9 @@ public final class VideoRenderManager {
      * 初始化
      */
     public void init(Context context) {
-        initBuffers();
-        initFilters(context);
-        mContext = context;
+            initBuffers();
+            initFilters(context);
+            mContext = context.getApplicationContext();
     }
 
     /**
@@ -335,7 +337,7 @@ public final class VideoRenderManager {
      * 调整滤镜
      */
     private void onFilterChanged() {
-        Log.e("Harrison","mTextureWidth"+mTextureWidth+mTextureHeight);
+        Log.e("Harrison", "mTextureWidth" + mTextureWidth + mTextureHeight);
         for (int i = 0; i < mFilterArrays.size(); i++) {
             if (mFilterArrays.get(i) != null) {
                 mFilterArrays.get(i).onInputSizeChanged(mTextureWidth, mTextureHeight);
