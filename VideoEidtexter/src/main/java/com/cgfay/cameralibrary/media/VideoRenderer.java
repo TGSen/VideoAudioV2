@@ -12,7 +12,8 @@ import java.util.List;
 
 
 /**
- * 预览渲染器
+ * 预览渲染器,由于多个页面都需要渲染滤镜等啥的，就不做单例模式了
+ *
  */
 
 public final class VideoRenderer {
@@ -266,6 +267,22 @@ public final class VideoRenderer {
         synchronized (mSynOperation) {
             mRenderHandler.sendEmptyMessage(VideoRenderHandler.MSG_STOP_RECORDING);
         }
+    }
+
+    /**
+     * 获取视频的进度
+     * @return
+     */
+    public int getVideoProgress() {
+        return mPreviewRenderThread.getVideoProgress();
+    }
+
+    /**
+     * 设置video 状态监听
+     * @param lisenter
+     */
+    public void setVideoPlayerStatusChangeLisenter(VideoRenderThread.VideoPlayerStatusChangeLisenter lisenter){
+        mPreviewRenderThread.setVideoPlayerStatusChangeLisenter(lisenter);
     }
 
 

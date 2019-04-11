@@ -8,6 +8,7 @@ import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Message;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -19,6 +20,7 @@ import android.widget.ProgressBar;
 import android.widget.SeekBar;
 
 import com.cgfay.cameralibrary.R;
+import com.cgfay.cameralibrary.media.VideoRenderThread;
 import com.cgfay.cameralibrary.media.VideoRenderer;
 import com.cgfay.cameralibrary.utils.ImageBlur;
 import com.cgfay.cameralibrary.widget.VideoPreviewView;
@@ -43,8 +45,22 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
     private String videoPath;
     private VideoPreviewView mVideoPreviewView;
     private VideoRenderer mVideoRenderer;
+    // 设置video paths
+    public static final int MSG_VIDEO_PLAY_PROGRESS = 0x001;
 
-    private Handler mHandler = new Handler(Looper.myLooper());
+    private Handler mHandler = new Handler(Looper.myLooper()){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what){
+                case MSG_VIDEO_PLAY_PROGRESS:
+                 int progress =  mVideoRenderer.getVideoProgress();
+                 mSeekBar.setProgress(progress);
+                 mHandler.sendEmptyMessage(MSG_VIDEO_PLAY_PROGRESS);
+                    break;
+            }
+        }
+    };
     private View mRootView;
     private RecyclerView mRecyclerView;
     private SeekBar mSeekBar;
@@ -87,6 +103,27 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
             }
         });
 
+        //设置videoPlayer 状态监听
+        mVideoRenderer.setVideoPlayerStatusChangeLisenter(new VideoRenderThread.VideoPlayerStatusChangeLisenter() {
+            @Override
+            public void videoStart(int totalTime) {
+                mSeekBar.setMax(totalTime);
+                mHandler.sendEmptyMessage(MSG_VIDEO_PLAY_PROGRESS);
+            }
+
+            @Override
+            public void videoStop() {
+                mHandler.removeMessages(MSG_VIDEO_PLAY_PROGRESS);
+            }
+
+            @Override
+            public void videoRestart() {
+                mHandler.sendEmptyMessage(MSG_VIDEO_PLAY_PROGRESS);
+            }
+
+
+        });
+
     }
 
     public static void gotoThis(Context context, String path) {
@@ -119,6 +156,23 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
         });
         mAspectLayout.addView(mVideoPreviewView);
         mAspectLayout.requestLayout();
+        mSeekBar.setEnabled(false);
+        mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
 
     }
 

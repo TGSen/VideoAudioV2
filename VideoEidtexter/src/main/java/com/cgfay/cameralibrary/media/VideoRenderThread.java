@@ -30,7 +30,7 @@ import java.util.List;
  * Created by cain on 2017/11/4.
  */
 
-class VideoRenderThread extends HandlerThread implements SurfaceTexture.OnFrameAvailableListener {
+public class VideoRenderThread extends HandlerThread implements SurfaceTexture.OnFrameAvailableListener {
 
     private static final String TAG = "OffSVideoRenderThread";
     private static final boolean VERBOSE = false;
@@ -54,6 +54,12 @@ class VideoRenderThread extends HandlerThread implements SurfaceTexture.OnFrameA
     private int mCurrentTexture;
     private SurfaceTexture mSurfaceTexture;
     private String mVideoPath;
+
+    private VideoPlayerStatusChangeLisenter mVideoPlayerStatusChangeLisenter;
+
+    public void setVideoPlayerStatusChangeLisenter(VideoPlayerStatusChangeLisenter lisenter) {
+        mVideoPlayerStatusChangeLisenter = lisenter;
+    }
 
     // 矩阵
     private final float[] mMatrix = new float[16];
@@ -101,8 +107,6 @@ class VideoRenderThread extends HandlerThread implements SurfaceTexture.OnFrameA
     }
 
 
-
-
     /**
      * Surface创建
      *
@@ -132,8 +136,8 @@ class VideoRenderThread extends HandlerThread implements SurfaceTexture.OnFrameA
         mMediaPlayer.setSurface(surface);
         mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         try {
-            if(!TextUtils.isEmpty(mVideoPath) && new File(mVideoPath).canRead()){
-                Log.e("Harrison","playVideo:"+mVideoPath);
+            if (!TextUtils.isEmpty(mVideoPath) && new File(mVideoPath).canRead()) {
+                Log.e("Harrison", "playVideo:" + mVideoPath);
                 mMediaPlayer.setDataSource(mVideoPath);
             }
 
@@ -145,20 +149,18 @@ class VideoRenderThread extends HandlerThread implements SurfaceTexture.OnFrameA
             @Override
             public void onPrepared(MediaPlayer mp) {
                 mMediaPlayer.start();
+                if (mVideoPlayerStatusChangeLisenter != null) {
+                    mVideoPlayerStatusChangeLisenter.videoStart(mMediaPlayer.getDuration());
+                }
             }
         });
+
         //设置无限循环
         mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer player) {
                 player.start();
                 player.setLooping(true);
-            }
-        });
-        mMediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
-            @Override
-            public boolean onError(MediaPlayer mp, int what, int extra) {
-                return false;
             }
         });
     }
@@ -203,7 +205,7 @@ class VideoRenderThread extends HandlerThread implements SurfaceTexture.OnFrameA
             mEglCore.release();
             mEglCore = null;
         }
-        if(mMediaPlayer!=null){
+        if (mMediaPlayer != null) {
             mMediaPlayer.stop();
             mMediaPlayer.reset();
             mMediaPlayer.release();
@@ -359,6 +361,9 @@ class VideoRenderThread extends HandlerThread implements SurfaceTexture.OnFrameA
     public void setVideoStop() {
         if (mMediaPlayer != null && mMediaPlayer.isPlaying()) {
             mMediaPlayer.pause();
+            if (mVideoPlayerStatusChangeLisenter != null) {
+                mVideoPlayerStatusChangeLisenter.videoStop();
+            }
         }
     }
 
@@ -368,6 +373,30 @@ class VideoRenderThread extends HandlerThread implements SurfaceTexture.OnFrameA
     public void setVideoStart() {
         if (mMediaPlayer != null && !mMediaPlayer.isPlaying()) {
             mMediaPlayer.start();
+            if (mVideoPlayerStatusChangeLisenter != null) {
+                mVideoPlayerStatusChangeLisenter.videoRestart();
+            }
+
         }
+    }
+
+    public int getVideoProgress() {
+        if (mMediaPlayer != null) {
+                return mMediaPlayer.getCurrentPosition();
+
+        }
+        return 0;
+    }
+
+    /**
+     * 视频状态的改变
+     */
+    public interface VideoPlayerStatusChangeLisenter {
+        void videoStart(int totalTime);
+
+        void videoStop();
+
+        void videoRestart();
+
     }
 }
