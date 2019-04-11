@@ -171,6 +171,8 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
         tvTotalTime = findViewById(R.id.totalTime);
         tvStartTime = findViewById(R.id.startTime);
 
+        //mSeekBar.setProgressDrawable();
+
         //mAspectLayout.setAspectRatio(mCameraParam.currentRatio);
         mVideoPreviewView = new VideoPreviewView(this);
         mVideoPreviewView.setOnClickListener(new View.OnClickListener() {
