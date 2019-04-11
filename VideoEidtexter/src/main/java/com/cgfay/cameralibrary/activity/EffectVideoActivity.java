@@ -11,21 +11,34 @@ import android.os.Looper;
 import android.os.Message;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
+import android.widget.TextView;
 
 import com.cgfay.cameralibrary.R;
+import com.cgfay.cameralibrary.adapter.EffectResourceAdapter;
+import com.cgfay.cameralibrary.adapter.PreviewResourceAdapter;
 import com.cgfay.cameralibrary.media.VideoRenderThread;
 import com.cgfay.cameralibrary.media.VideoRenderer;
 import com.cgfay.cameralibrary.utils.ImageBlur;
+import com.cgfay.cameralibrary.widget.SpaceItemDecoration;
 import com.cgfay.cameralibrary.widget.VideoPreviewView;
+import com.cgfay.filterlibrary.glfilter.resource.ResourceHelper;
+import com.cgfay.filterlibrary.glfilter.resource.bean.ResourceData;
+import com.cgfay.filterlibrary.glfilter.resource.bean.ResourceType;
 import com.cgfay.utilslibrary.utils.BitmapUtils;
+import com.cgfay.utilslibrary.utils.StringUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -48,22 +61,27 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
     // 设置video paths
     public static final int MSG_VIDEO_PLAY_PROGRESS = 0x001;
 
-    private Handler mHandler = new Handler(Looper.myLooper()){
+    private Handler mHandler = new Handler(Looper.myLooper()) {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            switch (msg.what){
+            switch (msg.what) {
                 case MSG_VIDEO_PLAY_PROGRESS:
-                 int progress =  mVideoRenderer.getVideoProgress();
-                 mSeekBar.setProgress(progress);
-                 mHandler.sendEmptyMessage(MSG_VIDEO_PLAY_PROGRESS);
+                    int progress = mVideoRenderer.getVideoProgress();
+                    String time = StringUtils.generateTime(progress);
+                    tvStartTime.setText(TextUtils.isEmpty(time) ? "00:00" : time);
+                    mSeekBar.setProgress(progress);
+                    mHandler.sendEmptyMessage(MSG_VIDEO_PLAY_PROGRESS);
                     break;
             }
         }
     };
     private View mRootView;
     private RecyclerView mRecyclerView;
+    private TextView tvTotalTime, tvStartTime;
     private SeekBar mSeekBar;
+    private List<ResourceData> mResourceData = new ArrayList<>();
+    private EffectResourceAdapter mPreviewResourceAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,12 +110,15 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
             @Override
             public void run() {
                 //获取第一帧图片并模糊
+                ResourceHelper.initColorFilterResource(EffectVideoActivity.this, mResourceData);
+
                 final Bitmap bitmap = BitmapUtils.createVideoThumbnail(videoPath);
                 ImageBlur.blurBitmap(bitmap, 10);
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
                         mRootView.setBackground(new BitmapDrawable(getResources(), bitmap));
+                        mPreviewResourceAdapter.notifyDataSetChanged();
                     }
                 });
             }
@@ -108,6 +129,8 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
             @Override
             public void videoStart(int totalTime) {
                 mSeekBar.setMax(totalTime);
+                String time = StringUtils.generateTime(totalTime);
+                tvTotalTime.setText(TextUtils.isEmpty(time) ? "00:00" : time);
                 mHandler.sendEmptyMessage(MSG_VIDEO_PLAY_PROGRESS);
             }
 
@@ -145,6 +168,8 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
 
         mRootView = findViewById(R.id.rootView);
         mSeekBar = findViewById(R.id.seekBar);
+        tvTotalTime = findViewById(R.id.totalTime);
+        tvStartTime = findViewById(R.id.startTime);
 
         //mAspectLayout.setAspectRatio(mCameraParam.currentRatio);
         mVideoPreviewView = new VideoPreviewView(this);
@@ -173,6 +198,24 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
 
             }
         });
+
+        LinearLayoutManager manager = new LinearLayoutManager(this);
+        manager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        mRecyclerView.setLayoutManager(manager);
+
+        mPreviewResourceAdapter = new EffectResourceAdapter(this, mResourceData);
+        mRecyclerView.setAdapter(mPreviewResourceAdapter);
+        mRecyclerView.addItemDecoration(new SpaceItemDecoration(40, 20));
+        mPreviewResourceAdapter.setOnResourceChangeListener(new EffectResourceAdapter.OnResourceChangeListener() {
+            @Override
+            public void onResourceChanged(ResourceData resourceData) {
+                parseResource(resourceData.type, resourceData.unzipFolder);
+            }
+        });
+
+    }
+
+    private void parseResource(ResourceType type, String unzipFolder) {
 
     }
 

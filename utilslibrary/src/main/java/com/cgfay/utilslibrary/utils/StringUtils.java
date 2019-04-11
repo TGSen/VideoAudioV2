@@ -234,8 +234,8 @@ public class StringUtils {
 
         return hours > 0 ? String.format("%02d:%02d:%02d", hours, minutes, seconds) // 显示时分秒
                 : (minutes > 0 ? String.format("%02d:%02d", minutes, seconds)      // 显示分钟和秒
-                : (totalSeconds > 0 ? String.format("%02d''%02d", totalSeconds, millisSeconds) // 显示秒和毫秒
-                : String.format("''%02d", millisSeconds)));   // 只显示毫秒
+                : (totalSeconds > 0 ? String.format("%02d:%02d",0 , totalSeconds) // 显示秒和毫秒
+                : String.format("%02d:%02d", 0,0)));   // 只显示毫秒
     }
 
     /**

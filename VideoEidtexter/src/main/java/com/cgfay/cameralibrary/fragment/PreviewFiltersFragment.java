@@ -137,7 +137,6 @@ public class PreviewFiltersFragment extends Fragment {
 
         GridLayoutManager manager = new GridLayoutManager(mActivity, 5);
         mResourceView.setLayoutManager(manager);
-
         mPreviewResourceAdapter = new PreviewResourceAdapter(mActivity, mResourceData);
         mResourceView.setAdapter(mPreviewResourceAdapter);
         mPreviewResourceAdapter.setOnResourceChangeListener(new PreviewResourceAdapter.OnResourceChangeListener() {
