@@ -1,6 +1,7 @@
 package com.cgfay.filterlibrary.glfilter.stickers;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.cgfay.filterlibrary.glfilter.base.GLImageGroupFilter;
 import com.cgfay.filterlibrary.glfilter.stickers.bean.DynamicSticker;
@@ -18,6 +19,7 @@ public class GLImageDynamicStickerFilter extends GLImageGroupFilter {
         if (sticker == null || sticker.dataList == null) {
             return;
         }
+        Log.e("Harrison",sticker.toString());
         // 如果存在普通贴纸数据，则添加普通贴纸滤镜
         for (int i = 0; i < sticker.dataList.size(); i++) {
             if (sticker.dataList.get(i) instanceof DynamicStickerNormalData) {

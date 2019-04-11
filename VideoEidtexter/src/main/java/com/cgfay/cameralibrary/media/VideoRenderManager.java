@@ -265,6 +265,8 @@ public final class VideoRenderManager {
         mFilterArrays.put(RenderIndex.ResourceIndex, filter);
     }
 
+
+
     /**
      * 绘制纹理
      *

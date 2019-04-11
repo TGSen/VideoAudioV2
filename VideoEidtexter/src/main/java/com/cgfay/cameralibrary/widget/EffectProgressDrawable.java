@@ -4,8 +4,8 @@ package com.cgfay.cameralibrary.widget;
  * @author Harrison 唐广森
  * @description: 这个是编辑特效进度条颜色的
  * @date :2019/4/11 15:08
- *
  */
+
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
@@ -23,19 +23,11 @@ public class EffectProgressDrawable extends Drawable {
 
     private Paint mPaint;
     private int mWidth;
-    private Bitmap mBitmap;
 
-    public EffectProgressDrawable(Bitmap bitmap) {
-        mBitmap = bitmap;
-        //着色器，设置横向和纵向的着色模式为平铺
-        BitmapShader bitmapShader = new BitmapShader(mBitmap,
-                Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
-
+    public EffectProgressDrawable() {
         mPaint = new Paint();
         mPaint.setAntiAlias(true);
         mPaint.setDither(true);
-        mPaint.setShader(bitmapShader);
-        mWidth = Math.min(mBitmap.getWidth(), mBitmap.getHeight());
     }
 
     //绘制

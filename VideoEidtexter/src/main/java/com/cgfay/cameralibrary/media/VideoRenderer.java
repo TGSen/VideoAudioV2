@@ -274,7 +274,10 @@ public final class VideoRenderer {
      * @return
      */
     public int getVideoProgress() {
-        return mPreviewRenderThread.getVideoProgress();
+        if(mPreviewRenderThread!=null){
+           return mPreviewRenderThread.getVideoProgress();
+        }
+        return 0;
     }
 
     /**
@@ -282,7 +285,10 @@ public final class VideoRenderer {
      * @param lisenter
      */
     public void setVideoPlayerStatusChangeLisenter(VideoRenderThread.VideoPlayerStatusChangeLisenter lisenter){
-        mPreviewRenderThread.setVideoPlayerStatusChangeLisenter(lisenter);
+        if(mPreviewRenderThread!=null){
+            mPreviewRenderThread.setVideoPlayerStatusChangeLisenter(lisenter);
+        }
+
     }
 
 

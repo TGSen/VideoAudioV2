@@ -39,6 +39,7 @@ public class OpenGLUtils {
 
     // 单位矩阵
     public static final float[] IDENTITY_MATRIX;
+
     static {
         IDENTITY_MATRIX = new float[16];
         Matrix.setIdentityM(IDENTITY_MATRIX, 0);
@@ -53,6 +54,7 @@ public class OpenGLUtils {
 
     /**
      * 从文件路径中读取shader字符串
+     *
      * @param filePath
      * @return
      */
@@ -75,14 +77,15 @@ public class OpenGLUtils {
 
     /**
      * 从Assets文件夹中读取shader字符串
+     *
      * @param context
-     * @param path      shader相对路径
+     * @param path    shader相对路径
      * @return
      */
     public static String getShaderFromAssets(Context context, String path) {
         InputStream inputStream = null;
         try {
-            inputStream = context.getResources().getAssets().open(path);
+            inputStream = context.getApplicationContext().getResources().getAssets().open(path);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -91,6 +94,7 @@ public class OpenGLUtils {
 
     /**
      * 从输入流中读取shader字符创
+     *
      * @param inputStream
      * @return
      */
@@ -115,6 +119,7 @@ public class OpenGLUtils {
 
     /**
      * 创建program
+     *
      * @param vertexSource
      * @param fragmentSource
      * @return
@@ -152,6 +157,7 @@ public class OpenGLUtils {
 
     /**
      * 加载Shader
+     *
      * @param shaderType
      * @param source
      * @return
@@ -174,6 +180,7 @@ public class OpenGLUtils {
 
     /**
      * 检查是否出错
+     *
      * @param op
      */
     public static void checkGlError(String op) {
@@ -187,6 +194,7 @@ public class OpenGLUtils {
 
     /**
      * 创建FloatBuffer
+     *
      * @param coords
      * @return
      */
@@ -201,12 +209,13 @@ public class OpenGLUtils {
 
     /**
      * 创建FloatBuffer
+     *
      * @param data
      * @return
      */
     public static FloatBuffer createFloatBuffer(ArrayList<Float> data) {
         float[] coords = new float[data.size()];
-        for (int i = 0; i < coords.length; i++){
+        for (int i = 0; i < coords.length; i++) {
             coords[i] = data.get(i);
         }
         return createFloatBuffer(coords);
@@ -214,6 +223,7 @@ public class OpenGLUtils {
 
     /**
      * 创建ShortBuffer
+     *
      * @param coords
      * @return
      */
@@ -228,6 +238,7 @@ public class OpenGLUtils {
 
     /**
      * 创建ShortBuffer
+     *
      * @param data
      * @return
      */
@@ -241,6 +252,7 @@ public class OpenGLUtils {
 
     /**
      * 创建Sampler2D的Framebuffer 和 Texture
+     *
      * @param frameBuffer
      * @param frameBufferTexture
      * @param width
@@ -273,6 +285,7 @@ public class OpenGLUtils {
 
     /**
      * 创建Texture对象
+     *
      * @param textureType
      * @return
      */
@@ -293,6 +306,7 @@ public class OpenGLUtils {
 
     /**
      * 加载mipmap纹理
+     *
      * @param bitmap bitmap图片
      * @return
      */
@@ -325,6 +339,7 @@ public class OpenGLUtils {
 
     /**
      * 使用旧的Texture 创建新的Texture (宽高不能大于旧Texture的宽高，主要用于贴纸不断切换图片)
+     *
      * @param bitmap
      * @param texture
      * @return
@@ -345,6 +360,7 @@ public class OpenGLUtils {
 
     /**
      * 创建Texture
+     *
      * @param bytes
      * @param width
      * @param height
@@ -356,6 +372,7 @@ public class OpenGLUtils {
 
     /**
      * 创建纹理
+     *
      * @param bytes
      * @param width
      * @param height
@@ -372,6 +389,7 @@ public class OpenGLUtils {
 
     /**
      * 创建Texture
+     *
      * @param byteBuffer
      * @param width
      * @param height
@@ -384,7 +402,7 @@ public class OpenGLUtils {
         final int[] texture = new int[1];
         GLES30.glGenTextures(1, texture, 0);
         if (texture[0] == 0) {
-            Log.d(TAG,"Failed at glGenTextures");
+            Log.d(TAG, "Failed at glGenTextures");
             return 0;
         }
 
@@ -399,17 +417,18 @@ public class OpenGLUtils {
         GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D,
                 GLES30.GL_TEXTURE_WRAP_T, GLES30.GL_CLAMP_TO_EDGE);
         GLES30.glTexImage2D(GLES30.GL_TEXTURE_2D, 0, GLES30.GL_RGBA,
-                width,height, 0,
+                width, height, 0,
                 GLES30.GL_RGBA,
                 GLES30.GL_UNSIGNED_BYTE,
                 byteBuffer);
 
-        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D,0);
+        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, 0);
         return texture[0];
     }
 
     /**
      * 使用旧的Texture 创建新的Texture (宽高不能大于旧Texture的宽高，主要用于贴纸不断切换图片)
+     *
      * @param byteBuffer
      * @param width
      * @param height
@@ -426,7 +445,7 @@ public class OpenGLUtils {
             return createTexture(byteBuffer, width, height);
         } else {
             GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, texture);
-            GLES30.glTexSubImage2D(GLES30.GL_TEXTURE_2D,0,0,0,
+            GLES30.glTexSubImage2D(GLES30.GL_TEXTURE_2D, 0, 0, 0,
                     width, height,
                     GLES30.GL_RGBA,
                     GLES30.GL_UNSIGNED_BYTE,
@@ -439,8 +458,9 @@ public class OpenGLUtils {
 
     /**
      * 使用绝对路径创建纹理
-     * @param filePath  mipmap图片路径
-     * @return  纹理Id，失败则返回GL_NO_TEXTURE;
+     *
+     * @param filePath mipmap图片路径
+     * @return 纹理Id，失败则返回GL_NO_TEXTURE;
      */
     public static int createTexture(String filePath) {
         int[] textureHandle = new int[1];
@@ -474,6 +494,7 @@ public class OpenGLUtils {
 
     /**
      * 加载mipmap纹理
+     *
      * @param context
      * @param name
      * @return
@@ -504,6 +525,7 @@ public class OpenGLUtils {
 
     /**
      * 创建OES 类型的Texture
+     *
      * @return
      */
     public static int createOESTexture() {
@@ -511,9 +533,9 @@ public class OpenGLUtils {
     }
 
 
-
     /**
      * 删除纹理
+     *
      * @param texture
      */
     public static void deleteTexture(int texture) {
@@ -524,9 +546,10 @@ public class OpenGLUtils {
 
     /**
      * 绑定纹理
-     * @param location  句柄
-     * @param texture   纹理id
-     * @param index     索引
+     *
+     * @param location 句柄
+     * @param texture  纹理id
+     * @param index    索引
      */
     public static void bindTexture(int location, int texture, int index) {
         bindTexture(location, texture, index, GLES30.GL_TEXTURE_2D);
@@ -534,9 +557,10 @@ public class OpenGLUtils {
 
     /**
      * 绑定纹理
-     * @param location  句柄
-     * @param texture   纹理值
-     * @param index     绑定的位置
+     *
+     * @param location    句柄
+     * @param texture     纹理值
+     * @param index       绑定的位置
      * @param textureType 纹理类型
      */
     public static void bindTexture(int location, int texture, int index, int textureType) {
@@ -550,9 +574,9 @@ public class OpenGLUtils {
     }
 
 
-
     /**
      * 获取出错信息
+     *
      * @param error
      * @return
      */

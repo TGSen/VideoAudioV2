@@ -9,6 +9,7 @@
         "strength": 1.0,
         "texelOffset": 0,
         "audioPath": "",
-        "audioLooping": 1
+        "audioLooping": 1,
+        "duration": 100
     }]
 }

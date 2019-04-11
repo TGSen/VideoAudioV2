@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.provider.MediaStore;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -26,17 +27,22 @@ import android.widget.TextView;
 import com.cgfay.cameralibrary.R;
 import com.cgfay.cameralibrary.adapter.EffectResourceAdapter;
 import com.cgfay.cameralibrary.adapter.PreviewResourceAdapter;
+import com.cgfay.cameralibrary.engine.render.PreviewRenderer;
 import com.cgfay.cameralibrary.media.VideoRenderThread;
 import com.cgfay.cameralibrary.media.VideoRenderer;
 import com.cgfay.cameralibrary.utils.ImageBlur;
 import com.cgfay.cameralibrary.widget.SpaceItemDecoration;
 import com.cgfay.cameralibrary.widget.VideoPreviewView;
+import com.cgfay.filterlibrary.glfilter.color.bean.DynamicColor;
 import com.cgfay.filterlibrary.glfilter.resource.ResourceHelper;
+import com.cgfay.filterlibrary.glfilter.resource.ResourceJsonCodec;
 import com.cgfay.filterlibrary.glfilter.resource.bean.ResourceData;
 import com.cgfay.filterlibrary.glfilter.resource.bean.ResourceType;
+import com.cgfay.filterlibrary.glfilter.stickers.bean.DynamicSticker;
 import com.cgfay.utilslibrary.utils.BitmapUtils;
 import com.cgfay.utilslibrary.utils.StringUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -110,7 +116,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
             @Override
             public void run() {
                 //获取第一帧图片并模糊
-                ResourceHelper.initColorFilterResource(EffectVideoActivity.this, mResourceData);
+                ResourceHelper.initEffectFilterResource(EffectVideoActivity.this, mResourceData);
 
                 final Bitmap bitmap = BitmapUtils.createVideoThumbnail(videoPath);
                 ImageBlur.blurBitmap(bitmap, 10);
@@ -124,14 +130,20 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
             }
         });
 
+
         //设置videoPlayer 状态监听
         mVideoRenderer.setVideoPlayerStatusChangeLisenter(new VideoRenderThread.VideoPlayerStatusChangeLisenter() {
             @Override
-            public void videoStart(int totalTime) {
-                mSeekBar.setMax(totalTime);
-                String time = StringUtils.generateTime(totalTime);
-                tvTotalTime.setText(TextUtils.isEmpty(time) ? "00:00" : time);
-                mHandler.sendEmptyMessage(MSG_VIDEO_PLAY_PROGRESS);
+            public void videoStart(final int totalTime) {
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mSeekBar.setMax(totalTime);
+                        String time = StringUtils.generateTime(totalTime);
+                        tvTotalTime.setText(TextUtils.isEmpty(time) ? "00:00" : time);
+                        mHandler.sendEmptyMessage(MSG_VIDEO_PLAY_PROGRESS);
+                    }
+                });
             }
 
             @Override
@@ -170,9 +182,8 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
         mSeekBar = findViewById(R.id.seekBar);
         tvTotalTime = findViewById(R.id.totalTime);
         tvStartTime = findViewById(R.id.startTime);
-
+        //设置Seekbar 的颜色
         //mSeekBar.setProgressDrawable();
-
         //mAspectLayout.setAspectRatio(mCameraParam.currentRatio);
         mVideoPreviewView = new VideoPreviewView(this);
         mVideoPreviewView.setOnClickListener(new View.OnClickListener() {
@@ -217,8 +228,45 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
 
     }
 
-    private void parseResource(ResourceType type, String unzipFolder) {
 
+    /**
+     * 解码资源
+     *
+     * @param type        资源类型
+     * @param unzipFolder 资源所在文件夹
+     */
+    private void parseResource(@Nullable ResourceType type, String unzipFolder) {
+        if (type == null) {
+            return;
+        }
+        try {
+            switch (type) {
+                // 单纯的滤镜
+                case FILTER: {
+                    String folderPath = ResourceHelper.getResourceDirectory(EffectVideoActivity.this) + File.separator + unzipFolder;
+                    DynamicColor color = ResourceJsonCodec.decodeFilterData(folderPath);
+                    color.setColorType(ResourceType.FILTER.getIndex());
+                    mVideoRenderer.changeDynamicColorFilter(color);
+
+                    break;
+                }   // 贴纸
+                case STICKER: {
+                    String folderPath = ResourceHelper.getResourceDirectory(EffectVideoActivity.this) + File.separator + unzipFolder;
+                    DynamicSticker sticker = ResourceJsonCodec.decodeStickerData(folderPath);
+                    mVideoRenderer.changeDynamicResource(sticker);
+                    break;
+                }
+                // 所有数据均为空
+                case NONE: {
+                    mVideoRenderer.changeDynamicColorFilter(new DynamicColor().setColorType(ResourceType.FILTER.getIndex()));
+                    break;
+                }
+                default:
+                    break;
+            }
+        } catch (Exception e) {
+
+        }
     }
 
 
