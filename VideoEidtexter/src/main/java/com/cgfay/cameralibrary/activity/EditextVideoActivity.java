@@ -47,7 +47,10 @@ public class EditextVideoActivity extends AppCompatActivity implements View.OnCl
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_editext_video);
         mVideoRenderer = new VideoRenderer();
-        mVideoRenderer.initRenderer(this.getApplicationContext(),new VideoEffectType());
+        VideoEffectType mVideoEffectType = new VideoEffectType()
+                .setCurrentEffectType(VideoEffectType.EFFECT_TYPE_SINGLE)
+                .setCurrentRendererType(VideoEffectType.RENDER_TYPE_CONTINUED);
+        mVideoRenderer.initRenderer(this.getApplicationContext(),mVideoEffectType);
 
         initView();
         initData();

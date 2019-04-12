@@ -16,6 +16,8 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
+import android.util.SparseArray;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -46,6 +48,7 @@ import com.cgfay.utilslibrary.utils.StringUtils;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -59,6 +62,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
     private boolean isShowingFilters = false;
     private static final String KEY_VIDEO_PATH = "videoPath";
     private static final String BUNDLE_VIDEO_PATH = "bundle";
+    private SparseArray<DynamicColor> mDynamicColorFilter = new SparseArray<>();
 
     public static Executor EXECUTOR = Executors.newCachedThreadPool();
 
@@ -89,6 +93,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
     private SeekBar mSeekBar;
     private List<ResourceData> mResourceData = new ArrayList<>();
     private EffectResourceAdapter mPreviewResourceAdapter;
+    private long mStartClickTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,7 +103,11 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_editext_effect_video);
         mVideoRenderer = new VideoRenderer();
-        mVideoRenderer.initRenderer(this.getApplicationContext(),new VideoEffectType());
+        VideoEffectType mVideoEffectType = new VideoEffectType()
+                .setCurrentEffectType(VideoEffectType.EFFECT_TYPE_MULTI)
+                .setCurrentRendererType(VideoEffectType.RENDER_TYPE_AT_TIME);
+
+        mVideoRenderer.initRenderer(this.getApplicationContext(),mVideoEffectType);
 
         initView();
         initData();
@@ -220,10 +229,27 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
         mPreviewResourceAdapter = new EffectResourceAdapter(this, mResourceData);
         mRecyclerView.setAdapter(mPreviewResourceAdapter);
         mRecyclerView.addItemDecoration(new SpaceItemDecoration(40, 20));
-        mPreviewResourceAdapter.setOnResourceChangeListener(new EffectResourceAdapter.OnResourceChangeListener() {
+//        mPreviewResourceAdapter.setOnResourceChangeListener(new EffectResourceAdapter.OnResourceChangeListener() {
+//            @Override
+//            public void onResourceChanged(ResourceData resourceData) {
+//                parseResource(resourceData.type, resourceData.unzipFolder);
+//            }
+//        });
+
+        mPreviewResourceAdapter.setOnLongClickLister(new EffectResourceAdapter.OnLongClickLister() {
             @Override
-            public void onResourceChanged(ResourceData resourceData) {
-                parseResource(resourceData.type, resourceData.unzipFolder);
+            public void onClickStart(int position) {
+                //开始计算使用特效
+                parseResource(mResourceData.get(position).type, mResourceData.get(position).unzipFolder,position);
+                mStartClickTime = System.currentTimeMillis();
+                Log.e("Harrison",String.format("position：%2d- 现在时间：%2s",position,mStartClickTime+""));
+            }
+
+            @Override
+            public void onClickEnd(int position) {
+                //结束使用该特效
+                mVideoRenderer.removeDynamic(mDynamicColorFilter.get(position));
+                Log.e("Harrison",String.format("position：%2d- 结束用时：%2s",position,(System.currentTimeMillis()-mStartClickTime)+""));
             }
         });
 
@@ -232,11 +258,11 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
 
     /**
      * 解码资源
-     *
-     * @param type        资源类型
+     *  @param type        资源类型
      * @param unzipFolder 资源所在文件夹
+     * @param position
      */
-    private void parseResource(@Nullable ResourceType type, String unzipFolder) {
+    private void parseResource(@Nullable ResourceType type, String unzipFolder, int position) {
         if (type == null) {
             return;
         }
@@ -244,10 +270,16 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
             switch (type) {
                 // 单纯的滤镜
                 case FILTER: {
-                    String folderPath = ResourceHelper.getResourceDirectory(EffectVideoActivity.this) + File.separator + unzipFolder;
-                    DynamicColor color = ResourceJsonCodec.decodeFilterData(folderPath);
-                    color.setColorType(ResourceType.FILTER.getIndex());
-                    mVideoRenderer.changeDynamicColorFilter(color);
+                    if(mDynamicColorFilter.get(position)!=null){
+                        mVideoRenderer.changeDynamicColorFilter(mDynamicColorFilter.get(position));
+                    }else{
+                        String folderPath = ResourceHelper.getResourceDirectory(EffectVideoActivity.this) + File.separator + unzipFolder;
+                        DynamicColor color = ResourceJsonCodec.decodeFilterData(folderPath);
+                        color.setColorType(ResourceType.FILTER.getIndex());
+                        mVideoRenderer.changeDynamicColorFilter(color);
+                        mDynamicColorFilter.put(position,color);
+                    }
+
 
                     break;
                 }   // 贴纸

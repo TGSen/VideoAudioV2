@@ -159,21 +159,63 @@ public final class VideoRenderManager {
      */
     public void removeDynamicCameraFilter() {
         if (mFilterArrays.get(RenderIndex.CameraFilterIndex) != null) {
-            Log.e("Harrison", "removeDynamicCameraFilter");
             mFilterArrays.get(RenderIndex.CameraFilterIndex).release();
             mFilterArrays.put(RenderIndex.CameraFilterIndex, null);
         }
     }
 
-
+    /**
+     * 移除颜色的分镜，因为有撤销的功能，并且有带有时间的特效
+     */
     public void removeDynamicColorFilter() {
+        if (mVideoEffectType == null) return;
+        if (mVideoEffectType.getCurrentEffectType() == VideoEffectType.EFFECT_TYPE_MULTI) {
+            removeDynamicColorMultiFilter();
+        } else if (mVideoEffectType.getCurrentEffectType() == VideoEffectType.EFFECT_TYPE_SINGLE) {
+            removeDynamicColorSingleFilter();
+        }
+    }
+
+    /**
+     * 移除单独模式的中颜色滤镜
+     */
+    public void removeDynamicColorSingleFilter() {
         if (mFilterArrays.get(RenderIndex.FilterIndex) != null) {
             mFilterArrays.get(RenderIndex.FilterIndex).release();
             mFilterArrays.put(RenderIndex.FilterIndex, null);
         }
     }
 
+    /**
+     * 移除Multi模式的中颜色滤镜
+     */
+    public void removeDynamicColorMultiFilter() {
+        if (mFilterArrays.get(RenderIndex.FilterIndex) != null) {
+            mFilterArrays.get(RenderIndex.FilterIndex).release();
+            mFilterArrays.put(RenderIndex.FilterIndex, null);
+        }
+    }
+
+    /**
+     * 更新颜色滤镜的，这里根据配置的EffectType
+     *
+     * @param color
+     */
     public void changeColorDynamicFilter(DynamicColor color) {
+        if (mVideoEffectType == null) return;
+        if (mVideoEffectType.getCurrentEffectType() == VideoEffectType.EFFECT_TYPE_MULTI) {
+            changeColorMultiFilter(color);
+        } else if (mVideoEffectType.getCurrentEffectType() == VideoEffectType.EFFECT_TYPE_SINGLE) {
+            changeColorSingleFilter(color);
+        }
+    }
+
+    /**
+     * 更新颜色滤镜的，这里根据配置的EffectType
+     *
+     * @param color
+     */
+    public void changeColorSingleFilter(DynamicColor color) {
         if (mFilterArrays.get(RenderIndex.FilterIndex) != null) {
             mFilterArrays.get(RenderIndex.FilterIndex).release();
             mFilterArrays.put(RenderIndex.FilterIndex, null);
@@ -186,6 +228,32 @@ public final class VideoRenderManager {
         filter.initFrameBuffer(mTextureWidth, mTextureHeight);
         filter.onDisplaySizeChanged(mViewWidth, mViewHeight);
         mFilterArrays.put(RenderIndex.FilterIndex, filter);
+    }
+
+    /**
+     * 更新颜色滤镜的，这里根据配置的EffectTyp 增加多种的滤镜
+     *
+     * @param color
+     */
+    public void changeColorMultiFilter(DynamicColor color) {
+        if (color == null) {
+            return;
+        }
+        if (mFilterArrays.get(RenderIndex.FilterIndex) != null) {
+            GLImageDynamicColorFilter filter = new GLImageDynamicColorFilter(mContext, color);
+            filter.onInputSizeChanged(mTextureWidth, mTextureHeight);
+            filter.initFrameBuffer(mTextureWidth, mTextureHeight);
+            filter.onDisplaySizeChanged(mViewWidth, mViewHeight);
+            ((GLImageDynamicColorFilter) mFilterArrays.get(RenderIndex.FilterIndex)).getmFilters().add(filter);
+        } else {
+            GLImageDynamicColorFilter filter = new GLImageDynamicColorFilter(mContext, color);
+            filter.onInputSizeChanged(mTextureWidth, mTextureHeight);
+            filter.initFrameBuffer(mTextureWidth, mTextureHeight);
+            filter.onDisplaySizeChanged(mViewWidth, mViewHeight);
+            mFilterArrays.put(RenderIndex.FilterIndex, filter);
+        }
+
+
     }
 
     /**
