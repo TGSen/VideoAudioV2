@@ -6,7 +6,7 @@ import android.util.AttributeSet;
 import android.view.SurfaceView;
 
 import com.cgfay.cameralibrary.media.MediaPlayerWrapper;
-import com.cgfay.cameralibrary.media.VideoInfo;
+import com.cgfay.cameralibrary.media.bean.VideoInfo;
 
 /**
  * desc: 播放视频的view 单个视频循环播放

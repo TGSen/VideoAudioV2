@@ -29,7 +29,9 @@ import java.util.Map;
  */
 public final class VideoRenderManager {
 
-
+    /**
+     * 由于多个页面都得使用该套逻辑，所以不做成单例模式了
+     */
 //    private static class RenderManagerHolder {
 //        public static VideoRenderManager instance = new VideoRenderManager();
 //    }
@@ -65,9 +67,9 @@ public final class VideoRenderManager {
      * 初始化
      */
     public void init(Context context) {
-            initBuffers();
-            initFilters(context);
-            mContext = context.getApplicationContext();
+        initBuffers();
+        initFilters(context);
+        mContext = context.getApplicationContext();
     }
 
     /**
@@ -264,7 +266,6 @@ public final class VideoRenderManager {
         filter.onDisplaySizeChanged(mViewWidth, mViewHeight);
         mFilterArrays.put(RenderIndex.ResourceIndex, filter);
     }
-
 
 
     /**

@@ -1,4 +1,4 @@
-package com.cgfay.cameralibrary.media;
+package com.cgfay.cameralibrary.media.bean;
 
 import java.io.Serializable;
 

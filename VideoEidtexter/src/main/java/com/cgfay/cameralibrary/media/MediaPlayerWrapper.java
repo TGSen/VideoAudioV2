@@ -6,6 +6,8 @@ import android.media.MediaPlayer;
 import android.util.Log;
 import android.view.Surface;
 
+import com.cgfay.cameralibrary.media.bean.VideoInfo;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

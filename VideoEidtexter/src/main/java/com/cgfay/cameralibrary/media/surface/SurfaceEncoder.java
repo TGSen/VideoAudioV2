@@ -7,7 +7,7 @@ import android.media.MediaMuxer;
 import android.util.Log;
 import android.view.Surface;
 
-import com.cgfay.cameralibrary.media.VideoInfo;
+import com.cgfay.cameralibrary.media.bean.VideoInfo;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

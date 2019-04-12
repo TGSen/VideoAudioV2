@@ -6,7 +6,7 @@ import android.media.MediaFormat;
 import android.util.Log;
 import android.view.Surface;
 
-import com.cgfay.cameralibrary.media.VideoInfo;
+import com.cgfay.cameralibrary.media.bean.VideoInfo;
 
 import java.io.File;
 import java.io.IOException;
