@@ -41,8 +41,6 @@ class VideoRenderHandler extends Handler {
     public static final int MSG_VIDEO_STATUS_PLAY = 0x012;
 
 
-    // 切换动态滤镜
-    public static final int MSG_CHANGE_DYNAMIC_COLOR = 0x14;
 
 
     // 切换动态动态资源
@@ -115,16 +113,13 @@ class VideoRenderHandler extends Handler {
                 break;
 
 
-            // 切换动态滤镜
-            case MSG_CHANGE_DYNAMIC_COLOR: {
-                thread.changeDynamicFilter((DynamicColor) msg.obj);
-                break;
-            }// 切分镜滤镜
+          // 切分镜滤镜
             case MSG_CHANGE_DYNAMIC_CAMERA_FILTER: {
                 thread.changeCameraDynamicFilter((DynamicColor) msg.obj);
                 break;
             }
             case MSG_CHANGE_DYNAMIC_COLOR_FILTER: {
+                Log.e("Harrison", "MSG_CHANGE_DYNAMIC_COLOR_FILTER");
                 thread.changeColorDynamicFilter((DynamicColor) msg.obj);
                 break;
             }

@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.cgfay.cameralibrary.R;
 import com.cgfay.cameralibrary.fragment.PreviewFiltersFragment;
 import com.cgfay.cameralibrary.media.VideoRenderer;
+import com.cgfay.cameralibrary.media.bean.VideoEffectType;
 import com.cgfay.cameralibrary.media.surface.EncodeDecodeSurface;
 import com.cgfay.cameralibrary.media.surface.OffSVideoRenderManager;
 import com.cgfay.cameralibrary.media.surface.OffScreenVideoRenderer;
@@ -46,7 +47,7 @@ public class EditextVideoActivity extends AppCompatActivity implements View.OnCl
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_editext_video);
         mVideoRenderer = new VideoRenderer();
-        mVideoRenderer.initRenderer(this.getApplicationContext());
+        mVideoRenderer.initRenderer(this.getApplicationContext(),new VideoEffectType());
 
         initView();
         initData();
@@ -64,7 +65,7 @@ public class EditextVideoActivity extends AppCompatActivity implements View.OnCl
         String outputPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download/out.mp4";
         test.setVideoPath(videoPath, outputPath);
         //初始化渲染的管理
-        OffSVideoRenderManager.getInstance().init(this.getApplicationContext());
+      //  OffSVideoRenderManager.getInstance().init(this.getApplicationContext());
         try {
             test.testEncodeDecodeSurface();
         } catch (Throwable a) {
@@ -113,6 +114,7 @@ public class EditextVideoActivity extends AppCompatActivity implements View.OnCl
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         if (mColorFilterFragment == null) {
             mColorFilterFragment = PreviewFiltersFragment.getInstance(PreviewFiltersFragment.TYPE_COLOR_FILTER, PreviewFiltersFragment.TYPE_VIDEO_EIDTEXT);
+            mColorFilterFragment.setVideoRenderer(mVideoRenderer);
             ft.add(R.id.fragment_container, mColorFilterFragment);
         } else {
             ft.show(mColorFilterFragment);

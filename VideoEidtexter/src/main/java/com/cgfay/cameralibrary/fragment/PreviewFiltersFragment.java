@@ -61,6 +61,10 @@ public class PreviewFiltersFragment extends Fragment {
     private int mVideoModeType;
     private VideoRenderer mVideoRenderer;
 
+    public void setVideoRenderer(VideoRenderer mVideoRenderer) {
+        this.mVideoRenderer = mVideoRenderer;
+    }
+
     //Retention 是元注解，简单地讲就是系统提供的，用于定义注解的“注解”
     @Retention(RetentionPolicy.SOURCE)
     //这里指定int的取值只能是以下范围
@@ -128,7 +132,6 @@ public class PreviewFiltersFragment extends Fragment {
         }
 //        mResourceData.addAll( mFilterType == TYPE_COLOR_FILTER ? ResourceHelper.getColorFilter() : ResourceHelper.getCamerFilter());
         mPreviewResourceAdapter.notifyDataSetChanged();
-        mVideoRenderer = new VideoRenderer();
     }
 
 
@@ -176,10 +179,14 @@ public class PreviewFiltersFragment extends Fragment {
                     String folderPath = ResourceHelper.getResourceDirectory(mActivity) + File.separator + unzipFolder;
                     DynamicColor color = ResourceJsonCodec.decodeFilterData(folderPath);
                     color.setColorType(ResourceType.FILTER.getIndex());
+                    Log.e("Harrison", "FILTER");
                     //滤镜分拍摄模式还是编辑模式
                     if (mVideoModeType == TYPE_VIDEO_EIDTEXT) {
+                        Log.e("Harrison", "TYPE_VIDEO_EIDTEXT");
+                        if(mVideoRenderer!=null)
                         mVideoRenderer.changeDynamicColorFilter(color);
                     } else if (mVideoModeType == TYPE_VIDEO_SHOT) {
+                        Log.e("Harrison", "TYPE_VIDEO_SHOT");
                         PreviewRenderer.getInstance().changeDynamicColorFilter(color);
                     }
 
@@ -210,6 +217,7 @@ public class PreviewFiltersFragment extends Fragment {
                 case NONE: {
                     //滤镜分拍摄模式还是编辑模式
                     if (mVideoModeType == TYPE_VIDEO_EIDTEXT) {
+                        if(mVideoRenderer!=null)
                         mVideoRenderer.changeDynamicColorFilter(new DynamicColor().setColorType(ResourceType.FILTER.getIndex()));
                     } else if (mVideoModeType == TYPE_VIDEO_SHOT) {
                         if (mFilterType == TYPE_COLOR_FILTER) {

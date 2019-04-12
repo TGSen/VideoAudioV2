@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import com.cgfay.cameralibrary.media.bean.VideoEffectType;
 import com.cgfay.filterlibrary.glfilter.color.bean.DynamicColor;
 import com.cgfay.filterlibrary.glfilter.stickers.bean.DynamicSticker;
 
@@ -44,9 +45,9 @@ public final class VideoRenderer {
     /**
      * 初始化渲染器
      */
-    public void initRenderer(Context context) {
+    public void initRenderer(Context context, VideoEffectType effectType) {
         synchronized (mSynOperation) {
-            mPreviewRenderThread = new VideoRenderThread(context, "OffSVideoRenderThread");
+            mPreviewRenderThread = new VideoRenderThread(context, "OffSVideoRenderThread",effectType);
             mPreviewRenderThread.start();
             mRenderHandler = new VideoRenderHandler(mPreviewRenderThread);
             // 绑定Handler

@@ -30,6 +30,7 @@ import com.cgfay.cameralibrary.adapter.PreviewResourceAdapter;
 import com.cgfay.cameralibrary.engine.render.PreviewRenderer;
 import com.cgfay.cameralibrary.media.VideoRenderThread;
 import com.cgfay.cameralibrary.media.VideoRenderer;
+import com.cgfay.cameralibrary.media.bean.VideoEffectType;
 import com.cgfay.cameralibrary.utils.ImageBlur;
 import com.cgfay.cameralibrary.widget.SpaceItemDecoration;
 import com.cgfay.cameralibrary.widget.VideoPreviewView;
@@ -97,7 +98,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_editext_effect_video);
         mVideoRenderer = new VideoRenderer();
-        mVideoRenderer.initRenderer(this.getApplicationContext());
+        mVideoRenderer.initRenderer(this.getApplicationContext(),new VideoEffectType());
 
         initView();
         initData();

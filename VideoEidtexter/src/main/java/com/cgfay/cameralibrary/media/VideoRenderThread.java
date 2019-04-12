@@ -13,6 +13,7 @@ import android.view.SurfaceHolder;
 
 import com.cgfay.cameralibrary.engine.recorder.HardcodeEncoder;
 import com.cgfay.cameralibrary.engine.render.RenderManager;
+import com.cgfay.cameralibrary.media.bean.VideoEffectType;
 import com.cgfay.filterlibrary.gles.EglCore;
 import com.cgfay.filterlibrary.gles.WindowSurface;
 import com.cgfay.filterlibrary.glfilter.color.bean.DynamicColor;
@@ -84,11 +85,11 @@ public class VideoRenderThread extends HandlerThread implements SurfaceTexture.O
     private VideoRenderManager mRenderManager;
     private MediaPlayer mMediaPlayer;
 
-    public VideoRenderThread(Context context, String name) {
+    public VideoRenderThread(Context context, String name, VideoEffectType effectType) {
         super(name);
         mContext = context;
 
-        mRenderManager = new VideoRenderManager();
+        mRenderManager = new VideoRenderManager(effectType);
 
     }
 
@@ -252,16 +253,7 @@ public class VideoRenderThread extends HandlerThread implements SurfaceTexture.O
     }
 
 
-    /**
-     * 切换动态滤镜
-     *
-     * @param color
-     */
-    void changeDynamicFilter(DynamicColor color) {
-        synchronized (mSynOperation) {
-            mRenderManager.changeDynamicFilter(color);
-        }
-    }
+
 
     public void changeColorDynamicFilter(DynamicColor color) {
         synchronized (mSynOperation) {
@@ -389,7 +381,7 @@ public class VideoRenderThread extends HandlerThread implements SurfaceTexture.O
     }
 
     /**
-     * 视频状态的改变
+     * 视频状态的改变,该方法在子线程执行的
      */
     public interface VideoPlayerStatusChangeLisenter {
         void videoStart(int totalTime);

@@ -9,6 +9,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.cgfay.cameralibrary.engine.camera.CameraParam;
 import com.cgfay.cameralibrary.engine.model.ScaleType;
 import com.cgfay.cameralibrary.engine.render.RenderIndex;
+import com.cgfay.cameralibrary.media.bean.VideoEffectType;
 import com.cgfay.filterlibrary.glfilter.base.GLImageFilter;
 import com.cgfay.filterlibrary.glfilter.base.GLImageOESInputFilter;
 import com.cgfay.filterlibrary.glfilter.color.GLImageDynamicColorFilter;
@@ -62,6 +63,11 @@ public final class VideoRenderManager {
 
     // 上下文
     private Context mContext;
+    private VideoEffectType mVideoEffectType;
+
+    public VideoRenderManager(VideoEffectType effectType) {
+        this.mVideoEffectType = effectType;
+    }
 
     /**
      * 初始化
@@ -149,27 +155,7 @@ public final class VideoRenderManager {
 
 
     /**
-     * 切换动态滤镜
-     *
-     * @param color
-     */
-    public synchronized void changeDynamicFilter(DynamicColor color) {
-        if (mFilterArrays.get(RenderIndex.FilterIndex) != null) {
-            mFilterArrays.get(RenderIndex.FilterIndex).release();
-            mFilterArrays.put(RenderIndex.FilterIndex, null);
-        }
-        if (color == null) {
-            return;
-        }
-        GLImageDynamicColorFilter filter = new GLImageDynamicColorFilter(mContext, color);
-        filter.onInputSizeChanged(mTextureWidth, mTextureHeight);
-        filter.initFrameBuffer(mTextureWidth, mTextureHeight);
-        filter.onDisplaySizeChanged(mViewWidth, mViewHeight);
-        mFilterArrays.put(RenderIndex.FilterIndex, filter);
-    }
-
-    /**
-     * 移除滤镜
+     * 移除分镜的滤镜
      */
     public void removeDynamicCameraFilter() {
         if (mFilterArrays.get(RenderIndex.CameraFilterIndex) != null) {
@@ -182,7 +168,6 @@ public final class VideoRenderManager {
 
     public void removeDynamicColorFilter() {
         if (mFilterArrays.get(RenderIndex.FilterIndex) != null) {
-            Log.e("Harrison", "removeDynamicColorFilter");
             mFilterArrays.get(RenderIndex.FilterIndex).release();
             mFilterArrays.put(RenderIndex.FilterIndex, null);
         }
