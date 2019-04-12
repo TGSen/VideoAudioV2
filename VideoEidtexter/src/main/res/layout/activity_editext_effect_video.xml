@@ -21,6 +21,16 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
+        android:id="@+id/imgVideo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@mipmap/ic_video_status"
+        app:layout_constraintLeft_toLeftOf="@id/layout_aspect"
+        app:layout_constraintRight_toRightOf="@+id/layout_aspect"
+        app:layout_constraintTop_toTopOf="@+id/layout_aspect"
+        app:layout_constraintBottom_toBottomOf="@+id/layout_aspect"/>
+
+    <ImageView
         android:id="@+id/btCloseImag"
         android:layout_width="@dimen/dp24"
         android:layout_height="@dimen/dp24"

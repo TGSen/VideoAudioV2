@@ -292,5 +292,20 @@ public final class VideoRenderer {
 
     }
 
+    /**
+     * seekto progress
+     * @param progress
+     */
+    public void changeVideoProgress(int progress) {
+        if(mPreviewRenderThread!=null){
+            mPreviewRenderThread.changeVideoProgress(progress);
+        }
+    }
 
+    public boolean isVideoPlay() {
+        if(mPreviewRenderThread!=null){
+           return mPreviewRenderThread.isVideoPlay();
+        }
+        return false;
+    }
 }

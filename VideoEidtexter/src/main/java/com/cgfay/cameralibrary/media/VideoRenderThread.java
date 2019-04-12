@@ -253,8 +253,6 @@ public class VideoRenderThread extends HandlerThread implements SurfaceTexture.O
     }
 
 
-
-
     public void changeColorDynamicFilter(DynamicColor color) {
         synchronized (mSynOperation) {
             mRenderManager.changeColorDynamicFilter(color);
@@ -374,10 +372,20 @@ public class VideoRenderThread extends HandlerThread implements SurfaceTexture.O
 
     public int getVideoProgress() {
         if (mMediaPlayer != null) {
-                return mMediaPlayer.getCurrentPosition();
+            return mMediaPlayer.getCurrentPosition();
 
         }
         return 0;
+    }
+
+    public void changeVideoProgress(int progress) {
+        if(mMediaPlayer!=null)
+            mMediaPlayer.seekTo(progress);
+    }
+
+    public boolean isVideoPlay() {
+        if (mMediaPlayer != null) return mMediaPlayer.isPlaying();
+        return false;
     }
 
     /**
