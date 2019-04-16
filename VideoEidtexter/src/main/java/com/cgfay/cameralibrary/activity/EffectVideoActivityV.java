@@ -3,11 +3,8 @@ package com.cgfay.cameralibrary.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.ClipDrawable;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
@@ -21,7 +18,6 @@ import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
-import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -37,7 +33,6 @@ import com.cgfay.cameralibrary.media.VideoRenderer;
 import com.cgfay.cameralibrary.media.bean.VideoEffect;
 import com.cgfay.cameralibrary.media.bean.VideoEffectType;
 import com.cgfay.cameralibrary.utils.ImageBlur;
-import com.cgfay.cameralibrary.widget.ColorPickerView;
 import com.cgfay.cameralibrary.widget.SpaceItemDecoration;
 import com.cgfay.cameralibrary.widget.VideoPreviewView;
 import com.cgfay.filterlibrary.glfilter.color.bean.DynamicColor;
@@ -61,7 +56,7 @@ import java.util.concurrent.Executors;
  * 带有时间的特效，重叠的时候，有添加和后加的重叠的区别
  * @date :2019/4/1 14:29
  */
-public class EffectVideoActivity extends AppCompatActivity implements View.OnClickListener {
+public class EffectVideoActivityV extends AppCompatActivity implements View.OnClickListener {
     // 显示滤镜页面
     private boolean isShowingFilters = false;
     private static final String KEY_VIDEO_PATH = "videoPath";
@@ -153,7 +148,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
             @Override
             public void run() {
                 //获取第一帧图片并模糊
-                ResourceHelper.initEffectFilterResource(EffectVideoActivity.this, mResourceData);
+                ResourceHelper.initEffectFilterResource(EffectVideoActivityV.this, mResourceData);
 
                 final Bitmap bitmap = BitmapUtils.createVideoThumbnail(videoPath);
                 ImageBlur.blurBitmap(bitmap, 10);
@@ -207,7 +202,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
     }
 
     public static void gotoThis(Context context, String path) {
-        Intent intent = new Intent(context, EffectVideoActivity.class);
+        Intent intent = new Intent(context, EffectVideoActivityV.class);
         Bundle bundle = new Bundle();
         bundle.putString(KEY_VIDEO_PATH, path);
         intent.putExtra(BUNDLE_VIDEO_PATH, bundle);
@@ -381,7 +376,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                         DynamicColor color = mDynamicColorFilter.get(position);
                         mVideoRenderer.changeDynamicColorFilter(color);
                     } else {
-                        String folderPath = ResourceHelper.getResourceDirectory(EffectVideoActivity.this) + File.separator + unzipFolder;
+                        String folderPath = ResourceHelper.getResourceDirectory(EffectVideoActivityV.this) + File.separator + unzipFolder;
                         DynamicColor color = ResourceJsonCodec.decodeFilterData(folderPath);
                         color.setColorType(ResourceType.FILTER.getIndex());
                         mVideoRenderer.changeDynamicColorFilter(color);
@@ -392,7 +387,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                     break;
                 }   // 贴纸
                 case STICKER: {
-                    String folderPath = ResourceHelper.getResourceDirectory(EffectVideoActivity.this) + File.separator + unzipFolder;
+                    String folderPath = ResourceHelper.getResourceDirectory(EffectVideoActivityV.this) + File.separator + unzipFolder;
                     DynamicSticker sticker = ResourceJsonCodec.decodeStickerData(folderPath);
                     mVideoRenderer.changeDynamicResource(sticker);
                     break;
