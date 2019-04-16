@@ -156,6 +156,8 @@ public class VideoRenderThread extends HandlerThread implements SurfaceTexture.O
             }
         });
 
+
+
         //设置无限循环
         mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override

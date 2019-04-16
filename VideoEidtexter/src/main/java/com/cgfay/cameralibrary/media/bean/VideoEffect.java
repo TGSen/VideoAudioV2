@@ -7,25 +7,37 @@ package com.cgfay.cameralibrary.media.bean;
  */
 public class VideoEffect {
     private int startTime;
-
     private int endTime;
+    //滤镜的索引
+    private int dynamicColorId;
 
     private String effectName;
+
+    public int getDynamicColorId() {
+        return dynamicColorId;
+    }
+
+    public VideoEffect setDynamicColorId(int dynamicColorId) {
+        this.dynamicColorId = dynamicColorId;
+        return this;
+    }
 
     public int getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(int startTime) {
+    public VideoEffect setStartTime(int startTime) {
         this.startTime = startTime;
+        return this;
     }
 
     public int getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(int endTime) {
+    public VideoEffect setEndTime(int endTime) {
         this.endTime = endTime;
+        return this;
     }
 
     public String getEffectName() {
@@ -35,4 +47,6 @@ public class VideoEffect {
     public void setEffectName(String effectName) {
         this.effectName = effectName;
     }
+
+
 }

@@ -10,4 +10,9 @@
         <attr name="SelectedTextSize" format="float"></attr>
         <attr name="SelectedTextColor" format="color|reference"></attr>
     </declare-styleable>
+
+    <declare-styleable name="VideoEffectBar">
+        <attr name="VideoEffectBar_verifyText" format="reference"></attr>
+        <attr name="VideoEffectBar_text_Size" format="integer"></attr>
+    </declare-styleable>
 </resources>

@@ -3,36 +3,38 @@ package com.cgfay.cameralibrary.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
-import android.media.MediaMetadataRetriever;
+import android.graphics.drawable.ClipDrawable;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.cgfay.cameralibrary.R;
 import com.cgfay.cameralibrary.adapter.EffectResourceAdapter;
-import com.cgfay.cameralibrary.adapter.PreviewResourceAdapter;
-import com.cgfay.cameralibrary.engine.render.PreviewRenderer;
 import com.cgfay.cameralibrary.media.VideoRenderThread;
 import com.cgfay.cameralibrary.media.VideoRenderer;
+import com.cgfay.cameralibrary.media.bean.VideoEffect;
 import com.cgfay.cameralibrary.media.bean.VideoEffectType;
 import com.cgfay.cameralibrary.utils.ImageBlur;
 import com.cgfay.cameralibrary.widget.SpaceItemDecoration;
@@ -49,7 +51,6 @@ import com.cgfay.utilslibrary.utils.StringUtils;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -74,6 +75,15 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
     public static final int MSG_VIDEO_PLAY_PROGRESS = 0x001;
     public static final int MSG_VIDEO_PLAY_STATUS_STOP = 0x002;
     public static final int MSG_VIDEO_PLAY_STATUS_START = 0x003;
+    private static final int INTERVAL_EFFECT = 1000;
+    //当前特效的key SparseArray<VideoEffect>
+    private int currentEffectKey;
+    //SparseArray<DynamicColor> 中的索引
+    private boolean isStartClick;
+    /**
+     * 记录 video 的特效时间
+     */
+    private SparseArray<VideoEffect> mVideoEffect = new SparseArray<>();
 
     private Handler mHandler = new Handler(Looper.myLooper()) {
         @Override
@@ -105,6 +115,8 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
     private List<ResourceData> mResourceData = new ArrayList<>();
     private EffectResourceAdapter mPreviewResourceAdapter;
     private long mStartClickTime;
+    private int currentVideoEffectIndex;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,7 +127,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
         setContentView(R.layout.activity_editext_effect_video);
         mVideoRenderer = new VideoRenderer();
         VideoEffectType mVideoEffectType = new VideoEffectType()
-                .setCurrentEffectType(VideoEffectType.EFFECT_TYPE_MULTI)
+                .setCurrentEffectType(VideoEffectType.EFFECT_TYPE_SINGLE)
                 .setCurrentRendererType(VideoEffectType.RENDER_TYPE_AT_TIME);
 
         mVideoRenderer.initRenderer(this.getApplicationContext(), mVideoEffectType);
@@ -133,6 +145,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
         mVideoRenderer.setVideoPaths(videoPath);
         // 绑定需要渲染的SurfaceView
         mVideoRenderer.setSurfaceView(mVideoPreviewView);
+
         EXECUTOR.execute(new Runnable() {
             @Override
             public void run() {
@@ -160,9 +173,12 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                     @Override
                     public void run() {
                         mSeekBar.setMax(totalTime);
+                        Log.e("Harrison", "totalTime" + totalTime);
                         String time = StringUtils.generateTime(totalTime);
                         tvTotalTime.setText(TextUtils.isEmpty(time) ? "00:00" : time);
                         mHandler.sendEmptyMessage(MSG_VIDEO_PLAY_PROGRESS);
+                        //设置Seekbar 的颜色
+
                     }
                 });
                 mHandler.sendEmptyMessage(MSG_VIDEO_PLAY_STATUS_START);
@@ -210,8 +226,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
         tvStartTime = findViewById(R.id.startTime);
         mVideoPlayStatus = findViewById(R.id.imgVideo);
         mVideoPlayStatus.setVisibility(View.VISIBLE);
-        //设置Seekbar 的颜色
-        //mSeekBar.setProgressDrawable();
+
         //mAspectLayout.setAspectRatio(mCameraParam.currentRatio);
         mVideoPreviewView = new VideoPreviewView(this);
         mVideoPreviewView.setOnClickListener(new View.OnClickListener() {
@@ -233,6 +248,12 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
             }
         });
 //        mSeekBar.setEnabled(true);
+//        ClipDrawable clipDrawable = new ClipDrawable(new ColorDrawable(Color.YELLOW), Gravity.LEFT, ClipDrawable.HORIZONTAL);
+//        mSeekBar.setProgressDrawable(clipDrawable);
+        LayerDrawable layerDrawable = (LayerDrawable) mSeekBar.getProgressDrawable();
+        Drawable dra = layerDrawable.getDrawable(1);    //
+        dra.setColorFilter(getResources().getColor(R.color.orange), PorterDuff.Mode.SRC);
+        mSeekBar.invalidate();
         mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -240,7 +261,56 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                     //改变视频的位置
                     mVideoRenderer.changeVideoProgress(progress);
                 }
+                if (isStartClick) {
+                    //添加的开始添加
+                    return;
+                }
+                int currentIndex = progress / INTERVAL_EFFECT;
+                VideoEffect videoEffect = mVideoEffect.get(currentIndex);
+                if (videoEffect != null) {
+                    //添加
+                    if (currentIndex == videoEffect.getStartTime()) {
+                        int indexFilterColor = videoEffect.getDynamicColorId();
+                        currentVideoEffectIndex = currentIndex;
+                        DynamicColor color = mDynamicColorFilter.get(indexFilterColor);
+                        if (color != null) {
+                            Log.e("Harrison", "已改变特效" + indexFilterColor);
+                            mVideoRenderer.changeDynamicColorFilter(color);
+                        } else {
+                            Log.e("Harrison", "*已改变特效" + indexFilterColor);
+                        }
+                    }
+//                    LayerDrawable layerDrawable = (LayerDrawable) seekBar.getProgressDrawable();
+//                    Drawable dra = layerDrawable.getDrawable(1);    //
+//                    dra.setColorFilter(getResources().getColor(R.color.black), PorterDuff.Mode.SRC_ATOP);
+
+                } else {
+                    //当mVideoEffect.get(currentIndex) ==null ,去判断，是否结束
+                    VideoEffect videoEffectRemove = mVideoEffect.get(currentVideoEffectIndex);
+                    if (videoEffectRemove != null && currentIndex == videoEffectRemove.getEndTime()) {
+                        DynamicColor color = mDynamicColorFilter.get(videoEffectRemove.getDynamicColorId());
+                        currentVideoEffectIndex = -1;
+                        if (color != null) {
+                            Log.e("Harrison", "移除特效" + videoEffectRemove.getDynamicColorId());
+//                            LayerDrawable layerDrawable = (LayerDrawable) seekBar.getProgressDrawable();
+//                            Drawable dra = layerDrawable.getDrawable(1);    //
+//                            dra.setColorFilter(getResources().getColor(R.color.green), PorterDuff.Mode.SRC_ATOP);
+                            mVideoRenderer.removeDynamic(color);
+                        } else {
+                            Log.e("Harrison", "*移除特效" + videoEffectRemove.getDynamicColorId());
+                        }
+                    }
+
+                }
+
+                LayerDrawable layerDrawable = (LayerDrawable) seekBar.getProgressDrawable();
+                Drawable dra = layerDrawable.getDrawable(2);    //
+                dra.setColorFilter(getResources().getColor(R.color.red), PorterDuff.Mode.SRC_ATOP);
+                seekBar.getThumb().setColorFilter(getResources().getColor(R.color.red), PorterDuff.Mode.SRC_ATOP);
+
+
             }
+
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
@@ -261,22 +331,29 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
         mPreviewResourceAdapter = new EffectResourceAdapter(this, mResourceData);
         mRecyclerView.setAdapter(mPreviewResourceAdapter);
         mRecyclerView.addItemDecoration(new SpaceItemDecoration(40, 20));
-
-
+        //长按对每种特效的记录
         mPreviewResourceAdapter.setOnLongClickLister(new EffectResourceAdapter.OnLongClickLister() {
             @Override
             public void onClickStart(int position) {
                 //开始计算使用特效
                 parseResource(mResourceData.get(position).type, mResourceData.get(position).unzipFolder, position);
-                mStartClickTime = System.currentTimeMillis();
-                Log.e("Harrison", String.format("position：%2d- 现在时间：%2s", position, mStartClickTime + ""));
+                isStartClick = true;
+                int current = mSeekBar.getProgress();
+                currentEffectKey = current / INTERVAL_EFFECT;
+                //startTime 方便通过播放的进度来修改
+                mVideoEffect.put(currentEffectKey, new VideoEffect().setStartTime(currentEffectKey).setDynamicColorId(position));
+                Log.e("Harrison", String.format("position：%2d", currentEffectKey));
+                Log.e("Harrison", String.format("current：%2d", current));
             }
 
             @Override
             public void onClickEnd(int position) {
                 //结束使用该特效
-                mVideoRenderer.removeDynamic(mDynamicColorFilter.get(position));
-                Log.e("Harrison", String.format("position：%2d- 结束用时：%2s", position, (System.currentTimeMillis() - mStartClickTime) + ""));
+                DynamicColor color = mDynamicColorFilter.get(position);
+                mVideoRenderer.removeDynamic(color);
+                mVideoEffect.get(currentEffectKey).setEndTime(mSeekBar.getProgress() / INTERVAL_EFFECT);
+                isStartClick = false;
+                Log.e("Harrison", String.format("position：%2d- 结束", position));
             }
         });
 
@@ -298,8 +375,10 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
             switch (type) {
                 // 单纯的滤镜
                 case FILTER: {
+                    //
                     if (mDynamicColorFilter.get(position) != null) {
-                        mVideoRenderer.changeDynamicColorFilter(mDynamicColorFilter.get(position));
+                        DynamicColor color = mDynamicColorFilter.get(position);
+                        mVideoRenderer.changeDynamicColorFilter(color);
                     } else {
                         String folderPath = ResourceHelper.getResourceDirectory(EffectVideoActivity.this) + File.separator + unzipFolder;
                         DynamicColor color = ResourceJsonCodec.decodeFilterData(folderPath);
@@ -319,7 +398,17 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                 }
                 // 所有数据均为空
                 case NONE: {
-                    mVideoRenderer.changeDynamicColorFilter(new DynamicColor().setColorType(ResourceType.FILTER.getIndex()));
+                    if (mDynamicColorFilter.get(position) != null) {
+                        DynamicColor color = mDynamicColorFilter.get(position);
+                        mVideoRenderer.changeDynamicColorFilter(color);
+                        //    color.addItemTimes(new DynamicColor.ItemTime().setStartTime(mVideoRenderer.getVideoProgress()));
+                    } else {
+                        DynamicColor color = new DynamicColor().setColorType(ResourceType.FILTER.getIndex());
+                        mVideoRenderer.changeDynamicColorFilter(color);
+                        //  color.addItemTimes(new DynamicColor.ItemTime().setStartTime(mVideoRenderer.getVideoProgress()));
+                        mDynamicColorFilter.put(position, color);
+                    }
+
                     break;
                 }
                 default:
