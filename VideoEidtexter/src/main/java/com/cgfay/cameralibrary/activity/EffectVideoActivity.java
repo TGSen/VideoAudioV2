@@ -15,6 +15,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.support.annotation.Nullable;
+import android.support.constraint.Group;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -32,6 +34,7 @@ import android.widget.TextView;
 
 import com.cgfay.cameralibrary.R;
 import com.cgfay.cameralibrary.adapter.EffectResourceAdapter;
+import com.cgfay.cameralibrary.fragment.PreviewFiltersFragment;
 import com.cgfay.cameralibrary.media.VideoRenderThread;
 import com.cgfay.cameralibrary.media.VideoRenderer;
 import com.cgfay.cameralibrary.media.bean.VideoEffect;
@@ -73,6 +76,8 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
     private String videoPath;
     private VideoPreviewView mVideoPreviewView;
     private VideoRenderer mVideoRenderer;
+    // 滤镜页面
+    private PreviewFiltersFragment mColorFilterFragment;
     // 设置video paths
     public static final int MSG_VIDEO_PLAY_PROGRESS = 0x001;
     public static final int MSG_VIDEO_PLAY_STATUS_STOP = 0x002;
@@ -84,7 +89,6 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
     /**
      * 记录 video 的特效时间
      */
-//    private SparseArray<VideoEffect> mVideoEffect = new SparseArray<>();
     private List<VideoEffect> mVideoEffects = new ArrayList<>();
 
     private Handler mHandler = new Handler(Looper.myLooper()) {
@@ -120,6 +124,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
     private int currentVideoEffectIndex = -1;
     private VideoEffect newVideoEffect;
     private TextView btSave;
+    private boolean isVideoPlayCompleted;
 
 
     @Override
@@ -202,6 +207,12 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
 
             }
 
+            @Override
+            public void videoCompleted() {
+                Log.e("Harrison", "videoCompleted");
+                isVideoPlayCompleted = true;
+            }
+
 
         });
 
@@ -233,6 +244,14 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
         btSave.setOnClickListener(this);
 
         mVideoPlayStatus.setVisibility(View.VISIBLE);
+        View btFilters = findViewById(R.id.btFilters);
+        Group effectGroup = findViewById(R.id.effectGroup);
+        Group mainGroup = findViewById(R.id.mainGroup);
+        effectGroup.setVisibility(View.GONE);
+        mainGroup.setVisibility(View.VISIBLE);
+
+        btFilters.setOnClickListener(this);
+
 
         //mAspectLayout.setAspectRatio(mCameraParam.currentRatio);
         mVideoPreviewView = new VideoPreviewView(this);
@@ -265,7 +284,14 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                 }
 
                 int size = mVideoEffects.size();
-
+                if (isStartClick) {
+                    //这个条件就作为，再次经过起点
+//                    if (progress > newVideoEffect.getStartTime() && isVideoPlayCompleted) {
+//                        isVideoPlayCompleted = false;
+//                        newVideoEffect.setHasAll(true);
+//                    }
+                    return;
+                }
                 if (size <= 0 || isStartClick) return;
 
                 for (int i = size - 1; i >= 0; i--) {
@@ -274,30 +300,23 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                             progress >= mVideoEffects.get(i).getStartTime() && progress < mVideoEffects.get(i).getEndTime()) ||
                             (mVideoEffects.get(i).getStartTime() > mVideoEffects.get(i).getEndTime() &&
                                     (progress >= mVideoEffects.get(i).getStartTime() || progress < mVideoEffects.get(i).getEndTime()))) {
-                        if (currentVideoEffectIndex == i) {
-                            return;
-                        }
+                        if (currentVideoEffectIndex == i) return;
+                        //在添加
                         currentVideoEffectIndex = i;
                         VideoEffect videoEffect = mVideoEffects.get(i);
                         int indexFilterColor = videoEffect.getDynamicColorId();
                         DynamicColor color = mDynamicColorFilter.get(indexFilterColor);
-                        synchronized (EffectVideoActivity.class) {
-                            //   Log.e("Harrison", "已改变特效" + indexFilterColor);
-                            mVideoRenderer.changeDynamicColorFilter(color);
-                            return;
-                        }
-
+                        Log.e("Harrison", "已改变特效" + currentVideoEffectIndex);
+                        mVideoRenderer.changeDynamicColorFilter(color);
+                        return;
                     } else {
                         //判断之前有没使用过特效
                         if (currentVideoEffectIndex != -1) {
-                            currentVideoEffectIndex = -1;
-                            Log.e("Harrison", "已经移除" + currentVideoEffectIndex);
                             VideoEffect videoEffectRemove = mVideoEffects.get(currentVideoEffectIndex);
                             DynamicColor color = mDynamicColorFilter.get(videoEffectRemove.getDynamicColorId());
-                            synchronized (EffectVideoActivity.class) {
-                                mVideoRenderer.removeDynamic(color);
-                                return;
-                            }
+                            mVideoRenderer.removeDynamic(color);
+                            currentVideoEffectIndex = -1;
+                            return;
 
                         }
                     }
@@ -342,6 +361,12 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                 //结束使用该特效
                 DynamicColor color = mDynamicColorFilter.get(position);
                 mVideoRenderer.removeDynamic(color);
+//                if (newVideoEffect.isHasAll()) {
+//                    newVideoEffect.setStartTime(0);
+//                    newVideoEffect.setEndTime(mSeekBar.getMax());
+//                } else {
+//                    newVideoEffect.setEndTime(mSeekBar.getProgress());
+//                }
                 newVideoEffect.setEndTime(mSeekBar.getProgress());
                 mVideoEffects.add(newVideoEffect);
                 isStartClick = false;
@@ -441,6 +466,23 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
             mVideoRenderer.destroyRenderer();
         }
     }
+    /**
+     * 显示滤镜页面
+     */
+    private void showFilterView() {
+        isShowingFilters = true;
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        if (mColorFilterFragment == null) {
+            mColorFilterFragment = PreviewFiltersFragment.getInstance(PreviewFiltersFragment.TYPE_COLOR_FILTER, PreviewFiltersFragment.TYPE_VIDEO_EIDTEXT);
+            mColorFilterFragment.setVideoRenderer(mVideoRenderer);
+            ft.add(R.id.fragment_container, mColorFilterFragment);
+        } else {
+            ft.show(mColorFilterFragment);
+        }
+        ft.commit();
+        //  hideToolsLayout();
+    }
+
 
     @Override
     public void onClick(View v) {
@@ -453,6 +495,10 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                             "*start:" + mVideoEffects.get(i).getStartTime() + "*end:" + mVideoEffects.get(i).getEndTime());
                 }
                 break;
+            case R.id.btFilters:
+                showFilterView();
+                break;
+
 
         }
     }

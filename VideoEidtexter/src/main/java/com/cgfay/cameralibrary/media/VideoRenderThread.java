@@ -162,10 +162,13 @@ public class VideoRenderThread extends HandlerThread implements SurfaceTexture.O
         mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer player) {
+                if(mVideoPlayerStatusChangeLisenter!=null)
+                    mVideoPlayerStatusChangeLisenter.videoCompleted();
                 player.start();
                 player.setLooping(true);
             }
         });
+
     }
 
     /**
@@ -399,6 +402,8 @@ public class VideoRenderThread extends HandlerThread implements SurfaceTexture.O
         void videoStop();
 
         void videoRestart();
+
+        void videoCompleted();
 
     }
 }

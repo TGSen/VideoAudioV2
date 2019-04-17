@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.constraint.Group;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -15,6 +16,7 @@ import android.widget.TextView;
 import com.cgfay.cameralibrary.R;
 import com.cgfay.cameralibrary.fragment.PreviewFiltersFragment;
 import com.cgfay.cameralibrary.media.VideoRenderer;
+import com.cgfay.cameralibrary.media.bean.VideoEffect;
 import com.cgfay.cameralibrary.media.bean.VideoEffectType;
 import com.cgfay.cameralibrary.media.surface.EncodeDecodeSurface;
 import com.cgfay.cameralibrary.media.surface.OffSVideoRenderManager;
@@ -50,7 +52,7 @@ public class EditextVideoActivity extends AppCompatActivity implements View.OnCl
         VideoEffectType mVideoEffectType = new VideoEffectType()
                 .setCurrentEffectType(VideoEffectType.EFFECT_TYPE_SINGLE)
                 .setCurrentRendererType(VideoEffectType.RENDER_TYPE_CONTINUED);
-        mVideoRenderer.initRenderer(this.getApplicationContext(),mVideoEffectType);
+        mVideoRenderer.initRenderer(this.getApplicationContext(), mVideoEffectType);
 
         initView();
         initData();
@@ -68,7 +70,7 @@ public class EditextVideoActivity extends AppCompatActivity implements View.OnCl
         String outputPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download/out.mp4";
         test.setVideoPath(videoPath, outputPath);
         //初始化渲染的管理
-      //  OffSVideoRenderManager.getInstance().init(this.getApplicationContext());
+        //  OffSVideoRenderManager.getInstance().init(this.getApplicationContext());
         try {
             test.testEncodeDecodeSurface();
         } catch (Throwable a) {
@@ -103,6 +105,11 @@ public class EditextVideoActivity extends AppCompatActivity implements View.OnCl
         mAspectLayout.requestLayout();
 
         btFilters = findViewById(R.id.btFilters);
+        Group effectGroup = findViewById(R.id.effectGroup);
+        Group mainGroup = findViewById(R.id.mainGroup);
+        effectGroup.setVisibility(View.GONE);
+        mainGroup.setVisibility(View.VISIBLE);
+
         btFilters.setOnClickListener(this);
 
         btEffect = findViewById(R.id.btEffect);

@@ -3,10 +3,7 @@ package com.cgfay.cameralibrary.media;
 import android.content.Context;
 import android.util.Log;
 import android.util.SparseArray;
-import android.view.MotionEvent;
 
-import com.badlogic.gdx.math.Vector3;
-import com.cgfay.cameralibrary.engine.camera.CameraParam;
 import com.cgfay.cameralibrary.engine.model.ScaleType;
 import com.cgfay.cameralibrary.engine.render.RenderIndex;
 import com.cgfay.cameralibrary.media.bean.VideoEffectType;
@@ -15,15 +12,11 @@ import com.cgfay.filterlibrary.glfilter.base.GLImageOESInputFilter;
 import com.cgfay.filterlibrary.glfilter.color.GLImageDynamicColorFilter;
 import com.cgfay.filterlibrary.glfilter.color.bean.DynamicColor;
 import com.cgfay.filterlibrary.glfilter.stickers.GLImageDynamicStickerFilter;
-import com.cgfay.filterlibrary.glfilter.stickers.GestureHelp;
-import com.cgfay.filterlibrary.glfilter.stickers.StaticStickerNormalFilter;
 import com.cgfay.filterlibrary.glfilter.stickers.bean.DynamicSticker;
 import com.cgfay.filterlibrary.glfilter.utils.OpenGLUtils;
 import com.cgfay.filterlibrary.glfilter.utils.TextureRotationUtils;
 
 import java.nio.FloatBuffer;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * 渲染管理器

@@ -739,7 +739,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
                         mCombineDialog.dismiss();
                         mCombineDialog = null;
                         if(success){
-                            EditextVideoActivity.gotoThis(mActivity,path);
+                            EffectVideoActivity.gotoThis(mActivity,path);
                         }
                     }
                 }

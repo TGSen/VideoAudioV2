@@ -12,6 +12,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.support.annotation.Nullable;
+import android.support.constraint.Group;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -28,6 +30,7 @@ import android.widget.TextView;
 
 import com.cgfay.cameralibrary.R;
 import com.cgfay.cameralibrary.adapter.EffectResourceAdapter;
+import com.cgfay.cameralibrary.fragment.PreviewFiltersFragment;
 import com.cgfay.cameralibrary.media.VideoRenderThread;
 import com.cgfay.cameralibrary.media.VideoRenderer;
 import com.cgfay.cameralibrary.media.bean.VideoEffect;
@@ -73,6 +76,8 @@ public class EffectVideoActivityV extends AppCompatActivity implements View.OnCl
     public static final int MSG_VIDEO_PLAY_STATUS_STOP = 0x002;
     public static final int MSG_VIDEO_PLAY_STATUS_START = 0x003;
     private static final int INTERVAL_EFFECT = 1000;
+    // 滤镜页面
+    private PreviewFiltersFragment mColorFilterFragment;
     //当前特效的key SparseArray<VideoEffect>
     private int currentEffectKey;
     //SparseArray<DynamicColor> 中的索引
@@ -114,7 +119,8 @@ public class EffectVideoActivityV extends AppCompatActivity implements View.OnCl
     private EffectResourceAdapter mPreviewResourceAdapter;
     private long mStartClickTime;
     private int currentVideoEffectIndex;
-
+    //用在是否播放完，来计算，特效是否是第二次经过起点
+    private boolean isVideoPlayCompleted;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -196,6 +202,11 @@ public class EffectVideoActivityV extends AppCompatActivity implements View.OnCl
 
             }
 
+            @Override
+            public void videoCompleted() {
+                isVideoPlayCompleted = true;
+            }
+
 
         });
 
@@ -225,6 +236,13 @@ public class EffectVideoActivityV extends AppCompatActivity implements View.OnCl
         mVideoPlayStatus = findViewById(R.id.imgVideo);
 
         mVideoPlayStatus.setVisibility(View.VISIBLE);
+
+        Group effectGroup = findViewById(R.id.effectGroup);
+        Group mainGroup = findViewById(R.id.mainGroup);
+        effectGroup.setVisibility(View.GONE);
+        mainGroup.setVisibility(View.VISIBLE);
+       View btFilters = findViewById(R.id.btFilters);
+        btFilters.setOnClickListener(this);
 
         //mAspectLayout.setAspectRatio(mCameraParam.currentRatio);
         mVideoPreviewView = new VideoPreviewView(this);
@@ -373,8 +391,6 @@ public class EffectVideoActivityV extends AppCompatActivity implements View.OnCl
                         mVideoRenderer.changeDynamicColorFilter(color);
                         mDynamicColorFilter.put(position, color);
                     }
-
-
                     break;
                 }   // 贴纸
                 case STICKER: {
@@ -405,7 +421,6 @@ public class EffectVideoActivityV extends AppCompatActivity implements View.OnCl
 
         }
     }
-
 
     @Override
     protected void onStop() {
@@ -438,12 +453,32 @@ public class EffectVideoActivityV extends AppCompatActivity implements View.OnCl
             mVideoRenderer.destroyRenderer();
         }
     }
+    /**
+     * 显示滤镜页面
+     */
+    private void showFilterView() {
+        isShowingFilters = true;
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        if (mColorFilterFragment == null) {
+            mColorFilterFragment = PreviewFiltersFragment.getInstance(PreviewFiltersFragment.TYPE_COLOR_FILTER, PreviewFiltersFragment.TYPE_VIDEO_EIDTEXT);
+            mColorFilterFragment.setVideoRenderer(mVideoRenderer);
+            ft.add(R.id.fragment_container, mColorFilterFragment);
+        } else {
+            ft.show(mColorFilterFragment);
+        }
+        ft.commit();
+        //  hideToolsLayout();
+    }
+
 
     @Override
     public void onClick(View v) {
         int id = v.getId();
         switch (id) {
-
+            case R.id.btFilters:
+                Log.e("Harrison","onClickonClickonClick");
+                showFilterView();
+                break;
 
         }
     }

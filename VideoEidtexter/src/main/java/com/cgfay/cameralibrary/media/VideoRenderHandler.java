@@ -119,7 +119,7 @@ class VideoRenderHandler extends Handler {
                 break;
             }
             case MSG_CHANGE_DYNAMIC_COLOR_FILTER: {
-                Log.e("Harrison", "MSG_CHANGE_DYNAMIC_COLOR_FILTER");
+
                 thread.changeColorDynamicFilter((DynamicColor) msg.obj);
                 break;
             }
