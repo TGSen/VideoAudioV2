@@ -258,13 +258,15 @@ public class EffectVideoActivityV extends AppCompatActivity implements View.OnCl
                     mVideoRenderer.changeVideoProgress(progress);
                 }
                 if (isStartClick) {
-                    //添加的开始添加
+                    //添加的开始添加,判断之前是否添加过的
+                    int currentIndex = progress / INTERVAL_EFFECT;
+                    VideoEffect videoEffect = mVideoEffect.get(currentIndex);
+
                     return;
                 }
 
                 int currentIndex = progress / INTERVAL_EFFECT;
                 VideoEffect videoEffect = mVideoEffect.get(currentIndex);
-
                 if (videoEffect != null) {
                     //添加
                     if (currentIndex == videoEffect.getStartTime()) {
@@ -288,23 +290,12 @@ public class EffectVideoActivityV extends AppCompatActivity implements View.OnCl
                         currentVideoEffectIndex = -1;
                         if (color != null) {
                             Log.e("Harrison", "移除特效" + videoEffectRemove.getDynamicColorId());
-//                            LayerDrawable layerDrawable = (LayerDrawable) seekBar.getProgressDrawable();
-//                            Drawable dra = layerDrawable.getDrawable(1);    //
-//                            dra.setColorFilter(getResources().getColor(R.color.green), PorterDuff.Mode.SRC_ATOP);
                             mVideoRenderer.removeDynamic(color);
                         } else {
                             Log.e("Harrison", "*移除特效" + videoEffectRemove.getDynamicColorId());
                         }
                     }
-
                 }
-
-//                LayerDrawable layerDrawable = (LayerDrawable) seekBar.getProgressDrawable();
-//                Drawable dra = layerDrawable.getDrawable(2);    //
-//                dra.setColorFilter(getResources().getColor(R.color.red), PorterDuff.Mode.SRC_ATOP);
-//                seekBar.getThumb().setColorFilter(getResources().getColor(R.color.red), PorterDuff.Mode.SRC_ATOP);
-
-
             }
 
 

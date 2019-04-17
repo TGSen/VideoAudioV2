@@ -68,15 +68,14 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/layout_aspect" />
 
-    <com.cgfay.cameralibrary.widget.ColorPickerView
+    <com.cgfay.cameralibrary.widget.VideoEffectSeekBar
         android:id="@+id/seekBar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/dp4"
         android:layout_marginRight="@dimen/dp4"
-        android:progressDrawable="@drawable/ic_bg_seek"
-        android:maxHeight="18dp"
-        android:minHeight="18dp"
+        android:maxHeight="4dp"
+        android:minHeight="4dp"
         app:layout_constraintLeft_toRightOf="@+id/startTime"
         app:layout_constraintRight_toLeftOf="@+id/totalTime"
         app:layout_constraintTop_toTopOf="@+id/startTime" />

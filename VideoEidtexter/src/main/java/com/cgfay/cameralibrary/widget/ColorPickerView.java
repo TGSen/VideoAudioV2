@@ -36,7 +36,7 @@ import com.cgfay.cameralibrary.R;
  * VERTICAL 竖直
  */
 
-public class ColorPickerView extends android.support.v7.widget.AppCompatSeekBar {
+public class ColorPickerView extends SeekBar {
     /**
      * 指示点颜色
      */

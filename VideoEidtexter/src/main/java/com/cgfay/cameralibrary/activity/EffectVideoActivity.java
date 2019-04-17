@@ -77,7 +77,6 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
     public static final int MSG_VIDEO_PLAY_PROGRESS = 0x001;
     public static final int MSG_VIDEO_PLAY_STATUS_STOP = 0x002;
     public static final int MSG_VIDEO_PLAY_STATUS_START = 0x003;
-    private static final int INTERVAL_EFFECT = 1000;
     //当前特效的key SparseArray<VideoEffect>
     private int currentEffectKey;
     //SparseArray<DynamicColor> 中的索引
@@ -85,7 +84,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
     /**
      * 记录 video 的特效时间
      */
-    private SparseArray<VideoEffect> mVideoEffect = new SparseArray<>();
+//    private SparseArray<VideoEffect> mVideoEffect = new SparseArray<>();
     private List<VideoEffect> mVideoEffects = new ArrayList<>();
 
     private Handler mHandler = new Handler(Looper.myLooper()) {
@@ -118,7 +117,9 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
     private List<ResourceData> mResourceData = new ArrayList<>();
     private EffectResourceAdapter mPreviewResourceAdapter;
     private long mStartClickTime;
-    private int currentVideoEffectIndex;
+    private int currentVideoEffectIndex = -1;
+    private VideoEffect newVideoEffect;
+    private TextView btSave;
 
 
     @Override
@@ -228,6 +229,8 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
         tvTotalTime = findViewById(R.id.totalTime);
         tvStartTime = findViewById(R.id.startTime);
         mVideoPlayStatus = findViewById(R.id.imgVideo);
+        btSave = findViewById(R.id.btSave);
+        btSave.setOnClickListener(this);
 
         mVideoPlayStatus.setVisibility(View.VISIBLE);
 
@@ -252,9 +255,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
             }
         });
 
-        LayerDrawable layerDrawable = (LayerDrawable) mSeekBar.getProgressDrawable();
-        Drawable dra = layerDrawable.getDrawable(2);    //
-        dra.setColorFilter(getResources().getColor(R.color.red), PorterDuff.Mode.SRC_ATOP);
+
         mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -262,56 +263,47 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                     //改变视频的位置
                     mVideoRenderer.changeVideoProgress(progress);
                 }
-                if (isStartClick) {
-                    //添加的开始添加
-                    return;
-                }
 
-                int currentIndex = progress / INTERVAL_EFFECT;
-                VideoEffect videoEffect = mVideoEffect.get(currentIndex);
+                int size = mVideoEffects.size();
 
-                if (videoEffect != null) {
-                    //添加
-                    if (currentIndex == videoEffect.getStartTime()) {
+                if (size <= 0 || isStartClick) return;
+
+                for (int i = size - 1; i >= 0; i--) {
+
+                    if ((mVideoEffects.get(i).getStartTime() < mVideoEffects.get(i).getEndTime() &&
+                            progress >= mVideoEffects.get(i).getStartTime() && progress < mVideoEffects.get(i).getEndTime()) ||
+                            (mVideoEffects.get(i).getStartTime() > mVideoEffects.get(i).getEndTime() &&
+                                    (progress >= mVideoEffects.get(i).getStartTime() || progress < mVideoEffects.get(i).getEndTime()))) {
+                        if (currentVideoEffectIndex == i) {
+                            return;
+                        }
+                        currentVideoEffectIndex = i;
+                        VideoEffect videoEffect = mVideoEffects.get(i);
                         int indexFilterColor = videoEffect.getDynamicColorId();
-                        currentVideoEffectIndex = currentIndex;
                         DynamicColor color = mDynamicColorFilter.get(indexFilterColor);
-                        if (color != null) {
-                            Log.e("Harrison", "已改变特效" + indexFilterColor);
+                        synchronized (EffectVideoActivity.class) {
+                            //   Log.e("Harrison", "已改变特效" + indexFilterColor);
                             mVideoRenderer.changeDynamicColorFilter(color);
-                        } else {
-                            Log.e("Harrison", "*已改变特效" + indexFilterColor);
+                            return;
+                        }
+
+                    } else {
+                        //判断之前有没使用过特效
+                        if (currentVideoEffectIndex != -1) {
+                            currentVideoEffectIndex = -1;
+                            Log.e("Harrison", "已经移除" + currentVideoEffectIndex);
+                            VideoEffect videoEffectRemove = mVideoEffects.get(currentVideoEffectIndex);
+                            DynamicColor color = mDynamicColorFilter.get(videoEffectRemove.getDynamicColorId());
+                            synchronized (EffectVideoActivity.class) {
+                                mVideoRenderer.removeDynamic(color);
+                                return;
+                            }
+
                         }
                     }
-//
-
-                } else {
-                    //当mVideoEffect.get(currentIndex) ==null ,去判断，是否结束
-                    VideoEffect videoEffectRemove = mVideoEffect.get(currentVideoEffectIndex);
-                    if (videoEffectRemove != null && currentIndex == videoEffectRemove.getEndTime()) {
-                        DynamicColor color = mDynamicColorFilter.get(videoEffectRemove.getDynamicColorId());
-                        currentVideoEffectIndex = -1;
-                        if (color != null) {
-                            Log.e("Harrison", "移除特效" + videoEffectRemove.getDynamicColorId());
-//                            LayerDrawable layerDrawable = (LayerDrawable) seekBar.getProgressDrawable();
-//                            Drawable dra = layerDrawable.getDrawable(1);    //
-//                            dra.setColorFilter(getResources().getColor(R.color.green), PorterDuff.Mode.SRC_ATOP);
-                            mVideoRenderer.removeDynamic(color);
-                        } else {
-                            Log.e("Harrison", "*移除特效" + videoEffectRemove.getDynamicColorId());
-                        }
-                    }
-
                 }
-
-//                LayerDrawable layerDrawable = (LayerDrawable) seekBar.getProgressDrawable();
-//                Drawable dra = layerDrawable.getDrawable(2);    //
-//                dra.setColorFilter(getResources().getColor(R.color.red), PorterDuff.Mode.SRC_ATOP);
-//                seekBar.getThumb().setColorFilter(getResources().getColor(R.color.red), PorterDuff.Mode.SRC_ATOP);
-
 
             }
-
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
@@ -340,11 +332,9 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                 parseResource(mResourceData.get(position).type, mResourceData.get(position).unzipFolder, position);
                 isStartClick = true;
                 int current = mSeekBar.getProgress();
-                currentEffectKey = current / INTERVAL_EFFECT;
-                //startTime 方便通过播放的进度来修改
-                mVideoEffect.put(currentEffectKey, new VideoEffect().setStartTime(currentEffectKey).setDynamicColorId(position));
-                Log.e("Harrison", String.format("position：%2d", currentEffectKey));
-                Log.e("Harrison", String.format("current：%2d", current));
+                currentEffectKey = current;
+                //如果有重叠的话
+                newVideoEffect = new VideoEffect().setStartTime(currentEffectKey).setDynamicColorId(position).setResColorId(position);
             }
 
             @Override
@@ -352,9 +342,9 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                 //结束使用该特效
                 DynamicColor color = mDynamicColorFilter.get(position);
                 mVideoRenderer.removeDynamic(color);
-                mVideoEffect.get(currentEffectKey).setEndTime(mSeekBar.getProgress() / INTERVAL_EFFECT);
+                newVideoEffect.setEndTime(mSeekBar.getProgress());
+                mVideoEffects.add(newVideoEffect);
                 isStartClick = false;
-                Log.e("Harrison", String.format("position：%2d- 结束", position));
             }
         });
 
@@ -409,7 +399,6 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                         //  color.addItemTimes(new DynamicColor.ItemTime().setStartTime(mVideoRenderer.getVideoProgress()));
                         mDynamicColorFilter.put(position, color);
                     }
-
                     break;
                 }
                 default:
@@ -457,7 +446,13 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
     public void onClick(View v) {
         int id = v.getId();
         switch (id) {
-
+            case R.id.btSave:
+                int size = mVideoEffects.size();
+                for (int i = size - 1; i >= 0; i--) {
+                    Log.e("Harrison", "posistion:" + mVideoEffects.get(i).getDynamicColorId() +
+                            "*start:" + mVideoEffects.get(i).getStartTime() + "*end:" + mVideoEffects.get(i).getEndTime());
+                }
+                break;
 
         }
     }
