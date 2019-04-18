@@ -15,12 +15,17 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
+import android.support.constraint.ConstraintSet;
 import android.support.constraint.Group;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.transition.Transition;
+import android.transition.TransitionManager;
+import android.transition.TransitionValues;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.Gravity;
@@ -113,7 +118,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
             }
         }
     };
-    private View mRootView;
+    private ConstraintLayout mRootView;
     private RecyclerView mRecyclerView;
     private TextView tvTotalTime, tvStartTime;
     private ImageView mVideoPlayStatus;
@@ -125,6 +130,10 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
     private VideoEffect newVideoEffect;
     private TextView btSave;
     private boolean isVideoPlayCompleted;
+    private Group mainGroup;
+    private Group effectGroup;
+    private FrameLayout mAspectLayout;
+    private ImageView btCloseImag;
 
 
     @Override
@@ -232,7 +241,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
      * @param
      */
     private void initView() {
-        FrameLayout mAspectLayout = findViewById(R.id.layout_aspect);
+        mAspectLayout = findViewById(R.id.layout_aspect);
         mRecyclerView = findViewById(R.id.recyclerView);
 
         mRootView = findViewById(R.id.rootView);
@@ -241,12 +250,16 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
         tvStartTime = findViewById(R.id.startTime);
         mVideoPlayStatus = findViewById(R.id.imgVideo);
         btSave = findViewById(R.id.btSave);
+        btCloseImag = findViewById(R.id.btCloseImag);
         btSave.setOnClickListener(this);
+        btCloseImag.setOnClickListener(this);
 
         mVideoPlayStatus.setVisibility(View.VISIBLE);
         View btFilters = findViewById(R.id.btFilters);
-        Group effectGroup = findViewById(R.id.effectGroup);
-        Group mainGroup = findViewById(R.id.mainGroup);
+        View btEffect = findViewById(R.id.btEffect);
+        btEffect.setOnClickListener(this);
+        effectGroup = findViewById(R.id.effectGroup);
+        mainGroup = findViewById(R.id.mainGroup);
         effectGroup.setVisibility(View.GONE);
         mainGroup.setVisibility(View.VISIBLE);
 
@@ -255,22 +268,22 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
 
         //mAspectLayout.setAspectRatio(mCameraParam.currentRatio);
         mVideoPreviewView = new VideoPreviewView(this);
-        mVideoPreviewView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //  hideFilterView();
-            }
-        });
+
         mAspectLayout.addView(mVideoPreviewView);
         mAspectLayout.requestLayout();
         mVideoPreviewView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mVideoRenderer.isVideoPlay()) {
-                    mVideoRenderer.stopPlayVideo();
+                if (mainGroup.getVisibility() == View.VISIBLE) {
+                    hideFilterView();
                 } else {
-                    mVideoRenderer.startPlayVideo();
+                    if (mVideoRenderer.isVideoPlay()) {
+                        mVideoRenderer.stopPlayVideo();
+                    } else {
+                        mVideoRenderer.startPlayVideo();
+                    }
                 }
+
             }
         });
 
@@ -375,6 +388,20 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
 
     }
 
+    /**
+     * 隐藏滤镜页面
+     */
+    private void hideFilterView() {
+        if (isShowingFilters) {
+            isShowingFilters = false;
+            if (mColorFilterFragment != null) {
+                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                ft.hide(mColorFilterFragment);
+                ft.commit();
+            }
+        }
+    }
+
 
     /**
      * 解码资源
@@ -466,6 +493,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
             mVideoRenderer.destroyRenderer();
         }
     }
+
     /**
      * 显示滤镜页面
      */
@@ -497,6 +525,59 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                 break;
             case R.id.btFilters:
                 showFilterView();
+                break;
+            case R.id.btEffect:
+                ConstraintSet constraintSet = new ConstraintSet();
+                constraintSet.clone(mRootView);
+                constraintSet.clear(R.id.layout_aspect);
+                constraintSet.connect(R.id.layout_aspect, ConstraintSet.TOP, R.id.btCloseImag, ConstraintSet.BOTTOM, 20);
+                constraintSet.connect(R.id.layout_aspect, ConstraintSet.LEFT, ConstraintSet.PARENT_ID, ConstraintSet.LEFT, 100);
+                constraintSet.connect(R.id.layout_aspect, ConstraintSet.RIGHT, ConstraintSet.PARENT_ID, ConstraintSet.RIGHT, 100);
+                constraintSet.connect(R.id.layout_aspect, ConstraintSet.BOTTOM, R.id.startTime, ConstraintSet.BOTTOM, 100);
+                constraintSet.setDimensionRatio(R.id.layout_aspect, "h,1:1.3");
+                constraintSet.applyTo(mRootView);
+                TransitionManager.beginDelayedTransition(mRootView, new Transition() {
+                    @Override
+                    public void captureStartValues(TransitionValues transitionValues) {
+                        mainGroup.setVisibility(View.GONE);
+                        effectGroup.setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    public void captureEndValues(TransitionValues transitionValues) {
+
+                    }
+                });
+
+                break;
+
+            case R.id.btCloseImag:
+                if (mainGroup.getVisibility() == View.GONE) {
+                    if (!mVideoRenderer.isVideoPlay()) {
+                        //如果沒播放的話，好像回到全屏是有问题的
+                        mVideoRenderer.startPlayVideo();
+                    }
+                    ConstraintSet set = new ConstraintSet();
+                    set.clone(mRootView);
+                    set.clear(R.id.layout_aspect);
+                    set.connect(R.id.layout_aspect, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP, 0);
+                    set.connect(R.id.layout_aspect, ConstraintSet.LEFT, ConstraintSet.PARENT_ID, ConstraintSet.LEFT, 0);
+                    set.connect(R.id.layout_aspect, ConstraintSet.RIGHT, ConstraintSet.PARENT_ID, ConstraintSet.RIGHT, 0);
+                    set.connect(R.id.layout_aspect, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM, 0);
+                    set.applyTo(mRootView);
+                    TransitionManager.beginDelayedTransition(mRootView, new Transition() {
+                        @Override
+                        public void captureStartValues(TransitionValues transitionValues) {
+                            effectGroup.setVisibility(View.GONE);
+                        }
+
+                        @Override
+                        public void captureEndValues(TransitionValues transitionValues) {
+                            mainGroup.setVisibility(View.VISIBLE);
+                        }
+                    });
+
+                }
                 break;
 
 

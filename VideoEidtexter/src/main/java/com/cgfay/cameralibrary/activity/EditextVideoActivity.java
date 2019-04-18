@@ -16,11 +16,8 @@ import android.widget.TextView;
 import com.cgfay.cameralibrary.R;
 import com.cgfay.cameralibrary.fragment.PreviewFiltersFragment;
 import com.cgfay.cameralibrary.media.VideoRenderer;
-import com.cgfay.cameralibrary.media.bean.VideoEffect;
 import com.cgfay.cameralibrary.media.bean.VideoEffectType;
 import com.cgfay.cameralibrary.media.surface.EncodeDecodeSurface;
-import com.cgfay.cameralibrary.media.surface.OffSVideoRenderManager;
-import com.cgfay.cameralibrary.media.surface.OffScreenVideoRenderer;
 import com.cgfay.cameralibrary.widget.VideoPreviewView;
 
 /**
@@ -47,7 +44,7 @@ public class EditextVideoActivity extends AppCompatActivity implements View.OnCl
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        setContentView(R.layout.activity_editext_video);
+        setContentView(R.layout.layout_editext_video);
         mVideoRenderer = new VideoRenderer();
         VideoEffectType mVideoEffectType = new VideoEffectType()
                 .setCurrentEffectType(VideoEffectType.EFFECT_TYPE_SINGLE)

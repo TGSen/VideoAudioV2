@@ -12,10 +12,7 @@
         android:id="@+id/layout_aspect"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginLeft="61dp"
-        android:layout_marginTop="110dp"
-        android:layout_marginRight="61dp"
-        app:layout_constraintDimensionRatio="h,1:1.3"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -51,12 +48,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/dp16"
-        android:layout_marginTop="@dimen/dp16"
+        android:layout_marginBottom="@dimen/dp18"
         android:text="@string/startTime"
         android:textColor="@color/white"
         android:textSize="@dimen/sp12"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/layout_aspect" />
+        app:layout_constraintBottom_toTopOf="@+id/btUseingTip" />
 
     <com.cgfay.cameralibrary.widget.VideoEffectSeekBar
         android:id="@+id/seekBar"
@@ -87,7 +84,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/dp16"
-        android:layout_marginTop="@dimen/dp18"
+        android:layout_marginBottom="@dimen/dp18"
         android:layout_marginRight="@dimen/dp11"
         android:gravity="center"
         android:padding="@dimen/dp4"
@@ -95,7 +92,7 @@
         android:textColor="@color/white"
         android:textSize="@dimen/sp12"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/startTime" />
+       app:layout_constraintBottom_toTopOf="@+id/recyclerView" />
 
     <TextView
         android:id="@+id/btDeleteEffect"
@@ -114,10 +111,9 @@
         android:id="@+id/recyclerView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btUseingTip" />
+        app:layout_constraintBottom_toBottomOf="parent" />
 
 
     <ImageView
@@ -125,7 +121,7 @@
         android:layout_width="@dimen/dp24"
         android:layout_height="@dimen/dp24"
         android:layout_marginLeft="@dimen/dp12"
-        android:layout_marginTop="71dp"
+        android:layout_marginTop="48dp"
         android:padding="@dimen/dp4"
         android:src="@mipmap/ic_close"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -135,10 +131,9 @@
         android:id="@+id/effectGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone"
         app:constraint_referenced_ids="startTime,recyclerView,btDeleteEffect,btUseingTip,totalTime,seekBar,imgVideo,btSave" />
 
 
-    <include layout="@layout/activity_editext_video" />
+    <include layout="@layout/layout_editext_video" />
 
 </android.support.constraint.ConstraintLayout>
