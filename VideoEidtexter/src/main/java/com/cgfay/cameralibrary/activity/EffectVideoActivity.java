@@ -530,11 +530,10 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                 ConstraintSet constraintSet = new ConstraintSet();
                 constraintSet.clone(mRootView);
                 constraintSet.clear(R.id.layout_aspect);
-                constraintSet.connect(R.id.layout_aspect, ConstraintSet.TOP, R.id.btCloseImag, ConstraintSet.BOTTOM, 20);
-                constraintSet.connect(R.id.layout_aspect, ConstraintSet.LEFT, ConstraintSet.PARENT_ID, ConstraintSet.LEFT, 100);
-                constraintSet.connect(R.id.layout_aspect, ConstraintSet.RIGHT, ConstraintSet.PARENT_ID, ConstraintSet.RIGHT, 100);
-                constraintSet.connect(R.id.layout_aspect, ConstraintSet.BOTTOM, R.id.startTime, ConstraintSet.BOTTOM, 100);
-                constraintSet.setDimensionRatio(R.id.layout_aspect, "h,1:1.3");
+                constraintSet.connect(R.id.layout_aspect, ConstraintSet.TOP, R.id.btCloseImag, ConstraintSet.BOTTOM, 70);
+                constraintSet.connect(R.id.layout_aspect, ConstraintSet.LEFT, ConstraintSet.PARENT_ID, ConstraintSet.LEFT, 150);
+                constraintSet.connect(R.id.layout_aspect, ConstraintSet.RIGHT, ConstraintSet.PARENT_ID, ConstraintSet.RIGHT, 150);
+                constraintSet.connect(R.id.layout_aspect, ConstraintSet.BOTTOM, R.id.startTime, ConstraintSet.TOP, 70);
                 constraintSet.applyTo(mRootView);
                 TransitionManager.beginDelayedTransition(mRootView, new Transition() {
                     @Override
