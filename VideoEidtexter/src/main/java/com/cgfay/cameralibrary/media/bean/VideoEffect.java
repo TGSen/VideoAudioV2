@@ -27,7 +27,7 @@ public class VideoEffect {
     }
 
     public void setHasAll(boolean hasAll) {
-        isHasAll = hasAll;
+        this.isHasAll = hasAll;
     }
 
     public static final int COLOR_RED = android.R.color.holo_red_dark;

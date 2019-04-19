@@ -302,6 +302,15 @@ public final class VideoRenderer {
         }
     }
 
+    /**
+     * 设置video的播放
+     */
+    public void changeVideoVoice(float voice){
+        if(mPreviewRenderThread!=null){
+            mPreviewRenderThread.changeVideoVoice(voice);
+        }
+    }
+
     public boolean isVideoPlay() {
         if(mPreviewRenderThread!=null){
            return mPreviewRenderThread.isVideoPlay();

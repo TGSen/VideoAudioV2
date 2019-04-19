@@ -40,6 +40,7 @@ import android.widget.TextView;
 import com.cgfay.cameralibrary.R;
 import com.cgfay.cameralibrary.adapter.EffectResourceAdapter;
 import com.cgfay.cameralibrary.fragment.PreviewFiltersFragment;
+import com.cgfay.cameralibrary.fragment.VoiceAdjustFragment;
 import com.cgfay.cameralibrary.media.VideoRenderThread;
 import com.cgfay.cameralibrary.media.VideoRenderer;
 import com.cgfay.cameralibrary.media.bean.VideoEffect;
@@ -82,14 +83,18 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
     private String videoPath;
     private VideoPreviewView mVideoPreviewView;
     private VideoRenderer mVideoRenderer;
-    // 滤镜页面
-    private PreviewFiltersFragment mColorFilterFragment;
+
     // 设置video paths
     public static final int MSG_VIDEO_PLAY_PROGRESS = 0x001;
     public static final int MSG_VIDEO_PLAY_STATUS_STOP = 0x002;
     public static final int MSG_VIDEO_PLAY_STATUS_START = 0x003;
     private int currentEffectKey;
     private boolean isStartClick;
+
+    // 滤镜页面
+    private PreviewFiltersFragment mColorFilterFragment;
+    //
+    private VoiceAdjustFragment mVoiceAdjustFragment;
     /**
      * 记录 video 的特效时间
      */
@@ -259,6 +264,8 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
         mVideoPlayStatus.setVisibility(View.VISIBLE);
         View btFilters = findViewById(R.id.btFilters);
         View btEffect = findViewById(R.id.btEffect);
+        View btVoiceAdjust = findViewById(R.id.btVoiceAdjust);
+        btVoiceAdjust.setOnClickListener(this);
         btEffect.setOnClickListener(this);
         effectGroup = findViewById(R.id.effectGroup);
         mainGroup = findViewById(R.id.mainGroup);
@@ -514,6 +521,10 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
         } else {
             ft.show(mColorFilterFragment);
         }
+        //隐藏其他的
+        if (mVoiceAdjustFragment != null && mVoiceAdjustFragment.isAdded()) {
+            ft.hide(mVoiceAdjustFragment);
+        }
         ft.commit();
         //  hideToolsLayout();
     }
@@ -589,8 +600,44 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
 
                 }
                 break;
+            case R.id.btVoiceAdjust:
+                showVoiceAdjust();
+                break;
 
 
         }
     }
+
+    /**
+     * 显示声音的调节
+     */
+    private void showVoiceAdjust() {
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        if (mVoiceAdjustFragment == null) {
+            mVoiceAdjustFragment = VoiceAdjustFragment.getInstance();
+            ft.add(R.id.fragment_container, mVoiceAdjustFragment);
+            mVoiceAdjustFragment.setOnVoiceSeekBarChangeListener(new VoiceAdjustFragment.OnVoiceSeekBarChangeListener() {
+
+                @Override
+                public void origiVoiceChange(float progress) {
+                    Log.e("Harrison","origiVoiceChange"+progress);
+                    mVideoRenderer.changeVideoVoice(progress);
+                }
+
+                @Override
+                public void bgmVoiceChange(float progres) {
+                    Log.e("Harrison","bgmVoiceChange");
+                }
+            });
+        } else {
+            ft.show(mVoiceAdjustFragment);
+        }
+        //隐藏其他的
+        if (mColorFilterFragment != null && mColorFilterFragment.isAdded()) {
+            ft.hide(mColorFilterFragment);
+        }
+        ft.commit();
+    }
+
+
 }

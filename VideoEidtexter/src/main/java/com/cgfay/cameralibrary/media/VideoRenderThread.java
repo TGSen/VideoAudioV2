@@ -157,12 +157,11 @@ public class VideoRenderThread extends HandlerThread implements SurfaceTexture.O
         });
 
 
-
         //设置无限循环
         mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer player) {
-                if(mVideoPlayerStatusChangeLisenter!=null)
+                if (mVideoPlayerStatusChangeLisenter != null)
                     mVideoPlayerStatusChangeLisenter.videoCompleted();
                 player.start();
                 player.setLooping(true);
@@ -384,13 +383,24 @@ public class VideoRenderThread extends HandlerThread implements SurfaceTexture.O
     }
 
     public void changeVideoProgress(int progress) {
-        if(mMediaPlayer!=null)
+        if (mMediaPlayer != null)
             mMediaPlayer.seekTo(progress);
     }
 
     public boolean isVideoPlay() {
         if (mMediaPlayer != null) return mMediaPlayer.isPlaying();
         return false;
+    }
+
+    /**
+     * 改变视频的播放声音
+     *
+     * @param voice
+     */
+    public void changeVideoVoice(float voice) {
+        if(mMediaPlayer!=null){
+            mMediaPlayer.setVolume(voice,voice);
+        }
     }
 
     /**
