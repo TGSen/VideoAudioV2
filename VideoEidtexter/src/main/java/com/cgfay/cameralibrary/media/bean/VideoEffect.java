@@ -50,22 +50,22 @@ public class VideoEffect {
     public VideoEffect setResColorId(int resColorId) {
         switch (resColorId) {
             case 0:
-                resColorId = COLOR_RED;
+                this.resColorId = COLOR_WHILE;
                 break;
             case 1:
-                resColorId = COLOR_GREED;
+                this.resColorId = COLOR_GREED;
                 break;
             case 2:
-                resColorId = COLOR_BLUE;
+                this.resColorId = COLOR_BLUE;
                 break;
             case 3:
-                resColorId = COLOR_WHILE;
+                this.resColorId = COLOR_RED;
                 break;
             case 4:
-                resColorId = COLOR_BLACK;
+                this.resColorId = COLOR_BLACK;
                 break;
             default:
-                resColorId = COLOR_DEFUALT;
+                this.resColorId = COLOR_DEFUALT;
         }
         return this;
     }

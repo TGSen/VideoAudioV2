@@ -47,6 +47,7 @@ import com.cgfay.cameralibrary.media.bean.VideoEffectType;
 import com.cgfay.cameralibrary.utils.ImageBlur;
 import com.cgfay.cameralibrary.widget.ColorPickerView;
 import com.cgfay.cameralibrary.widget.SpaceItemDecoration;
+import com.cgfay.cameralibrary.widget.VideoEffectSeekBar;
 import com.cgfay.cameralibrary.widget.VideoPreviewView;
 import com.cgfay.filterlibrary.glfilter.color.bean.DynamicColor;
 import com.cgfay.filterlibrary.glfilter.resource.ResourceHelper;
@@ -87,9 +88,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
     public static final int MSG_VIDEO_PLAY_PROGRESS = 0x001;
     public static final int MSG_VIDEO_PLAY_STATUS_STOP = 0x002;
     public static final int MSG_VIDEO_PLAY_STATUS_START = 0x003;
-    //当前特效的key SparseArray<VideoEffect>
     private int currentEffectKey;
-    //SparseArray<DynamicColor> 中的索引
     private boolean isStartClick;
     /**
      * 记录 video 的特效时间
@@ -122,7 +121,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
     private RecyclerView mRecyclerView;
     private TextView tvTotalTime, tvStartTime;
     private ImageView mVideoPlayStatus;
-    private SeekBar mSeekBar;
+    private VideoEffectSeekBar mSeekBar;
     private List<ResourceData> mResourceData = new ArrayList<>();
     private EffectResourceAdapter mPreviewResourceAdapter;
     private long mStartClickTime;
@@ -219,7 +218,9 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
             @Override
             public void videoCompleted() {
                 Log.e("Harrison", "videoCompleted");
-                isVideoPlayCompleted = true;
+                //只有在按下的时候，去改变
+                if (isStartClick)
+                    isVideoPlayCompleted = true;
             }
 
 
@@ -249,6 +250,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
         tvTotalTime = findViewById(R.id.totalTime);
         tvStartTime = findViewById(R.id.startTime);
         mVideoPlayStatus = findViewById(R.id.imgVideo);
+        mVideoPlayStatus.setVisibility(View.GONE);
         btSave = findViewById(R.id.btSave);
         btCloseImag = findViewById(R.id.btCloseImag);
         btSave.setOnClickListener(this);
@@ -299,10 +301,13 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                 int size = mVideoEffects.size();
                 if (isStartClick) {
                     //这个条件就作为，再次经过起点
-//                    if (progress > newVideoEffect.getStartTime() && isVideoPlayCompleted) {
-//                        isVideoPlayCompleted = false;
-//                        newVideoEffect.setHasAll(true);
-//                    }
+                    if (progress > newVideoEffect.getStartTime() && isVideoPlayCompleted) {
+                        isVideoPlayCompleted = false;
+                        newVideoEffect.setHasAll(true);
+                    }
+                    newVideoEffect.setEndTime(progress);
+                    //更新进度的颜色
+                    mSeekBar.setPathList(mVideoEffects, seekBar.getMax());
                     return;
                 }
                 if (size <= 0 || isStartClick) return;
@@ -313,7 +318,6 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                             progress >= mVideoEffects.get(i).getStartTime() && progress < mVideoEffects.get(i).getEndTime()) ||
                             (mVideoEffects.get(i).getStartTime() > mVideoEffects.get(i).getEndTime() &&
                                     (progress >= mVideoEffects.get(i).getStartTime() || progress < mVideoEffects.get(i).getEndTime()))) {
-                        if (currentVideoEffectIndex == i) return;
                         //在添加
                         currentVideoEffectIndex = i;
                         VideoEffect videoEffect = mVideoEffects.get(i);
@@ -334,6 +338,8 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                         }
                     }
                 }
+
+                Log.e("Harrison", "不用修改特效");
 
             }
 
@@ -367,6 +373,8 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                 currentEffectKey = current;
                 //如果有重叠的话
                 newVideoEffect = new VideoEffect().setStartTime(currentEffectKey).setDynamicColorId(position).setResColorId(position);
+                mVideoEffects.add(newVideoEffect);
+
             }
 
             @Override
@@ -374,14 +382,13 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                 //结束使用该特效
                 DynamicColor color = mDynamicColorFilter.get(position);
                 mVideoRenderer.removeDynamic(color);
-//                if (newVideoEffect.isHasAll()) {
-//                    newVideoEffect.setStartTime(0);
-//                    newVideoEffect.setEndTime(mSeekBar.getMax());
-//                } else {
-//                    newVideoEffect.setEndTime(mSeekBar.getProgress());
-//                }
+                if (newVideoEffect.isHasAll()) {
+                    newVideoEffect.setStartTime(0);
+                    newVideoEffect.setEndTime(mSeekBar.getMax());
+                } else {
+                    newVideoEffect.setEndTime(mSeekBar.getProgress());
+                }
                 newVideoEffect.setEndTime(mSeekBar.getProgress());
-                mVideoEffects.add(newVideoEffect);
                 isStartClick = false;
             }
         });
@@ -556,6 +563,9 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                         //如果沒播放的話，好像回到全屏是有问题的
                         mVideoRenderer.startPlayVideo();
                     }
+                    if (mVideoPlayStatus.getVisibility() == View.VISIBLE) {
+                        mVideoPlayStatus.setVisibility(View.GONE);
+                    }
                     ConstraintSet set = new ConstraintSet();
                     set.clone(mRootView);
                     set.clear(R.id.layout_aspect);
@@ -563,6 +573,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                     set.connect(R.id.layout_aspect, ConstraintSet.LEFT, ConstraintSet.PARENT_ID, ConstraintSet.LEFT, 0);
                     set.connect(R.id.layout_aspect, ConstraintSet.RIGHT, ConstraintSet.PARENT_ID, ConstraintSet.RIGHT, 0);
                     set.connect(R.id.layout_aspect, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM, 0);
+
                     set.applyTo(mRootView);
                     TransitionManager.beginDelayedTransition(mRootView, new Transition() {
                         @Override

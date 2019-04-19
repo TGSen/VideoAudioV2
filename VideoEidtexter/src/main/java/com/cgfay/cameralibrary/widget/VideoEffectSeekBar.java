@@ -10,7 +10,9 @@ import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatSeekBar;
 import android.util.AttributeSet;
+import android.util.Log;
 
+import com.cgfay.cameralibrary.R;
 import com.cgfay.cameralibrary.media.bean.VideoEffect;
 
 import java.util.ArrayList;
@@ -26,7 +28,7 @@ import java.util.List;
 public class VideoEffectSeekBar extends AppCompatSeekBar {
 
     private Paint mRulerPaint;
-
+    private Rect mRect;
 
 
     public VideoEffectSeekBar(Context context) {
@@ -55,6 +57,8 @@ public class VideoEffectSeekBar extends AppCompatSeekBar {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             setSplitTrack(false);
         }
+        mRect = new Rect();
+        mRulerPaint.setColor(ContextCompat.getColor(getContext(), colors[0]));
     }
 
     List<ItemRect> mRects = new ArrayList<>();
@@ -80,25 +84,30 @@ public class VideoEffectSeekBar extends AppCompatSeekBar {
         }
     }
 
-    //设置分段的颜色
-    public void setPathList(List<VideoEffect> effects,int max) {
-        mRects.clear();
-        if (effects == null) return;
-        int size = effects.size();
-        for (int i = 0; i < size; i++) {
-            VideoEffect effect = effects.get(i);
-            ItemRect itemRect = new ItemRect();
-            Rect rect = new Rect();
-            rect.left = effect.getStartTime()*getWidth()/max;
-            rect.right = effect.getEndTime()*getWidth()/max;
-            rect.top = 0;
-            rect.bottom = getHeight();
-            itemRect.setRect(rect);
-            itemRect.setColorId(effect.getResColorId());
-            mRects.add(itemRect);
-        }
+    boolean isDrawing = false;
 
-        postInvalidate();
+    //设置分段的颜色
+    public void setPathList(List<VideoEffect> effects, int max) {
+        synchronized (VideoEffectSeekBar.class) {
+            if (effects == null) return;
+            int size = effects.size();
+            for (int i = 0; i <size; i++) {
+                VideoEffect effect = effects.get(i);
+                ItemRect itemRect = new ItemRect();
+                Rect rect = new Rect();
+                rect.left = effect.getStartTime() * getWidth() / max;
+                rect.right = effect.getEndTime() * getWidth() / max;
+                rect.top = 0;
+                rect.bottom = getHeight();
+                itemRect.setRect(rect);
+                itemRect.setColorId(effect.getResColorId());
+                mRects.add(itemRect);
+            }
+
+            postInvalidate();
+
+
+        }
     }
 
     /**
@@ -106,22 +115,30 @@ public class VideoEffectSeekBar extends AppCompatSeekBar {
      *
      * @param canvas
      */
+    int[] colors = {android.R.color.holo_green_dark, android.R.color.darker_gray};
 
     @Override
-    protected synchronized void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-       if(mRects==null|| mRects.size()<=0)return;
-       int size = mRects.size();
-        //绘制刻度线
-        for (int i = 1; i <= size; i++) {
-            ItemRect itemRect = mRects.get(i);
-            if(itemRect.getRect()!=null){
-                mRulerPaint.setColor(ContextCompat.getColor(getContext(),itemRect.getColorId()));
-                //进行绘制
-                canvas.drawRect(itemRect.getRect(), mRulerPaint);
+    protected  void onDraw(Canvas canvas) {
+        synchronized (VideoEffectSeekBar.class) {
+            isDrawing = true;
+            super.onDraw(canvas);
+            if (mRects == null || mRects.size() <= 0) return;
+            int size = mRects.size();
+            // 绘制刻度线
+            for (int i = 0; i < size; i++) {
+                ItemRect itemRect = mRects.get(i);
+                if (itemRect.getRect() != null) {
+                    mRulerPaint.setColor(ContextCompat.getColor(getContext(), itemRect.getColorId()));
+                    //进行绘制
+                    canvas.drawRect(itemRect.getRect(), mRulerPaint);
+                }
             }
-
+//        mRect.top = 0;
+//        mRect.bottom = getHeight();
+//        mRect.left = 0;
+//        mRect.right = getWidth();
+//        canvas.drawRect(mRect, mRulerPaint);
+            isDrawing = false;
         }
     }
-
 }
