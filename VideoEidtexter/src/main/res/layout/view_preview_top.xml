@@ -19,11 +19,11 @@
         android:layout_width="wrap_content"
         android:id="@+id/mGroupViewTop"
         android:layout_height="wrap_content"
-        app:constraint_referenced_ids="tvTitle"/>
+        app:constraint_referenced_ids="tvSeletedBgm"/>
 
 
     <TextView
-        android:id="@+id/tvTitle"
+        android:id="@+id/tvSeletedBgm"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:drawableLeft="@mipmap/ic_music"

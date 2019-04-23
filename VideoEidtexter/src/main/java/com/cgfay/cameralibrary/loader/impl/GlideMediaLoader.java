@@ -27,6 +27,16 @@ public class GlideMediaLoader implements MediaLoader {
     }
 
     @Override
+    public void loadImage(Context context, Drawable placeholder, ImageView imageView, String url) {
+        Glide.with(context)
+                .load(url)
+                .apply(new RequestOptions()
+                        .placeholder(placeholder)
+                        .centerCrop())
+                .into(imageView);
+    }
+
+    @Override
     public void loadImage(Context context, int width, int height, ImageView imageView, Uri uri) {
         Glide.with(context)
                 .load(uri)

@@ -42,13 +42,13 @@
         <activity
             android:name=".activity.EditextVideoActivity"
             android:launchMode="singleTop" />
-        <activity
-            android:name=".activity.EffectVideoActivity"
-           />
+        <activity android:name=".activity.EffectVideoActivity" />
 
 
         <activity android:name=".activity.CameraSettingActivity" />
         <activity android:name=".activity.WatermarkActivity"></activity>
+
+        <service android:name=".media.bgmusic.MusicService" />
     </application>
 
 </manifest>

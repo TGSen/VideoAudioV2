@@ -20,6 +20,15 @@ public interface MediaLoader {
     void loadThumbnail(Context context, Drawable placeholder, ImageView imageView, Uri uri);
 
     /**
+     * 加载缩略图
+     * @param context
+     * @param placeholder   占位图
+     * @param imageView     显示的widget
+     * @param url           路径
+     */
+    void loadImage(Context context, Drawable placeholder, ImageView imageView, String url);
+
+    /**
      * 加载图片
      * @param context
      * @param width         期望缩放的宽度
