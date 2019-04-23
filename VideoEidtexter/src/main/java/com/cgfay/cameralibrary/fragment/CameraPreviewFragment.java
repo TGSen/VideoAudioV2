@@ -352,6 +352,8 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
                 @Override
                 public void change(String url) {
                     Log.e("Harrison", url);
+                    ///这里规定，如果url 为null，就启动麦克风，否则就是背景音乐
+
                     MusicManager.getInstance().changeAudioPlay(url);
                 }
             });

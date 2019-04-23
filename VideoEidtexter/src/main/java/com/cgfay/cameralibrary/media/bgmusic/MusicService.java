@@ -31,7 +31,7 @@ public class MusicService extends Service {
         mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
-                Log.e("Harrison","onCompletion");
+                Log.e("Harrison", "onCompletion");
             }
         });
 
@@ -40,7 +40,7 @@ public class MusicService extends Service {
             public void onPrepared(MediaPlayer mp) {
                 mp.start();
                 mp.setLooping(true);
-                Log.e("Harrison","onPrepared");
+                Log.e("Harrison", "onPrepared");
             }
         });
     }
@@ -129,12 +129,10 @@ public class MusicService extends Service {
         public void changeUrl(String url) {
             //获取文件路径
             try {
-                //此处的两个方法需要捕获IO异常
-                //设置音频文件到MediaPlayer对象中
+                //如果切换音频的时候需要重置一下
                 mMediaPlayer.reset();
                 mMediaPlayer.setDataSource(url);
-                //让MediaPlayer对象准备
-                mMediaPlayer.prepare();
+                mMediaPlayer.prepareAsync();
             } catch (IOException e) {
                 Log.e("Harrison", "");
                 e.printStackTrace();
