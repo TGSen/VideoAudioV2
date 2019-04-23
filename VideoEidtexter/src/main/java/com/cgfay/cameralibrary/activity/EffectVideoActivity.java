@@ -156,8 +156,6 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
 
         initView();
         initData();
-
-
     }
 
     private void initData() {

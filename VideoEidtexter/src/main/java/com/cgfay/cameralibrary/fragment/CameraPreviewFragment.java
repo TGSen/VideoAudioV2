@@ -82,10 +82,6 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
     private boolean mStorageWriteEnable = false;
     // 是否需要等待录制完成再跳转
     private boolean mNeedToWaitStop = false;
-    // 显示贴纸页面
-    private boolean isShowingStickers = false;
-    // 显示滤镜页面
-    private boolean isShowingFilters = false;
 
 
     // 预览参数
@@ -284,13 +280,13 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
      * @return
      */
     public boolean onBackPressed() {
-        if (isShowingFilters) {
-            hideEffectView();
-            return true;
-        } else if (isShowingStickers) {
-            hideStickerView();
-            return true;
-        }
+//        if (isShowingFilters) {
+//            hideEffectView();
+//            return true;
+//        } else if (isShowingStickers) {
+//            hideStickerView();
+//            return true;
+//        }
         return false;
     }
 
@@ -365,7 +361,6 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
      * 显示分镜工具页面
      */
     private void showCameraStyleTools() {
-        isShowingStickers = true;
         FragmentTransaction ft = getChildFragmentManager().beginTransaction();
         if (mCameraFilterFragment == null) {
             mCameraFilterFragment = PreviewFiltersFragment.getInstance(PreviewFiltersFragment.TYPE_CAMERA_FILTER, PreviewFiltersFragment.TYPE_VIDEO_SHOT);
@@ -373,6 +368,11 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
         } else {
             ft.show(mCameraFilterFragment);
         }
+        //隐藏其他的Fragment
+        if (mColorFilterFragment != null && mColorFilterFragment.isAdded()) {
+            ft.hide(mColorFilterFragment);
+        }
+
         ft.commit();
         hideToolsLayout();
     }
@@ -381,13 +381,18 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
      * 显示滤镜页面
      */
     private void showEffectView() {
-        isShowingFilters = true;
+
         FragmentTransaction ft = getChildFragmentManager().beginTransaction();
         if (mColorFilterFragment == null) {
             mColorFilterFragment = PreviewFiltersFragment.getInstance(PreviewFiltersFragment.TYPE_COLOR_FILTER, PreviewFiltersFragment.TYPE_VIDEO_SHOT);
             ft.add(R.id.fragment_container, mColorFilterFragment);
         } else {
             ft.show(mColorFilterFragment);
+        }
+
+        //隐藏其他的Fragment
+        if (mCameraFilterFragment != null && mCameraFilterFragment.isAdded()) {
+            ft.hide(mCameraFilterFragment);
         }
         ft.commit();
         hideToolsLayout();
@@ -397,13 +402,10 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
      * 隐藏动态贴纸页面
      */
     private void hideStickerView() {
-        if (isShowingStickers) {
-            isShowingStickers = false;
-            if (mCameraFilterFragment != null) {
-                FragmentTransaction ft = getChildFragmentManager().beginTransaction();
-                ft.hide(mCameraFilterFragment);
-                ft.commit();
-            }
+        if (mCameraFilterFragment != null) {
+            FragmentTransaction ft = getChildFragmentManager().beginTransaction();
+            ft.hide(mCameraFilterFragment);
+            ft.commit();
         }
         showToolsLayout();
     }
@@ -412,13 +414,10 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
      * 隐藏滤镜页面
      */
     private void hideEffectView() {
-        if (isShowingFilters) {
-            isShowingFilters = false;
-            if (mColorFilterFragment != null) {
-                FragmentTransaction ft = getChildFragmentManager().beginTransaction();
-                ft.hide(mColorFilterFragment);
-                ft.commit();
-            }
+        if (mColorFilterFragment != null) {
+            FragmentTransaction ft = getChildFragmentManager().beginTransaction();
+            ft.hide(mColorFilterFragment);
+            ft.commit();
         }
         showToolsLayout();
     }
@@ -738,8 +737,8 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
                     if (mCombineDialog != null) {
                         mCombineDialog.dismiss();
                         mCombineDialog = null;
-                        if(success){
-                            EffectVideoActivity.gotoThis(mActivity,path);
+                        if (success) {
+                            EffectVideoActivity.gotoThis(mActivity, path);
                         }
                     }
                 }
@@ -867,7 +866,6 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
             }
         }
     };
-
 
 
 }
