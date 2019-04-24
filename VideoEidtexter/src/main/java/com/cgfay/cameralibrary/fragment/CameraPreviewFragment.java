@@ -123,6 +123,9 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
     private Group mGroupViewTop;
     private Group mGroupViewBottom;
     private SensorControler mSensorControler;
+    //是否启动背景音乐，
+    private boolean isBgMusicEnable;
+
 
     public CameraPreviewFragment() {
         mCameraParam = CameraParam.getInstance();
@@ -333,14 +336,15 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
             musicFragment.setOnMusicChangeListener(new MusicFragment.OnMusicChangeListener() {
                 @Override
                 public void change(String url) {
-                    Log.e("Harrison", url+"***");
-                    if(TextUtils.isEmpty(url)){
-
-                    }else{
-
-                    }
+                    Log.e("Harrison", url + "***");
                     ///这里规定，如果url 为null，就启动麦克风，否则就是背景音乐
-                    MusicManager.getInstance().changeAudioPlay(url);
+                    if (MusicManager.getInstance().changeAudioPlay(url)) {
+                        isBgMusicEnable = true;
+                        PreviewRecorder.getInstance().enableAudio(false);
+                    } else {
+                        PreviewRecorder.getInstance().enableAudio(true);
+                        isBgMusicEnable = false;
+                    }
                 }
             });
             ft.add(R.id.fragment_container, musicFragment);
@@ -366,6 +370,8 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
         }
         if (musicFragment != null && musicFragment.isAdded()) {
             ft.hide(musicFragment);
+            //隐藏它时候需要关闭音乐
+            MusicManager.getInstance().stop();
         }
 
     }
@@ -636,7 +642,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
 
             // 是否允许录制音频
             boolean enableAudio = mCameraParam.audioPermitted && mCameraParam.recordAudio
-                    && mCameraParam.mGalleryType == GalleryType.VIDEO;
+                    && mCameraParam.mGalleryType == GalleryType.VIDEO && !isBgMusicEnable;
 
             // 计算输入纹理的大小
             int width = mCameraParam.previewWidth;
@@ -645,6 +651,11 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
                 width = mCameraParam.previewHeight;
                 height = mCameraParam.previewWidth;
             }
+            //同时判断是否开启背景音乐
+            if(isBgMusicEnable){
+                MusicManager.getInstance().reStart();
+            }
+
             // 开始录制
             PreviewRecorder.getInstance()
                     .setRecordType(mCameraParam.mGalleryType == GalleryType.VIDEO ? PreviewRecorder.RecordType.Video : PreviewRecorder.RecordType.Gif)
@@ -653,11 +664,17 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
                     .setRecordSize(width, height)
                     .setOnRecordListener(mRecordListener)
                     .startRecord();
+
+
         }
 
         @Override
         public void onStopRecord() {
             PreviewRecorder.getInstance().stopRecord();
+            //同时判断是否开启背景音乐
+            if(isBgMusicEnable){
+                MusicManager.getInstance().stop();
+            }
         }
 
         @Override

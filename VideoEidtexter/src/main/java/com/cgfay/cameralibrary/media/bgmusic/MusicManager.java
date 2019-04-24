@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
-import android.text.TextUtils;
 
 import static android.content.Context.BIND_AUTO_CREATE;
 
@@ -17,7 +16,7 @@ import static android.content.Context.BIND_AUTO_CREATE;
 public class MusicManager {
 
     private MusicService.MusicBinder mMusicBinder;
-    private String currentUrl ="";
+    private String currentUrl = "";
     private ServiceConnection mServiceConnection;
     private volatile static MusicManager instance;
 
@@ -56,11 +55,13 @@ public class MusicManager {
 
     }
 
-    public void changeAudioPlay(String url) {
-        if (currentUrl.equals(url) || mMusicBinder == null) return;
-        if( mMusicBinder.changeUrl(url)){
+    public boolean changeAudioPlay(String url) {
+        if (currentUrl.equals(url) || mMusicBinder == null) return false;
+        if (mMusicBinder.changeUrl(url)) {
             this.currentUrl = url;
+            return true;
         }
+        return false;
     }
 
     /**
@@ -78,7 +79,17 @@ public class MusicManager {
         }
     }
 
+    public void stop() {
+        if (mMusicBinder != null) {
+            mMusicBinder.stop();
+        }
+    }
 
+    public void reStart(){
+        if (mMusicBinder != null) {
+            mMusicBinder.play();
+        }
+    }
 
 
 }

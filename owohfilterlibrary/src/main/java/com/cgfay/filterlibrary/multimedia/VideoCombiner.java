@@ -182,7 +182,7 @@ public class VideoCombiner {
             if (inAudioTrackIndex < 0) {
                 hasAudio = false;
             }
-            audioExtractor.selectTrack(inAudioTrackIndex);
+
 
             // 如果存在视频轨道和音频轨道都不存在，则合并失败，文件出错
             if (!hasVideo && !hasAudio) {
@@ -191,6 +191,7 @@ public class VideoCombiner {
                 audioExtractor.release();
                 break;
             }
+            audioExtractor.selectTrack(inAudioTrackIndex);
 
             boolean bMediaDone = false;
             long presentationTimeUs = 0L;
