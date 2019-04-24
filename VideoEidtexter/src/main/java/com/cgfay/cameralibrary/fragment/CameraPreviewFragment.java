@@ -3,16 +3,13 @@ package com.cgfay.cameralibrary.fragment;
 import android.Manifest;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.Group;
@@ -21,54 +18,39 @@ import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.cgfay.cameralibrary.R;
-import com.cgfay.cameralibrary.activity.EditextVideoActivity;
 import com.cgfay.cameralibrary.activity.EffectVideoActivity;
 import com.cgfay.cameralibrary.engine.camera.CameraEngine;
 import com.cgfay.cameralibrary.engine.camera.CameraParam;
 import com.cgfay.cameralibrary.engine.camera.SensorControler;
 import com.cgfay.cameralibrary.engine.listener.OnCameraCallback;
-import com.cgfay.cameralibrary.engine.listener.OnCaptureListener;
 import com.cgfay.cameralibrary.engine.listener.OnRecordListener;
-import com.cgfay.cameralibrary.engine.model.AspectRatio;
 import com.cgfay.cameralibrary.engine.model.GalleryType;
 import com.cgfay.cameralibrary.engine.recorder.PreviewRecorder;
 import com.cgfay.cameralibrary.engine.render.PreviewRenderer;
-import com.cgfay.cameralibrary.listener.OnPageOperationListener;
 import com.cgfay.cameralibrary.media.bgmusic.MusicManager;
 import com.cgfay.cameralibrary.media.bgmusic.MusicService;
 import com.cgfay.cameralibrary.utils.PathConstraints;
 import com.cgfay.cameralibrary.widget.AspectFrameLayout;
 import com.cgfay.cameralibrary.widget.CainSurfaceView;
 import com.cgfay.cameralibrary.widget.HorizontalIndicatorView;
-import com.cgfay.cameralibrary.widget.PopupSettingView;
-import com.cgfay.cameralibrary.widget.RatioImageView;
 import com.cgfay.cameralibrary.widget.ShutterButton;
-
-import com.cgfay.filterlibrary.glfilter.color.bean.DynamicColor;
-import com.cgfay.filterlibrary.glfilter.resource.FilterHelper;
-import com.cgfay.filterlibrary.glfilter.resource.ResourceJsonCodec;
 import com.cgfay.filterlibrary.multimedia.VideoCombiner;
 import com.cgfay.utilslibrary.fragment.PermissionConfirmDialogFragment;
 import com.cgfay.utilslibrary.fragment.PermissionErrorDialogFragment;
-import com.cgfay.utilslibrary.utils.BitmapUtils;
 import com.cgfay.utilslibrary.utils.BrightnessUtils;
 import com.cgfay.utilslibrary.utils.PermissionUtils;
 
-import java.io.File;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import static android.content.Context.BIND_AUTO_CREATE;
 
 /**
  * 相机预览页面
@@ -347,13 +329,17 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
         hideFragment(ft);
         if (musicFragment == null) {
             musicFragment = MusicFragment.getInstance();
-            MusicManager.getInstance().startService(mActivity);
+            MusicManager.getInstance().startService(mActivity, bgMusicMediaPlayerLinstener);
             musicFragment.setOnMusicChangeListener(new MusicFragment.OnMusicChangeListener() {
                 @Override
                 public void change(String url) {
-                    Log.e("Harrison", url);
-                    ///这里规定，如果url 为null，就启动麦克风，否则就是背景音乐
+                    Log.e("Harrison", url+"***");
+                    if(TextUtils.isEmpty(url)){
 
+                    }else{
+
+                    }
+                    ///这里规定，如果url 为null，就启动麦克风，否则就是背景音乐
                     MusicManager.getInstance().changeAudioPlay(url);
                 }
             });
@@ -497,8 +483,40 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
 
     }
 
+    /**
+     * *****************************回调函数
+     */
 
-    // ------------------------------- SurfaceView 滑动、点击回调 ----------------------------------
+    /**
+     * 背景 音乐的Service 回调
+     */
+    private MusicService.MediaPlayerLinstener bgMusicMediaPlayerLinstener = new MusicService.MediaPlayerLinstener() {
+        @Override
+        public void onStart(String url) {
+            Log.e("Harrison", "onStart**" + url);
+        }
+
+        @Override
+        public void onFail(String url) {
+            Log.e("Harrison", "onFail**" + url);
+        }
+
+        @Override
+        public void onPrepareFinish() {
+            Log.e("Harrison", "onPrepareFinish**");
+        }
+
+        @Override
+        public void onCompletion() {
+            Log.e("Harrison", "onCompletion**");
+        }
+    };
+
+
+    /**
+     * SurfaceView 滑动、点击回调
+     */
+
     private CainSurfaceView.OnTouchScroller mTouchScroller = new CainSurfaceView.OnTouchScroller() {
 
         @Override
@@ -789,6 +807,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
 
         @Override
         public void onCombineFinished(final boolean success, final String path) {
+            //视频合并后就开始合并音频
             mMainHandler.post(new Runnable() {
                 @Override
                 public void run() {

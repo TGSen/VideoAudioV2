@@ -17,7 +17,7 @@ import static android.content.Context.BIND_AUTO_CREATE;
 public class MusicManager {
 
     private MusicService.MusicBinder mMusicBinder;
-    private String currentUrl;
+    private String currentUrl ="";
     private ServiceConnection mServiceConnection;
     private volatile static MusicManager instance;
 
@@ -37,11 +37,12 @@ public class MusicManager {
     }
 
 
-    public void startService(Context context) {
+    public void startService(Context context, final MusicService.MediaPlayerLinstener linstener) {
         mServiceConnection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 mMusicBinder = (MusicService.MusicBinder) service;
+                mMusicBinder.setMediaPlayerLinstener(linstener);
             }
 
             @Override
@@ -56,9 +57,10 @@ public class MusicManager {
     }
 
     public void changeAudioPlay(String url) {
-        if (TextUtils.isEmpty(url) || url.equals(currentUrl) || mMusicBinder == null) return;
-        this.currentUrl = url;
-        mMusicBinder.changeUrl(url);
+        if (currentUrl.equals(url) || mMusicBinder == null) return;
+        if( mMusicBinder.changeUrl(url)){
+            this.currentUrl = url;
+        }
     }
 
     /**
@@ -75,6 +77,8 @@ public class MusicManager {
             context.unbindService(mServiceConnection);
         }
     }
+
+
 
 
 }

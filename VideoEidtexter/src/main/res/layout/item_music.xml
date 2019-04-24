@@ -7,8 +7,8 @@
 
     <ImageView
         android:id="@+id/resource_thumb"
-        android:layout_width="@dimen/preview_item_size"
-        android:layout_height="@dimen/preview_item_size"
+        android:layout_width="38dp"
+        android:layout_height="38dp"
         android:layout_gravity="center"
         android:scaleType="fitCenter" />
 
@@ -16,6 +16,7 @@
         android:id="@+id/name"
         android:layout_width="@dimen/preview_item_size"
         android:layout_height="@dimen/preview_item_size"
+        android:layout_marginTop="@dimen/dp4"
         android:layout_gravity="center"
         android:textColor="@color/white"
         android:textSize="@dimen/sp14" />

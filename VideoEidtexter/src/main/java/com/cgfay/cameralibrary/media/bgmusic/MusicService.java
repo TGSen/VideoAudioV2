@@ -6,6 +6,7 @@ import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.IOException;
@@ -21,6 +22,8 @@ public class MusicService extends Service {
     private static final String TAG = "MediaService";
     private MusicBinder mBinder = new MusicBinder();
 
+    private MediaPlayerLinstener mediaPlayerLinstener;
+
     //初始化MediaPlayer
     public MediaPlayer mMediaPlayer;
 
@@ -31,16 +34,20 @@ public class MusicService extends Service {
         mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
-                Log.e("Harrison", "onCompletion");
+                if (mediaPlayerLinstener != null) {
+                    mediaPlayerLinstener.onCompletion();
+                }
             }
         });
 
         mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mp) {
+                if (mediaPlayerLinstener != null) {
+                    mediaPlayerLinstener.onPrepareFinish();
+                }
                 mp.start();
                 mp.setLooping(true);
-                Log.e("Harrison", "onPrepared");
             }
         });
     }
@@ -126,17 +133,47 @@ public class MusicService extends Service {
         /**
          * @param url
          */
-        public void changeUrl(String url) {
+        public boolean changeUrl(String url) {
             //获取文件路径
             try {
                 //如果切换音频的时候需要重置一下
+                if (TextUtils.isEmpty(url)) {
+                    if (mediaPlayerLinstener != null) {
+                        mediaPlayerLinstener.onFail(url);
+                        return false;
+                    }
+                }
+
+                if (mediaPlayerLinstener != null) {
+                    mediaPlayerLinstener.onStart(url);
+                }
                 mMediaPlayer.reset();
                 mMediaPlayer.setDataSource(url);
                 mMediaPlayer.prepareAsync();
             } catch (IOException e) {
-                Log.e("Harrison", "");
                 e.printStackTrace();
+                return false;
             }
+            return true;
         }
+
+        public void setMediaPlayerLinstener(MediaPlayerLinstener linstener) {
+            mediaPlayerLinstener = linstener;
+        }
+
+
+    }
+
+    /**
+     * 通过接口回调，通知Activity
+     */
+    public interface MediaPlayerLinstener {
+        void onStart(String url);
+
+        void onFail(String url);
+
+        void onPrepareFinish();
+
+        void onCompletion();
     }
 }

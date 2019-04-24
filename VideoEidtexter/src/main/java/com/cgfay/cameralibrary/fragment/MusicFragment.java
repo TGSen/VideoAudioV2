@@ -94,14 +94,22 @@ public class MusicFragment extends Fragment {
     }
 
     private void initMusicData() {
+        ItemMusic noMusic = new ItemMusic();
+        noMusic.setName("默认无");
+        noMusic.setThumbPath("assets://thumbs/camera/camera_style_3.png");
+        mResourceData.add(noMusic);
+
         ItemMusic itemMusic = new ItemMusic();
         itemMusic.setName("玛丽婚礼Music");
         String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download/test2.mp3";
+        itemMusic.setThumbPath("assets://thumbs/camera/camera_style_3.png");
         itemMusic.setPath(path);
         mResourceData.add(itemMusic);
 
         ItemMusic itemMusic1 = new ItemMusic();
         itemMusic1.setName("企业音乐");
+        itemMusic1.setThumbPath("assets://thumbs/camera/camera_style_3.png");
+
         String path2 = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download/test.mp3";
         itemMusic1.setPath(path2);
         mResourceData.add(itemMusic1);

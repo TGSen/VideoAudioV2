@@ -12,6 +12,16 @@ public class ItemMusic {
 
     private String name;
 
+    private String thumbPath;
+
+    public String getThumbPath() {
+        return thumbPath;
+    }
+
+    public void setThumbPath(String thumbPath) {
+        this.thumbPath = thumbPath;
+    }
+
     public String getPath() {
         return path;
     }
