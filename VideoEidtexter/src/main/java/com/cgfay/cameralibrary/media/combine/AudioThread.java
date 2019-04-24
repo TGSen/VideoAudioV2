@@ -19,6 +19,16 @@ public class AudioThread extends Thread implements IAudioVideo {
     private String audioPath;
     private MediaExtractor audioExtractor;
     private MediaMuxer mediaMuxer;
+    private long mAudioTime ;
+
+    public long getAudioTime() {
+        return mAudioTime;
+    }
+
+    public void setAudioTime(long mAudioTime) {
+        this.mAudioTime = mAudioTime;
+    }
+
 
     private VideoAudioCombine.VideAudioCombineListener videAudioCombineListener;
     private int writeAudioTrackIndex;
@@ -34,7 +44,6 @@ public class AudioThread extends Thread implements IAudioVideo {
     }
 
 
-
     public MediaMuxer getMediaMuxer() {
         return mediaMuxer;
     }
@@ -45,25 +54,30 @@ public class AudioThread extends Thread implements IAudioVideo {
     }
 
 
-
-
-
     @Override
     public void init() throws IOException {
         audioExtractor = new MediaExtractor();
+        Log.e("Harrison", "audio path:" + audioPath);
         audioExtractor.setDataSource(audioPath);
         int audioTrackCount = audioExtractor.getTrackCount();
         for (int i = 0; i < audioTrackCount; i++) {
             MediaFormat format = audioExtractor.getTrackFormat(i);
             String mimeType = format.getString(MediaFormat.KEY_MIME);
+            Log.e("Harrison","mimeType:"+mimeType);
             if (mimeType.startsWith("audio/")) {
                 audioTrackIndex = i;
                 break;
             }
         }
-
-        writeAudioTrackIndex = mediaMuxer.addTrack(audioExtractor.getTrackFormat(audioTrackIndex));
-        Log.e("Harrison","writeAudioTrackIndex"+writeAudioTrackIndex+"--"+writeAudioTrackIndex);
+        /**
+         * 目前不知道mp3 中的mpeg  ,测试AAC 是可行的
+         */
+        if (audioTrackIndex >=0) {
+            writeAudioTrackIndex = mediaMuxer.addTrack(audioExtractor.getTrackFormat(audioTrackIndex));
+            Log.e("Harrison", "writeAudioTrackIndex" + writeAudioTrackIndex + "--" + writeAudioTrackIndex);
+        } else {
+            Log.e("Harrison", "oooo writeAudioTrackIndex" + writeAudioTrackIndex + "--" + writeAudioTrackIndex);
+        }
     }
 
     public void prepare() throws IOException {
@@ -87,7 +101,7 @@ public class AudioThread extends Thread implements IAudioVideo {
                 break;
             }
             audioBufferInfo.size = readAudioSampleSize;
-            audioBufferInfo.presentationTimeUs = audioExtractor.getSampleTime() ;
+            audioBufferInfo.presentationTimeUs = audioExtractor.getSampleTime();
             audioBufferInfo.offset = 0;
             audioBufferInfo.flags = audioExtractor.getSampleFlags();
             mediaMuxer.writeSampleData(writeAudioTrackIndex, byteBuffer, audioBufferInfo);

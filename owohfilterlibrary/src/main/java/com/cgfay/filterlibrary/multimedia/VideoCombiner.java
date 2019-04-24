@@ -43,18 +43,19 @@ public class VideoCombiner {
 
         /**
          * 合并过程
+         *
          * @param current 当前合并的视频
-         * @param sum   合并视频总数
+         * @param sum     合并视频总数
          */
         void onCombineProcessing(int current, int sum);
 
         /**
          * 合并结束
-         * @param success   是否合并成功
+         *
+         * @param success 是否合并成功
          */
-        void onCombineFinished(boolean success,String path);
+        void onCombineFinished(boolean success, String path);
     }
-
 
 
     public VideoCombiner(List<String> videoList, String destPath, CombineListener listener) {
@@ -66,6 +67,7 @@ public class VideoCombiner {
 
     /**
      * 合并视频
+     *
      * @return
      */
     @SuppressLint("WrongConstant")
@@ -75,15 +77,14 @@ public class VideoCombiner {
         Iterator videoIterator = mVideoList.iterator();
 
 
-
         // 开始合并
         if (mCombineListener != null) {
             mCombineListener.onCombineStart();
         }
         //如果只有一个视频就不用合并了，直接就是之前录制那个
-        if(mVideoList!=null && mVideoList.size()==1){
-            Log.e("Harrison","onCombineFinished:"+mVideoList.get(0));
-            mCombineListener.onCombineFinished(true,mVideoList.get(0));
+        if (mVideoList != null && mVideoList.size() == 1) {
+            Log.e("Harrison", "onCombineFinished:" + mVideoList.get(0));
+            mCombineListener.onCombineFinished(true, mVideoList.get(0));
             return;
         }
 
@@ -100,7 +101,7 @@ public class VideoCombiner {
             int trackIndex;
             if (!hasVideoFormat) {
                 trackIndex = selectTrack(extractor, "video/");
-                if(trackIndex < 0) {
+                if (trackIndex < 0) {
                     Log.e(TAG, "No video track found in " + videoPath);
                 } else {
                     extractor.selectTrack(trackIndex);
@@ -111,7 +112,7 @@ public class VideoCombiner {
 
             if (!hasAudioFormat) {
                 trackIndex = selectTrack(extractor, "audio/");
-                if(trackIndex < 0) {
+                if (trackIndex < 0) {
                     Log.e(TAG, "No audio track found in " + videoPath);
                 } else {
                     extractor.selectTrack(trackIndex);
@@ -166,7 +167,7 @@ public class VideoCombiner {
                 e.printStackTrace();
             }
             int inVideoTrackIndex = selectTrack(videoExtractor, "video/");
-            if(inVideoTrackIndex < 0) {
+            if (inVideoTrackIndex < 0) {
                 hasVideo = false;
             }
             videoExtractor.selectTrack(inVideoTrackIndex);
@@ -181,6 +182,8 @@ public class VideoCombiner {
             int inAudioTrackIndex = selectTrack(audioExtractor, "audio/");
             if (inAudioTrackIndex < 0) {
                 hasAudio = false;
+            } else {
+                audioExtractor.selectTrack(inAudioTrackIndex);
             }
 
 
@@ -191,7 +194,6 @@ public class VideoCombiner {
                 audioExtractor.release();
                 break;
             }
-            audioExtractor.selectTrack(inAudioTrackIndex);
 
             boolean bMediaDone = false;
             long presentationTimeUs = 0L;
@@ -200,7 +202,7 @@ public class VideoCombiner {
 
             while (!bMediaDone) {
                 // 判断是否存在音视频
-                if(!hasVideo && !hasAudio) {
+                if (!hasVideo && !hasAudio) {
                     break;
                 }
 
@@ -304,22 +306,23 @@ public class VideoCombiner {
 
         // 合并结束
         if (mCombineListener != null) {
-            Log.e("Harrison","onCombineFinished:"+mDestPath);
-            mCombineListener.onCombineFinished(combineResult,mDestPath);
+            Log.e("Harrison", "onCombineFinished:" + mDestPath);
+            mCombineListener.onCombineFinished(combineResult, mDestPath);
         }
     }
 
     /**
-     *  选择轨道
-     * @param extractor     MediaExtractor
-     * @param mimePrefix    音轨还是视轨
+     * 选择轨道
+     *
+     * @param extractor  MediaExtractor
+     * @param mimePrefix 音轨还是视轨
      * @return
      */
     private int selectTrack(MediaExtractor extractor, String mimePrefix) {
         // 获取轨道总数
         int numTracks = extractor.getTrackCount();
         // 遍历查找包含mimePrefix的轨道
-        for(int i = 0; i < numTracks; ++i) {
+        for (int i = 0; i < numTracks; ++i) {
             MediaFormat format = extractor.getTrackFormat(i);
             String mime = format.getString("mime");
             if (mime.startsWith(mimePrefix)) {

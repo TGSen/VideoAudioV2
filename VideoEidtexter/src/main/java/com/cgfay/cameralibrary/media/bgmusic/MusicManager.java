@@ -85,7 +85,7 @@ public class MusicManager {
         }
     }
 
-    public void reStart(){
+    public void reStart() {
         if (mMusicBinder != null) {
             mMusicBinder.play();
         }

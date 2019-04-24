@@ -37,6 +37,7 @@ import com.cgfay.cameralibrary.engine.recorder.PreviewRecorder;
 import com.cgfay.cameralibrary.engine.render.PreviewRenderer;
 import com.cgfay.cameralibrary.media.bgmusic.MusicManager;
 import com.cgfay.cameralibrary.media.bgmusic.MusicService;
+import com.cgfay.cameralibrary.media.combine.VideoAudioCombine;
 import com.cgfay.cameralibrary.utils.PathConstraints;
 import com.cgfay.cameralibrary.widget.AspectFrameLayout;
 import com.cgfay.cameralibrary.widget.CainSurfaceView;
@@ -48,6 +49,7 @@ import com.cgfay.utilslibrary.fragment.PermissionErrorDialogFragment;
 import com.cgfay.utilslibrary.utils.BrightnessUtils;
 import com.cgfay.utilslibrary.utils.PermissionUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -123,8 +125,6 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
     private Group mGroupViewTop;
     private Group mGroupViewBottom;
     private SensorControler mSensorControler;
-    //是否启动背景音乐，
-    private boolean isBgMusicEnable;
 
 
     public CameraPreviewFragment() {
@@ -333,17 +333,18 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
         if (musicFragment == null) {
             musicFragment = MusicFragment.getInstance();
             MusicManager.getInstance().startService(mActivity, bgMusicMediaPlayerLinstener);
+            VideoAudioCombine.getInstance().setVideoAudioCombineStateListener(mVideoAudioCombineStateListener);
             musicFragment.setOnMusicChangeListener(new MusicFragment.OnMusicChangeListener() {
                 @Override
                 public void change(String url) {
                     Log.e("Harrison", url + "***");
                     ///这里规定，如果url 为null，就启动麦克风，否则就是背景音乐
                     if (MusicManager.getInstance().changeAudioPlay(url)) {
-                        isBgMusicEnable = true;
+                        VideoAudioCombine.getInstance().setBgMusicEnable(true).setAudioPath(url);
                         PreviewRecorder.getInstance().enableAudio(false);
                     } else {
                         PreviewRecorder.getInstance().enableAudio(true);
-                        isBgMusicEnable = false;
+                        VideoAudioCombine.getInstance().setBgMusicEnable(false);
                     }
                 }
             });
@@ -492,6 +493,36 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
     /**
      * *****************************回调函数
      */
+
+    private VideoAudioCombine.VideoAudioCombineStateListener mVideoAudioCombineStateListener = new VideoAudioCombine.VideoAudioCombineStateListener() {
+        @Override
+        public void success(final String combimePath) {
+            Log.e("Harrison", "combimePath" + combimePath);
+            //视频合并后就开始合并音频
+            mMainHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    if (mCombineDialog != null) {
+                        mCombineDialog.dismiss();
+                        mCombineDialog = null;
+
+                        EffectVideoActivity.gotoThis(mActivity, combimePath);
+
+                    }
+                }
+            });
+        }
+
+        @Override
+        public void fail() {
+            Log.e("Harrison", "combine avdio onFail**");
+        }
+
+        @Override
+        public void start() {
+            Log.e("Harrison", "combine avdio start**");
+        }
+    };
 
     /**
      * 背景 音乐的Service 回调
@@ -642,7 +673,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
 
             // 是否允许录制音频
             boolean enableAudio = mCameraParam.audioPermitted && mCameraParam.recordAudio
-                    && mCameraParam.mGalleryType == GalleryType.VIDEO && !isBgMusicEnable;
+                    && mCameraParam.mGalleryType == GalleryType.VIDEO && !VideoAudioCombine.getInstance().isBgMusicEnable();
 
             // 计算输入纹理的大小
             int width = mCameraParam.previewWidth;
@@ -652,7 +683,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
                 height = mCameraParam.previewWidth;
             }
             //同时判断是否开启背景音乐
-            if(isBgMusicEnable){
+            if (VideoAudioCombine.getInstance().isBgMusicEnable()) {
                 MusicManager.getInstance().reStart();
             }
 
@@ -672,7 +703,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
         public void onStopRecord() {
             PreviewRecorder.getInstance().stopRecord();
             //同时判断是否开启背景音乐
-            if(isBgMusicEnable){
+            if (VideoAudioCombine.getInstance().isBgMusicEnable()) {
                 MusicManager.getInstance().stop();
             }
         }
@@ -824,20 +855,11 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
 
         @Override
         public void onCombineFinished(final boolean success, final String path) {
-            //视频合并后就开始合并音频
-            mMainHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    if (mCombineDialog != null) {
-                        mCombineDialog.dismiss();
-                        mCombineDialog = null;
-                        if (success) {
-                            EffectVideoActivity.gotoThis(mActivity, path);
-                        }
-                    }
-                }
-            });
-
+            //视频合并后，根据当前是不是有bgMusic ,如果有那就合并
+            if (success) {
+                String avdio = new File(path).getParentFile().getAbsolutePath() + "/Combine.mp4";
+                VideoAudioCombine.getInstance().setVideoPath(path).setCombinePath(avdio).prepare().startCombine();
+            }
         }
     };
 

@@ -26,10 +26,38 @@ public class VideoAudioCombine {
     private boolean isAudioEnd;
     private boolean isVideoEnd;
 
+    private boolean isBgMusicEnable;
+
+    private volatile static VideoAudioCombine instance;
+
+    private VideoAudioCombine() {
+    }
+
+    public static VideoAudioCombine getInstance() {
+        if (instance == null) {
+            synchronized (VideoAudioCombine.class) {
+                if (instance == null) {
+                    instance = new VideoAudioCombine();
+                }
+            }
+        }
+        return instance;
+    }
+
+    public boolean isBgMusicEnable() {
+        return isBgMusicEnable;
+    }
+
+    public VideoAudioCombine setBgMusicEnable(boolean bgMusicEnable) {
+        isBgMusicEnable = bgMusicEnable;
+        return this;
+    }
+
     private VideoAudioCombineStateListener mVideoAudioCombineStateListener;
 
-    public void setVideoAudioCombineStateListener(VideoAudioCombineStateListener listener) {
+    public VideoAudioCombine setVideoAudioCombineStateListener(VideoAudioCombineStateListener listener) {
         this.mVideoAudioCombineStateListener = listener;
+        return this;
     }
 
 
@@ -61,17 +89,17 @@ public class VideoAudioCombine {
     }
 
 
-    public void prepare() {
+    public VideoAudioCombine prepare() {
         try {
             mediaMuxer = new MediaMuxer(combinePath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
             File videoFile = new File(videoPath);
             if (!videoFile.canRead()) {
-                return;
+                return this;
             }
 
             File audioFile = new File(audioPath);
             if (!audioFile.canRead()) {
-                return;
+                return this;
             }
             VideAudioCombineListener videAudioCombineListener = new VideAudioCombineListener() {
                 @Override
@@ -108,6 +136,7 @@ public class VideoAudioCombine {
                 mediaMuxer.release();
             }
         }
+        return this;
     }
 
     private void combineEnd() {

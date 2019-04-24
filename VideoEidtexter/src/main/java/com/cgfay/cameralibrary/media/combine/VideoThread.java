@@ -42,8 +42,6 @@ public class VideoThread extends Thread implements IAudioVideo {
     }
 
 
-
-
     @Override
     public void init() throws IOException {
         videoExtractor = new MediaExtractor();
@@ -107,8 +105,7 @@ public class VideoThread extends Thread implements IAudioVideo {
             videoExtractor.release();
         }
 
-        if(byteBuffer!=null){
-            byteBuffer.reset();
+        if (byteBuffer != null) {
             byteBuffer = null;
         }
     }
