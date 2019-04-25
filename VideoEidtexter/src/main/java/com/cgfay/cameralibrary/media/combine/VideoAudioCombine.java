@@ -154,7 +154,9 @@ public class VideoAudioCombine {
     public void startCombine() {
         if (mVideoAudioCombineStateListener != null) mVideoAudioCombineStateListener.start();
         if (videoThread != null && audioThread != null) {
+
             videoThread.start();
+            audioThread.setVideoTime(videoThread.getDuration());
             audioThread.start();
         } else {
             if (mVideoAudioCombineStateListener != null) mVideoAudioCombineStateListener.fail();

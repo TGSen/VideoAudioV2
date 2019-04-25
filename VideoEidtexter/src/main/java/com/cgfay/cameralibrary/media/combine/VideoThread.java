@@ -25,6 +25,12 @@ public class VideoThread extends Thread implements IAudioVideo {
 
     private VideoAudioCombine.VideAudioCombineListener videAudioCombineListener;
     private int writeVideoTrackIndex;
+    private long duration;
+
+    public long getDuration() {
+        return duration;
+    }
+
 
     public String getVideoPath() {
         return videoPath;
@@ -55,8 +61,20 @@ public class VideoThread extends Thread implements IAudioVideo {
                 break;
             }
         }
-        writeVideoTrackIndex = mediaMuxer.addTrack(videoExtractor.getTrackFormat(videoTrackIndex));
-        Log.e("Harrison", "writeVideoTrackIndex" + writeVideoTrackIndex + "--" + videoTrackIndex);
+
+        MediaFormat mediaFormat = videoExtractor.getTrackFormat(videoTrackIndex);
+        duration = mediaFormat.getLong(MediaFormat.KEY_DURATION);
+        writeVideoTrackIndex = mediaMuxer.addTrack(mediaFormat);
+        Log.e("Harrison", "writeVideoTrackIndex" + writeVideoTrackIndex + "--" + videoTrackIndex+"***"+duration);
+    }
+
+    /**
+     * 合并前做些准备
+     */
+    @Override
+    public void startCombinePrepare() {
+
+
     }
 
     public void prepare() throws IOException {
@@ -68,6 +86,7 @@ public class VideoThread extends Thread implements IAudioVideo {
 
     @Override
     public void run() {
+        startCombinePrepare();
         startCombine();
     }
 
@@ -104,7 +123,6 @@ public class VideoThread extends Thread implements IAudioVideo {
         if (videoExtractor != null) {
             videoExtractor.release();
         }
-
         if (byteBuffer != null) {
             byteBuffer = null;
         }

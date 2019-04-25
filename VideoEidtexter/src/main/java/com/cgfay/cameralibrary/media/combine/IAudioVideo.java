@@ -11,6 +11,11 @@ public interface IAudioVideo {
     //初始化
     void init() throws IOException;
 
+    /**
+     * 合并前做些准备
+     */
+    void startCombinePrepare();
+
     //开始合并
     void startCombine();
 

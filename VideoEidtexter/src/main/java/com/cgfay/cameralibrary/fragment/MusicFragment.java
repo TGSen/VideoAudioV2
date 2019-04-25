@@ -120,6 +120,21 @@ public class MusicFragment extends Fragment {
         String path3 = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download/testmp.mp3";
         itemMusic3.setPath(path3);
         mResourceData.add(itemMusic3);
+
+        ItemMusic itemMusic4 = new ItemMusic();
+        itemMusic4.setName("长音乐");
+        itemMusic4.setThumbPath("assets://thumbs/camera/camera_style_3.png");
+        String path4 = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download/test8.mp3";
+        itemMusic4.setPath(path4);
+        mResourceData.add(itemMusic4);
+
+        ItemMusic itemMusic5 = new ItemMusic();
+        itemMusic5.setName("短音乐");
+        itemMusic5.setThumbPath("assets://thumbs/camera/camera_style_3.png");
+        String path5 = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download/test7.mp3";
+        itemMusic5.setPath(path5);
+        mResourceData.add(itemMusic5);
+
         musicAdapter.notifyDataSetChanged();
     }
 
