@@ -182,7 +182,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
      */
     private void initView(View view) {
         mAspectLayout = view.findViewById(R.id.layout_aspect);
-        mAspectLayout.setAspectRatio(mCameraParam.currentRatio);
+     //   mAspectLayout.setAspectRatio(mCameraParam.currentRatio);
         mCameraSurfaceView = new CainSurfaceView(mActivity);
         mCameraSurfaceView.addOnTouchScroller(mTouchScroller);
         mCameraSurfaceView.addMultiClickListener(mMultiClickListener);

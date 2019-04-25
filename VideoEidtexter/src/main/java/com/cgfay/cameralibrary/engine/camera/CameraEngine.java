@@ -56,6 +56,17 @@ public class CameraEngine {
         openCamera(context, CameraParam.getInstance().cameraId, expectFps, width, height);
     }
 
+
+    /**
+     * 根据SurfaceView 宽高来设置
+     * @param context
+     * @param surfaceWidth
+     * @param surfaceHeight
+     */
+    public void openCamera(Context context,int surfaceWidth,int surfaceHeight){
+        openCamera(context, CameraParam.getInstance().cameraId, CameraParam.DESIRED_PREVIEW_FPS, surfaceWidth, surfaceHeight);
+    }
+
     /**
      * 打开相机
      * @param context

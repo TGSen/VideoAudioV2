@@ -4,33 +4,20 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.cgfay.cameralibrary.R;
 import com.cgfay.cameralibrary.adapter.MusicAdapter;
-import com.cgfay.cameralibrary.adapter.PreviewResourceAdapter;
-import com.cgfay.cameralibrary.engine.render.PreviewRenderer;
 import com.cgfay.cameralibrary.media.VideoRenderer;
 import com.cgfay.cameralibrary.media.bgmusic.ItemMusic;
-import com.cgfay.filterlibrary.glfilter.color.bean.DynamicColor;
-import com.cgfay.filterlibrary.glfilter.resource.ResourceHelper;
-import com.cgfay.filterlibrary.glfilter.resource.ResourceJsonCodec;
-import com.cgfay.filterlibrary.glfilter.resource.bean.ResourceData;
-import com.cgfay.filterlibrary.glfilter.resource.bean.ResourceType;
-import com.cgfay.filterlibrary.glfilter.stickers.bean.DynamicSticker;
 
-import java.io.File;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
 

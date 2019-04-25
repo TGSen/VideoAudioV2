@@ -378,6 +378,7 @@ public class RenderThread extends HandlerThread implements SurfaceTexture.OnFram
     void openCamera() {
         releaseCamera();
         CameraEngine.getInstance().openCamera(mContext);
+//        CameraEngine.getInstance().openCamera(mContext,mTextureWidth,mTextureHeight);
         CameraEngine.getInstance().setPreviewSurface(mSurfaceTexture);
         calculateImageSize();
         mPreviewBuffer = new byte[mTextureWidth * mTextureHeight * 3 / 2];
