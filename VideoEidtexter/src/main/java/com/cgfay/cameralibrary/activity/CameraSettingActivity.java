@@ -64,8 +64,7 @@ public class CameraSettingActivity extends AppCompatActivity {
     };
 
     private void processSelectWatermark() {
-        Intent intent = new Intent(CameraSettingActivity.this, WatermarkActivity.class);
-        startActivity(intent);
+
     }
 
     private void processShowFacePoints() {

@@ -11,6 +11,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -45,6 +46,8 @@ import com.cgfay.cameralibrary.media.VideoRenderThread;
 import com.cgfay.cameralibrary.media.VideoRenderer;
 import com.cgfay.cameralibrary.media.bean.VideoEffect;
 import com.cgfay.cameralibrary.media.bean.VideoEffectType;
+import com.cgfay.cameralibrary.media.surface.EncodeDecodeSurface;
+import com.cgfay.cameralibrary.media.surface.OffSVideoRenderManager;
 import com.cgfay.cameralibrary.utils.ImageBlur;
 import com.cgfay.cameralibrary.widget.ColorPickerView;
 import com.cgfay.cameralibrary.widget.SpaceItemDecoration;
@@ -166,6 +169,18 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
         // 绑定需要渲染的SurfaceView
         mVideoRenderer.setSurfaceView(mVideoPreviewView);
 
+        EncodeDecodeSurface test = new EncodeDecodeSurface();
+        String outputPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download/out.mp4";
+        test.setVideoPath(videoPath, outputPath);
+        //初始化渲染的管理
+        OffSVideoRenderManager.getInstance().init(this.getApplicationContext());
+        try {
+            test.testEncodeDecodeSurface();
+        } catch (Throwable a) {
+            a.printStackTrace();
+            Log.e("Harrison", a.getLocalizedMessage());
+        }
+
         EXECUTOR.execute(new Runnable() {
             @Override
             public void run() {
@@ -253,6 +268,8 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
         tvTotalTime = findViewById(R.id.totalTime);
         tvStartTime = findViewById(R.id.startTime);
         mVideoPlayStatus = findViewById(R.id.imgVideo);
+        ImageView imgNext = findViewById(R.id.imgNext);
+        imgNext.setOnClickListener(this);
         mVideoPlayStatus.setVisibility(View.GONE);
         btSave = findViewById(R.id.btSave);
         btCloseImag = findViewById(R.id.btCloseImag);
@@ -601,6 +618,10 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
             case R.id.btVoiceAdjust:
                 showVoiceAdjust();
                 break;
+            case R.id.imgNext:
+                //再次渲染特效成mp4
+
+                break;
 
 
         }
@@ -618,13 +639,13 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
 
                 @Override
                 public void origiVoiceChange(float progress) {
-                    Log.e("Harrison","origiVoiceChange"+progress);
+                    Log.e("Harrison", "origiVoiceChange" + progress);
                     mVideoRenderer.changeVideoVoice(progress);
                 }
 
                 @Override
                 public void bgmVoiceChange(float progres) {
-                    Log.e("Harrison","bgmVoiceChange");
+                    Log.e("Harrison", "bgmVoiceChange");
                 }
             });
         } else {

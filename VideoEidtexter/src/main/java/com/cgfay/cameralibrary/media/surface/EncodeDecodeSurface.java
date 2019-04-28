@@ -79,8 +79,6 @@ public class EncodeDecodeSurface {
      */
     private void prepare() throws IOException {
         try {
-
-
             File file = new File(videoPath);
             if (!file.canRead()) {
                 return;

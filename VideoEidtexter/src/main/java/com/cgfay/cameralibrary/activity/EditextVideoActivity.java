@@ -7,6 +7,7 @@ import android.os.Environment;
 import android.support.constraint.Group;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -18,6 +19,7 @@ import com.cgfay.cameralibrary.fragment.PreviewFiltersFragment;
 import com.cgfay.cameralibrary.media.VideoRenderer;
 import com.cgfay.cameralibrary.media.bean.VideoEffectType;
 import com.cgfay.cameralibrary.media.surface.EncodeDecodeSurface;
+import com.cgfay.cameralibrary.media.surface.OffSVideoRenderManager;
 import com.cgfay.cameralibrary.widget.VideoPreviewView;
 
 /**
@@ -67,11 +69,13 @@ public class EditextVideoActivity extends AppCompatActivity implements View.OnCl
         String outputPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download/out.mp4";
         test.setVideoPath(videoPath, outputPath);
         //初始化渲染的管理
-        //  OffSVideoRenderManager.getInstance().init(this.getApplicationContext());
+          OffSVideoRenderManager.getInstance().init(this.getApplicationContext());
         try {
+            Log.e("Harrison","testEncodeDecodeSurface");
             test.testEncodeDecodeSurface();
         } catch (Throwable a) {
             a.printStackTrace();
+            Log.e("Harrison","a"+a.getLocalizedMessage());
         }
     }
 

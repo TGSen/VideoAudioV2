@@ -54,6 +54,10 @@ public class CodecOutputSurface implements SurfaceTexture.OnFrameAvailableListen
         setSurfaceCreated();
         GLES30.glDisable(GLES30.GL_DEPTH_TEST);
         GLES30.glDisable(GLES30.GL_CULL_FACE);
+
+        /**
+         * 渲染器
+         */
         OffSVideoRenderManager.getInstance().setTextureSize(width, height);
         OffSVideoRenderManager.getInstance().setDisplaySize(width, height);
 
@@ -267,10 +271,10 @@ public class CodecOutputSurface implements SurfaceTexture.OnFrameAvailableListen
      * @param invert if set, render the image with Y inverted (0,0 in top left)
      */
     public void drawImage(boolean invert) {
-//          mTextureRender.drawFrame(mSurfaceTexture, invert);
-        mSurfaceTexture.getTransformMatrix(mMatrix);
+          mTextureRender.drawFrame(mSurfaceTexture, invert);
+//        mSurfaceTexture.getTransformMatrix(mMatrix);
 //        // 绘制渲染
-        OffSVideoRenderManager.getInstance().drawFrame(mInputTexture, mMatrix);
+//        OffSVideoRenderManager.getInstance().drawFrame(mInputTexture, mMatrix);
 
     }
 
