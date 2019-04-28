@@ -157,7 +157,6 @@ public class RenderThread extends HandlerThread implements SurfaceTexture.OnFram
         mSurfaceTexture = new SurfaceTexture(mInputTexture);
         mSurfaceTexture.setOnFrameAvailableListener(this);
 
-        // 打开相机
         openCamera();
         //初始化
         SensorControler.getInstance().init(mContext);
@@ -171,8 +170,13 @@ public class RenderThread extends HandlerThread implements SurfaceTexture.OnFram
      */
     void surfaceChanged(int width, int height) {
         mRenderManager.setDisplaySize(width, height);
+//        mTextureWidth = width;
+//        mTextureHeight = height;
+      //  openCamera();
+       // cameraSetting();
         startPreview();
     }
+
 
     /**
      * Surface销毁
@@ -372,12 +376,17 @@ public class RenderThread extends HandlerThread implements SurfaceTexture.OnFram
 
     // --------------------------------- 相机操作逻辑 ----------------------------------------------
 
+    private void cameraSetting(){
+      //  CameraEngine.getInstance().cameraSetting(mContext,mTextureWidth,mTextureHeight);
+    }
+
     /**
      * 打开相机
      */
     void openCamera() {
         releaseCamera();
         CameraEngine.getInstance().openCamera(mContext);
+        Log.e("Harrison","****"+mTextureWidth+"****"+mTextureHeight);
 //        CameraEngine.getInstance().openCamera(mContext,mTextureWidth,mTextureHeight);
         CameraEngine.getInstance().setPreviewSurface(mSurfaceTexture);
         calculateImageSize();
