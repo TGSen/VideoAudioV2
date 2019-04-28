@@ -5,9 +5,11 @@ import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.opengl.GLES30;
 import android.os.HandlerThread;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
+import android.view.WindowManager;
 
 import com.cgfay.cameralibrary.engine.camera.CameraEngine;
 import com.cgfay.cameralibrary.engine.camera.CameraParam;
@@ -19,6 +21,7 @@ import com.cgfay.filterlibrary.glfilter.color.bean.DynamicColor;
 import com.cgfay.filterlibrary.glfilter.resource.bean.ResourceType;
 import com.cgfay.filterlibrary.glfilter.stickers.bean.DynamicSticker;
 import com.cgfay.filterlibrary.glfilter.utils.OpenGLUtils;
+import com.cgfay.utilslibrary.utils.DensityUtils;
 
 import java.nio.ByteBuffer;
 
@@ -272,13 +275,13 @@ public class RenderThread extends HandlerThread implements SurfaceTexture.OnFram
      * 计算imageView 的宽高
      */
     private void calculateImageSize() {
-        if (mCameraParam.orientation == 90 || mCameraParam.orientation == 270) {
-            mTextureWidth = mCameraParam.previewHeight;
-            mTextureHeight = mCameraParam.previewWidth;
-        } else {
-            mTextureWidth = mCameraParam.previewWidth;
-            mTextureHeight = mCameraParam.previewHeight;
-        }
+//        if (mCameraParam.orientation == 90 || mCameraParam.orientation == 270) {
+//            mTextureWidth = mCameraParam.previewHeight;
+//            mTextureHeight = mCameraParam.previewWidth;
+//        } else {
+//            mTextureWidth = mCameraParam.previewWidth;
+//            mTextureHeight = mCameraParam.previewHeight;
+//        }
         mRenderManager.setTextureSize(mTextureWidth, mTextureHeight);
     }
 
@@ -385,7 +388,12 @@ public class RenderThread extends HandlerThread implements SurfaceTexture.OnFram
      */
     void openCamera() {
         releaseCamera();
-        CameraEngine.getInstance().openCamera(mContext);
+        WindowManager wm = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
+        DisplayMetrics dm = new DisplayMetrics();
+        wm.getDefaultDisplay().getMetrics(dm);
+        mTextureWidth = dm.widthPixels;
+        mTextureHeight = dm.heightPixels;
+        CameraEngine.getInstance().openCamera(mContext,mTextureWidth,mTextureHeight);
         Log.e("Harrison","****"+mTextureWidth+"****"+mTextureHeight);
 //        CameraEngine.getInstance().openCamera(mContext,mTextureWidth,mTextureHeight);
         CameraEngine.getInstance().setPreviewSurface(mSurfaceTexture);

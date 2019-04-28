@@ -182,7 +182,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
      */
     private void initView(View view) {
         mAspectLayout = view.findViewById(R.id.layout_aspect);
-     //   mAspectLayout.setAspectRatio(mCameraParam.currentRatio);
+        //   mAspectLayout.setAspectRatio(mCameraParam.currentRatio);
         mCameraSurfaceView = new CainSurfaceView(mActivity);
         mCameraSurfaceView.addOnTouchScroller(mTouchScroller);
         mCameraSurfaceView.addMultiClickListener(mMultiClickListener);
@@ -494,23 +494,40 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
      * *****************************回调函数
      */
 
+    private void gotoEffectVideo(final String combimePath) {
+        //视频合并后就开始合并音频
+        mMainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                if (mCombineDialog != null) {
+                    mCombineDialog.dismiss();
+                    mCombineDialog = null;
+
+                    EffectVideoActivity.gotoThis(mActivity, combimePath);
+
+                }
+            }
+        });
+    }
+
+    private void combineAudioVideoFail() {
+        //视频合并后就开始合并音频
+        mMainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                if (mCombineDialog != null) {
+                    mCombineDialog.dismiss();
+                    mCombineDialog = null;
+                }
+            }
+        });
+    }
+
     private VideoAudioCombine.VideoAudioCombineStateListener mVideoAudioCombineStateListener = new VideoAudioCombine.VideoAudioCombineStateListener() {
         @Override
         public void success(final String combimePath) {
             Log.e("Harrison", "combimePath" + combimePath);
-            //视频合并后就开始合并音频
-            mMainHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    if (mCombineDialog != null) {
-                        mCombineDialog.dismiss();
-                        mCombineDialog = null;
-
-                        EffectVideoActivity.gotoThis(mActivity, combimePath);
-
-                    }
-                }
-            });
+            gotoEffectVideo(combimePath);
         }
 
         @Override
@@ -857,11 +874,20 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
         public void onCombineFinished(final boolean success, final String path) {
             //视频合并后，根据当前是不是有bgMusic ,如果有那就合并
             if (success) {
-                String avdio = new File(path).getParentFile().getAbsolutePath() + "/Combine.mp4";
-                VideoAudioCombine.getInstance().setVideoPath(path).setCombinePath(avdio).prepare().startCombine();
+                if (VideoAudioCombine.getInstance().isBgMusicEnable()) {
+                    //去合并背景音乐
+                    String avdio = new File(path).getParentFile().getAbsolutePath() + "/Combine.mp4";
+                    VideoAudioCombine.getInstance().setVideoPath(path).setCombinePath(avdio).prepare().startCombine();
+                } else {
+                    gotoEffectVideo(path);
+                }
+
+            } else {
+                combineAudioVideoFail();
             }
         }
     };
+
 
     /**
      * 请求相机权限
