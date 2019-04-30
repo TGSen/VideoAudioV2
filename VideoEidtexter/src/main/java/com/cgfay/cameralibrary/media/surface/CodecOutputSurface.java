@@ -10,6 +10,8 @@ import android.opengl.EGLSurface;
 import android.opengl.GLES30;
 import android.view.Surface;
 
+import com.cgfay.filterlibrary.glfilter.utils.OpenGLUtils;
+
 /**
  * Created by guoheng-iri on 2016/9/1.
  */
@@ -36,6 +38,11 @@ public class CodecOutputSurface implements SurfaceTexture.OnFrameAvailableListen
     private Object mFrameSyncObject = new Object();     // guards mFrameAvailable
     private boolean mFrameAvailable;
 
+    // 更新帧的锁
+    private final Object mSyncFrameNum = new Object();
+    private final Object mSyncFence = new Object();
+    private int mFrameNum;
+
 
     /**
      * Creates a CodecOutputSurface backed by a pbuffer with the specified dimensions.  The
@@ -56,7 +63,7 @@ public class CodecOutputSurface implements SurfaceTexture.OnFrameAvailableListen
         GLES30.glDisable(GLES30.GL_CULL_FACE);
 
         /**
-         * 渲染器
+         * 渲染器设置
          */
         OffSVideoRenderManager.getInstance().setTextureSize(width, height);
         OffSVideoRenderManager.getInstance().setDisplaySize(width, height);
@@ -68,10 +75,9 @@ public class CodecOutputSurface implements SurfaceTexture.OnFrameAvailableListen
      */
     private void setSurfaceCreated() {
         mTextureRender = new TextureRender();
-        mTextureRender.surfaceCreated();
-        mInputTexture = mTextureRender.getTextureId();
+        //  mTextureRender.surfaceCreated();
+        mInputTexture = OpenGLUtils.createOESTexture();
         mSurfaceTexture = new SurfaceTexture(mInputTexture);
-
         mSurfaceTexture.setOnFrameAvailableListener(this);
 
         mSurface = new Surface(mSurfaceTexture);
@@ -221,9 +227,6 @@ public class CodecOutputSurface implements SurfaceTexture.OnFrameAvailableListen
     }
 
 
-
-
-
     public void makeCurrent(int index) {
         if (index == 0) {
             EGL14.eglMakeCurrent(mEGLDisplay, mEGLSurface, mEGLSurface, mEGLContext);
@@ -271,25 +274,32 @@ public class CodecOutputSurface implements SurfaceTexture.OnFrameAvailableListen
      * @param invert if set, render the image with Y inverted (0,0 in top left)
      */
     public void drawImage(boolean invert) {
-          mTextureRender.drawFrame(mSurfaceTexture, invert);
-//        mSurfaceTexture.getTransformMatrix(mMatrix);
+//          mTextureRender.drawFrame(mSurfaceTexture, invert);
+        // 如果存在新的帧，则更新帧
+        synchronized (mSyncFrameNum) {
+            synchronized (mSyncFence) {
+                if (mSurfaceTexture != null) {
+                    while (mFrameNum != 0) {
+                        mSurfaceTexture.updateTexImage();
+                        --mFrameNum;
+                    }
+                } else {
+                    return;
+                }
+            }
+        }
+
+        mSurfaceTexture.getTransformMatrix(mMatrix);
 //        // 绘制渲染
-//        OffSVideoRenderManager.getInstance().drawFrame(mInputTexture, mMatrix);
+        OffSVideoRenderManager.getInstance().drawFrame(mInputTexture, mMatrix);
 
     }
 
     // SurfaceTexture callback
     @Override
     public void onFrameAvailable(SurfaceTexture st) {
-        //new frame available
-        synchronized (mFrameSyncObject) {
-            if (mFrameAvailable) {
-                // throw new RuntimeException("mFrameAvailable already set, frame could be dropped");
-                return;
-            }
-            mFrameAvailable = true;
-            mFrameSyncObject.notifyAll();
-
+        synchronized (mSyncFrameNum) {
+            ++mFrameNum;
         }
     }
 

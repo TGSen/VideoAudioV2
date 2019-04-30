@@ -18,7 +18,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -43,6 +42,7 @@ import com.cgfay.cameralibrary.widget.AspectFrameLayout;
 import com.cgfay.cameralibrary.widget.CainSurfaceView;
 import com.cgfay.cameralibrary.widget.HorizontalIndicatorView;
 import com.cgfay.cameralibrary.widget.ShutterButton;
+import com.cgfay.cameralibrary.widget.ShutterView;
 import com.cgfay.filterlibrary.multimedia.VideoCombiner;
 import com.cgfay.utilslibrary.fragment.PermissionConfirmDialogFragment;
 import com.cgfay.utilslibrary.fragment.PermissionErrorDialogFragment;
@@ -96,7 +96,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
     private TextView mBtnTools;
     private TextView btFlash;
     // 快门按钮
-    private ShutterButton mBtnShutter;
+    private ShutterView mBtnShutter;
     // 滤镜按钮
     private TextView mBtnEffect;
     // 视频删除按钮
@@ -205,13 +205,13 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
         mBtnTools.setOnClickListener(this);
         mBtnEffect = view.findViewById(R.id.btFilters);
         mBtnEffect.setOnClickListener(this);
-        mBottomIndicator = (HorizontalIndicatorView) view.findViewById(R.id.bottom_indicator);
+        mBottomIndicator = view.findViewById(R.id.bottom_indicator);
         String[] galleryIndicator = getResources().getStringArray(R.array.gallery_indicator);
         mIndicatorText.addAll(Arrays.asList(galleryIndicator));
         mBottomIndicator.setIndicators(mIndicatorText);
         mBottomIndicator.addIndicatorListener(this);
 
-        mBtnShutter = (ShutterButton) view.findViewById(R.id.btShutter);
+        mBtnShutter = view.findViewById(R.id.btShutter);
         mBtnShutter.setOnShutterListener(mShutterListener);
         mBtnShutter.setOnClickListener(this);
 
@@ -231,7 +231,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
         super.onResume();
         registerHomeReceiver();
         enhancementBrightness();
-        mBtnShutter.setEnableOpened(false);
+//        mBtnShutter.setEnableOpened(false);
     }
 
     /**
@@ -248,7 +248,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
         unRegisterHomeReceiver();
         hideStickerView();
         hideEffectView();
-        mBtnShutter.setEnableOpened(false);
+        // mBtnShutter.setEnableOpened(false);
     }
 
     @Override
@@ -278,13 +278,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
      * @return
      */
     public boolean onBackPressed() {
-//        if (isShowingFilters) {
-//            hideEffectView();
-//            return true;
-//        } else if (isShowingStickers) {
-//            hideStickerView();
-//            return true;
-//        }
+
         return false;
     }
 
@@ -379,24 +373,18 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
 
     @Override
     public void onIndicatorChanged(int currentIndex) {
+        mCameraParam.mGalleryType = GalleryType.VIDEO;
         if (currentIndex == 0) {
-            mCameraParam.mGalleryType = GalleryType.VIDEO;
+            //长按模式还是点击模式
             // 录制视频状态
-            mBtnShutter.setIsRecorder(true);
-            // 请求录音权限
-            if (!mCameraParam.audioPermitted) {
-                requestRecordSoundPermission();
-            }
-
+            mBtnShutter.setCurrentMode(ShutterView.MODE_CLICK_SINGLE);
         } else if (currentIndex == 1) {
-            mCameraParam.mGalleryType = GalleryType.PICTURE;
-            // 拍照状态
-            mBtnShutter.setIsRecorder(false);
-            if (!mStorageWriteEnable) {
-                requestStoragePermission();
-            }
+            mBtnShutter.setCurrentMode(ShutterView.MODE_CLICK_LONG);
         }
-
+        // 请求录音权限
+        if (!mCameraParam.audioPermitted) {
+            requestRecordSoundPermission();
+        }
     }
 
 
@@ -432,17 +420,14 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
      * 显示滤镜页面
      */
     private void showEffectView() {
-
         FragmentTransaction ft = getChildFragmentManager().beginTransaction();
         hideFragment(ft);
-
         if (mColorFilterFragment == null) {
             mColorFilterFragment = PreviewFiltersFragment.getInstance(PreviewFiltersFragment.TYPE_COLOR_FILTER, PreviewFiltersFragment.TYPE_VIDEO_SHOT);
             ft.add(R.id.fragment_container, mColorFilterFragment);
         } else {
             ft.show(mColorFilterFragment);
         }
-
         ft.commit();
         hideToolsLayout();
     }
@@ -652,10 +637,6 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
 
         @Override
         public void onPreviewCallback(byte[] data) {
-            if (mBtnShutter != null && !mBtnShutter.isEnableOpened()) {
-                mBtnShutter.setEnableOpened(true);
-            }
-
             // 请求刷新
             requestRender();
         }
@@ -672,22 +653,15 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
 
 
     // ------------------------------------ 录制回调 -------------------------------------------
-    private ShutterButton.OnShutterListener mShutterListener = new ShutterButton.OnShutterListener() {
+    private ShutterView.OnShutterListener mShutterListener = new ShutterView.OnShutterListener() {
 
         @Override
         public void onStartRecord() {
-            if (mCameraParam.mGalleryType == GalleryType.PICTURE) {
-                return;
-            }
             // 隐藏删除按钮
             if (mCameraParam.mGalleryType == GalleryType.VIDEO) {
                 mBtnRecordPreview.setVisibility(View.GONE);
                 mBtnRecordDelete.setVisibility(View.GONE);
             }
-            mBtnShutter.setProgressMax((int) PreviewRecorder.getInstance().getMaxMilliSeconds());
-            // 添加分割线
-            mBtnShutter.addSplitView();
-
             // 是否允许录制音频
             boolean enableAudio = mCameraParam.audioPermitted && mCameraParam.recordAudio
                     && mCameraParam.mGalleryType == GalleryType.VIDEO && !VideoAudioCombine.getInstance().isBgMusicEnable();
@@ -706,14 +680,12 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
 
             // 开始录制
             PreviewRecorder.getInstance()
-                    .setRecordType(mCameraParam.mGalleryType == GalleryType.VIDEO ? PreviewRecorder.RecordType.Video : PreviewRecorder.RecordType.Gif)
+                    .setRecordType(PreviewRecorder.RecordType.Video)
                     .setOutputPath(PathConstraints.getVideoCachePath(mActivity))
                     .enableAudio(enableAudio)
                     .setRecordSize(width, height)
                     .setOnRecordListener(mRecordListener)
                     .startRecord();
-
-
         }
 
         @Override
@@ -725,17 +697,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
             }
         }
 
-        @Override
-        public void onProgressOver() {
-            // 如果最后一秒内点击停止录制，则仅仅关闭录制按钮，因为前面已经停止过了，不做跳转
-            // 如果最后一秒内没有停止录制，否则停止录制并跳转至预览页面
-            if (PreviewRecorder.getInstance().isLastSecondStop()) {
-                // 关闭录制按钮
-                mBtnShutter.closeButton();
-            } else {
-                stopRecordOrPreviewVideo();
-            }
-        }
+
     };
 
     /**
@@ -745,29 +707,22 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
 
         @Override
         public void onRecordStarted() {
-            // 编码器已经进入录制状态，则快门按钮可用
-            mBtnShutter.setEnableEncoder(true);
+
         }
 
         @Override
         public void onRecordProgressChanged(final long duration) {
-            mMainHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    // 设置进度
-                    mBtnShutter.setProgress(duration);
-                    // 设置时间
-                }
-            });
+
         }
 
         @Override
         public void onRecordFinish() {
-            // 编码器已经完全释放，则快门按钮可用
-            mBtnShutter.setEnableEncoder(true);
+            Log.e("Harrison", "onRecordFinish");
             mMainHandler.post(new Runnable() {
                 @Override
                 public void run() {
+                    // 编码器已经完全释放，则快门按钮可用
+                    mBtnShutter.stopAnimation();
                     // 处于录制状态点击了预览按钮，则需要等待完成再跳转， 或者是处于录制GIF状态
                     if (mNeedToWaitStop) {
                         // 开始预览
@@ -789,34 +744,34 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
      * @param clearAll
      */
     private void deleteRecordedVideo(boolean clearAll) {
-        // 处于删除模式，则删除文件
-        if (mBtnShutter.isDeleteMode()) {
-            // 删除视频，判断是否清除所有
-            if (clearAll) {
-                // 清除所有分割线
-                mBtnShutter.cleanSplitView();
-                PreviewRecorder.getInstance().removeAllSubVideo();
-            } else {
-                // 删除分割线
-                mBtnShutter.deleteSplitView();
-                PreviewRecorder.getInstance().removeLastSubVideo();
-            }
-
-            // 删除一段已记录的时间
-            PreviewRecorder.getInstance().deleteRecordDuration();
-
-            // 更新进度
-            mBtnShutter.setProgress(PreviewRecorder.getInstance().getVisibleDuration());
-            // 更新时间
-            // 如果此时没有了视频，则恢复初始状态
-            if (PreviewRecorder.getInstance().getNumberOfSubVideo() <= 0) {
-                mBtnRecordDelete.setVisibility(View.GONE);
-                mBtnRecordPreview.setVisibility(View.GONE);
-                mNeedToWaitStop = false;
-            }
-        } else { // 没有进入删除模式则进入删除模式
-            mBtnShutter.setDeleteMode(true);
-        }
+//        // 处于删除模式，则删除文件
+//        if (mBtnShutter.isDeleteMode()) {
+//            // 删除视频，判断是否清除所有
+//            if (clearAll) {
+//                // 清除所有分割线
+//                mBtnShutter.cleanSplitView();
+//                PreviewRecorder.getInstance().removeAllSubVideo();
+//            } else {
+//                // 删除分割线
+//                mBtnShutter.deleteSplitView();
+//                PreviewRecorder.getInstance().removeLastSubVideo();
+//            }
+//
+//            // 删除一段已记录的时间
+//            PreviewRecorder.getInstance().deleteRecordDuration();
+//
+//            // 更新进度
+//            mBtnShutter.setProgress(PreviewRecorder.getInstance().getVisibleDuration());
+//            // 更新时间
+//            // 如果此时没有了视频，则恢复初始状态
+//            if (PreviewRecorder.getInstance().getNumberOfSubVideo() <= 0) {
+//                mBtnRecordDelete.setVisibility(View.GONE);
+//                mBtnRecordPreview.setVisibility(View.GONE);
+//                mNeedToWaitStop = false;
+//            }
+//        } else { // 没有进入删除模式则进入删除模式
+//            mBtnShutter.setDeleteMode(true);
+//        }
     }
 
     /**
@@ -998,12 +953,9 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
                     if (PreviewRecorder.getInstance().isRecording()) {
                         // 取消录制
                         PreviewRecorder.getInstance().cancelRecording();
-                        // 重置进入条
-                        mBtnShutter.setProgress((int) PreviewRecorder.getInstance().getVisibleDuration());
-                        // 删除分割线
-                        mBtnShutter.deleteSplitView();
-                        // 关闭按钮
-                        mBtnShutter.closeButton();
+                        // 停止录制
+                        mBtnShutter.stopAnimation();
+
                     }
                 }
             }

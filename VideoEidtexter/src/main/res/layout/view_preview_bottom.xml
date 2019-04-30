@@ -53,13 +53,17 @@
 
 
     <!-- 快门 -->
-    <com.cgfay.cameralibrary.widget.ShutterButton
+    <com.cgfay.cameralibrary.widget.ShutterView
         android:id="@+id/btShutter"
         android:layout_width="@dimen/record_width_height_normal"
         android:layout_height="@dimen/record_width_height_normal"
         android:layout_centerInParent="true"
         android:layout_gravity="center"
         android:layout_marginTop="@dimen/bottom_layout_margin"
+        app:iner_oval_color="@color/shutter_blue"
+        app:iner_oval_radius="20dp"
+        app:outer_oval_color="@color/shutter_blue_alpha"
+        app:outer_oval_radius="40dp"
         android:layout_marginBottom="@dimen/bottom_layout_margin"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"

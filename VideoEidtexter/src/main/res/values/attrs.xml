@@ -16,13 +16,14 @@
         <attr name="VideoEffectBar_text_Size" format="integer"></attr>
     </declare-styleable>
 
-    <declare-styleable name="ColorPickerView">
-        <attr name="indicatorColor" format="color" /><!--指示点颜色-->
-        <attr name="indicatorEnable" format="boolean" /><!--是否启用指示点-->
-        <attr name="orientation" format="integer">
-            <enum name="horizontal" value="0" />
-            <enum name="vertical" value="1" />
-        </attr>
-        <attr name="unGradualColor" format="color" />
+
+
+    <declare-styleable name="ShutterView">
+        <attr name="outer_oval_color" format="color" />
+        <attr name="iner_oval_color" format="color" />
+        <attr name="outer_oval_radius" format="dimension" />
+        <attr name="outer_oval_width" format="dimension" />
+        <attr name="iner_oval_radius" format="dimension" />
+        <attr name="AnimDuration" format="dimension" />
     </declare-styleable>
 </resources>

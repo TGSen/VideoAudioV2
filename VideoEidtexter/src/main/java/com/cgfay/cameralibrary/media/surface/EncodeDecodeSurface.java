@@ -173,7 +173,7 @@ public class EncodeDecodeSurface {
                     mDecoder.decoder.releaseOutputBuffer(decoderStatus, doRender);
                     if (doRender) {
                         mDecoder.outputSurface.makeCurrent(1);
-                        mDecoder.outputSurface.awaitNewImage();
+                     //   mDecoder.outputSurface.awaitNewImage();
                         mDecoder.outputSurface.drawImage(true);
 
                         mEncoder.drainEncoder(false);

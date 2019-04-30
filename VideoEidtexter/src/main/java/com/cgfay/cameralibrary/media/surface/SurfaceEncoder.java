@@ -49,21 +49,19 @@ public class SurfaceEncoder {
         // configure() call to throw an unhelpful exception.
         format.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
         format.setInteger(MediaFormat.KEY_FRAME_RATE, mVideoInfo.getFrameRate());
-        Log.e("Harrison","帧率："+mVideoInfo.getFrameRate());
+        Log.e("Harrison", "帧率：" + mVideoInfo.getFrameRate());
         if (mVideoInfo.getBitRate() > 0) {
             format.setInteger(MediaFormat.KEY_BIT_RATE, mVideoInfo.getBitRate());
         } else {
-            format.setInteger(MediaFormat.KEY_BIT_RATE, calcBitRate(mVideoInfo.getBitRate(),mVideoInfo.getWidth(),mVideoInfo.getHeight()));
+            format.setInteger(MediaFormat.KEY_BIT_RATE, calcBitRate(mVideoInfo.getBitRate(), mVideoInfo.getWidth(), mVideoInfo.getHeight()));
         }
         format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, IFRAME_INTERVAL);
-
 
 
         encoder = null;
 
         try {
             encoder = MediaCodec.createEncoderByType(MIME_TYPE);
-
             encoder.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
             encodesurface = encoder.createInputSurface();
             encoder.start();
@@ -132,8 +130,7 @@ public class SurfaceEncoder {
                     // the INFO_OUTPUT_FORMAT_CHANGED status.  Ignore it.
                     if (VERBOSE) Log.d(TAG, "ignoring BUFFER_FLAG_CODEC_CONFIG");
 
-                    MediaFormat format =
-                            MediaFormat.createVideoFormat(MIME_TYPE, mVideoInfo.getWidth(), mVideoInfo.getHeight());
+                    MediaFormat format = MediaFormat.createVideoFormat(MIME_TYPE, mVideoInfo.getWidth(), mVideoInfo.getHeight());
                     format.setByteBuffer("csd-0", encodedData);
 
                     mBufferInfo.size = 0;

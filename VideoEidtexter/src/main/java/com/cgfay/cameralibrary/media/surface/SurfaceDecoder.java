@@ -37,7 +37,7 @@ public class SurfaceDecoder {
     public void initDecodeVideoInfo(VideoInfo info) {
         try {
             if (info == null) {
-                Log.e("Harrison", "mVideoInfo ==null" );
+                Log.e("Harrison", "mVideoInfo ==null");
                 return;
             }
             this.mVideoInfo = info;
@@ -61,6 +61,7 @@ public class SurfaceDecoder {
             mVideoInfo.setFrameRate(mediaFormat.getInteger(MediaFormat.KEY_FRAME_RATE))
                     .setWidth(mediaFormat.getInteger(MediaFormat.KEY_WIDTH))
                     .setHeight(mediaFormat.getInteger(MediaFormat.KEY_HEIGHT));
+
             Log.e("Harrison", "mediaformat" + mediaFormat.toString());
         } catch (IOException e) {
             e.printStackTrace();
