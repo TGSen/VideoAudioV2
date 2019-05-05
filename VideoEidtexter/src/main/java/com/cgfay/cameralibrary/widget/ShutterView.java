@@ -225,8 +225,6 @@ public class ShutterView extends View {
         if (mButtonAnim != null && mButtonAnim.isRunning()) {
             Log.e("Harrison", "mButtonAnim");
             mButtonAnim.cancel();
-        } else {
-            Log.e("Harrison", "mButtonAnim");
         }
         mCurrentState = STATE_IDLE;
         invalidate();

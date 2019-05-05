@@ -410,12 +410,13 @@ public final class PreviewRecorder {
      * 设置总时长
      * @param type
      */
-    public void setMilliSeconds(CountDownType type) {
+    public PreviewRecorder setMilliSeconds(CountDownType type) {
         if (type == CountDownType.TenSecond) {
             mMaxMillisSeconds = DURATION_TEN_SECOND;
         } else if (type == CountDownType.ThreeMinute) {
             mMaxMillisSeconds = DURATION_THREE_MINUTE;
         }
+        return this;
     }
 
     /**
