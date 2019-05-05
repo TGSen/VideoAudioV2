@@ -3,6 +3,7 @@ package com.cgfay.cameralibrary.engine.recorder;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.cgfay.cameralibrary.engine.listener.OnRecordListener;
 import com.cgfay.cameralibrary.engine.render.PreviewRenderer;
@@ -306,7 +307,7 @@ public final class PreviewRecorder {
     private void initTimer() {
 
         cancelCountDown();
-
+        Log.e("Harrison","time:"+mMaxMillisSeconds);
         mRecordTimer = new RecordTimer(mMaxMillisSeconds, mCountDownInterval) {
             @Override
             public void onTick(long millisUntilFinished) {
@@ -336,6 +337,7 @@ public final class PreviewRecorder {
                 mTimerFinish = true;
                 if (mRecordListener != null) {
                     mRecordListener.onRecordProgressChanged(getVisibleDuration(true));
+                    mRecordListener.onRecordFinish();
                 }
             }
         };

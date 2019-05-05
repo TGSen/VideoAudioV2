@@ -93,6 +93,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
 
     // 道具按钮
     private TextView mBtnTools;
+    private TextView mBtUpload;
     private TextView btFlash;
     // 快门按钮
     private ShutterView mBtnShutter;
@@ -124,6 +125,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
     private Group mGroupViewTop;
     private Group mGroupViewBottom;
     private SensorControler mSensorControler;
+    private View layoutPreViewTop;
 
 
     public CameraPreviewFragment() {
@@ -181,6 +183,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
      */
     private void initView(View view) {
         mAspectLayout = view.findViewById(R.id.layout_aspect);
+        layoutPreViewTop = view.findViewById(R.id.layoutPreViewTop);
         //   mAspectLayout.setAspectRatio(mCameraParam.currentRatio);
         mCameraSurfaceView = new CainSurfaceView(mActivity);
         mCameraSurfaceView.addOnTouchScroller(mTouchScroller);
@@ -199,6 +202,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
 
 
         mBtnTools = view.findViewById(R.id.btnTools);
+        mBtUpload = view.findViewById(R.id.btUpload);
         btFlash = view.findViewById(R.id.btFlash);
         btFlash.setOnClickListener(this);
         mBtnTools.setOnClickListener(this);
@@ -654,11 +658,13 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
         @Override
         public void onStartRecord() {
             Log.e("Harrison", "***onStartRecord");
+            showAllToolView(false);
             // 隐藏删除按钮
             if (mCameraParam.mGalleryType == GalleryType.VIDEO) {
                 mBtnRecordPreview.setVisibility(View.GONE);
                 mBtnRecordDelete.setVisibility(View.GONE);
             }
+
             // 是否允许录制音频
             boolean enableAudio = mCameraParam.audioPermitted && mCameraParam.recordAudio
                     && mCameraParam.mGalleryType == GalleryType.VIDEO && !VideoAudioCombine.getInstance().isBgMusicEnable();
@@ -689,7 +695,8 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
         @Override
         public void onStopRecord() {
             Log.e("Harrison", "***onStopRecord");
-            PreviewRecorder.getInstance().stopRecord();
+
+            stopRecordOrPreviewVideo();
             //同时判断是否开启背景音乐
             if (VideoAudioCombine.getInstance().isBgMusicEnable()) {
                 MusicManager.getInstance().stop();
@@ -698,6 +705,22 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
 
 
     };
+
+    private void showAllToolView(boolean isShow) {
+        if (isShow) {
+            layoutPreViewTop.setVisibility(View.VISIBLE);
+            mBottomIndicator.setVisibility(View.VISIBLE);
+            mBtnTools.setVisibility(View.VISIBLE);
+            mBtUpload.setVisibility(View.VISIBLE);
+        } else {
+            layoutPreViewTop.setVisibility(View.INVISIBLE);
+            mBottomIndicator.setVisibility(View.INVISIBLE);
+            mBtnTools.setVisibility(View.INVISIBLE);
+            mBtUpload.setVisibility(View.INVISIBLE);
+        }
+
+    }
+
 
     /**
      * 录制监听器
@@ -724,12 +747,11 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
                 @Override
                 public void run() {
                     // 编码器已经完全释放，则快门按钮可用
+                    showAllToolView(true);
                     mBtnShutter.stopAnimation();
                     // 处于录制状态点击了预览按钮，则需要等待完成再跳转， 或者是处于录制GIF状态
-                    if (mNeedToWaitStop) {
-                        // 开始预览
-                        stopRecordOrPreviewVideo();
-                    }
+                    // 开始预览
+                    stopRecordOrPreviewVideo();
                     // 显示删除按钮
 //                    if (mCameraParam.mGalleryType == GalleryType.VIDEO) {
 //                        mBtnRecordPreview.setVisibility(View.VISIBLE);
@@ -838,7 +860,6 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
                 } else {
                     gotoEffectVideo(path);
                 }
-
             } else {
                 combineAudioVideoFail();
             }
