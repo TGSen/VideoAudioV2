@@ -20,7 +20,7 @@ package com.cgfay.filterlibrary.multimedia;
  *  limitations under the License.
  *
  * All files in the folder are under this Apache License, Version 2.0.
-*/
+ */
 
 import android.media.MediaCodec;
 import android.media.MediaFormat;
@@ -200,11 +200,11 @@ public abstract class MediaEncoder implements Runnable {
     }
 
     /*
-    * prepareing method for each sub class
-    * this method should be implemented in sub class, so set this as abstract method
-    * @throws IOException
-    */
-   /*package*/
+     * prepareing method for each sub class
+     * this method should be implemented in sub class, so set this as abstract method
+     * @throws IOException
+     */
+    /*package*/
     abstract void prepare() throws IOException;
 
     /**
@@ -223,6 +223,7 @@ public abstract class MediaEncoder implements Runnable {
 
     /**
      * 是否处于暂停状态
+     *
      * @param isPause
      */
     void pauseRecording(boolean isPause) {
@@ -272,7 +273,7 @@ public abstract class MediaEncoder implements Runnable {
         if (DEBUG) {
             Log.d(TAG, "release:");
         }
-        if (mListener!= null) {
+        if (mListener != null) {
             mListener.onStopped(this);
         }
         mIsCapturing = false;
@@ -312,9 +313,10 @@ public abstract class MediaEncoder implements Runnable {
     /**
      * Method to set byte array to the MediaCodec encoder
      * 将byte字节数据输送给MediaCodec编码器
-     * @param buffer                byte数组的Buffer缓冲
-     * @param length                字节数组长度，0表示结束
-     * @param presentationTimeUs    显示的时间
+     *
+     * @param buffer             byte数组的Buffer缓冲
+     * @param length             字节数组长度，0表示结束
+     * @param presentationTimeUs 显示的时间
      */
     protected void encode(final ByteBuffer buffer, final int length, final long presentationTimeUs) {
         if (!mIsCapturing) return;
@@ -356,7 +358,7 @@ public abstract class MediaEncoder implements Runnable {
     protected void drain() {
         if (mMediaCodec == null) return;
         ByteBuffer[] encoderOutputBuffers = mMediaCodec.getOutputBuffers();
-        int encoderStatus, count = 0;
+        int encoderStatus = 0, count = 0;
         final MediaMuxerWrapper muxer = mWeakMuxer.get();
         if (muxer == null) {
             Log.w(TAG, "muxer is unexpectedly null");
@@ -364,7 +366,7 @@ public abstract class MediaEncoder implements Runnable {
         }
         LOOP:
         while (mIsCapturing) {
-            // get encoded data with maximum timeout duration of TIMEOUT_USEC(=10[msec])
+            // get encoded data with maximum timeout duration of TIMEOUT_USEC(=10[msec])\
             encoderStatus = mMediaCodec.dequeueOutputBuffer(mBufferInfo, TIMEOUT_USEC);
 
             if (encoderStatus == MediaCodec.INFO_TRY_AGAIN_LATER) {
@@ -467,6 +469,7 @@ public abstract class MediaEncoder implements Runnable {
     /**
      * get next encoding presentationTimeUs
      * 获取下一个编码的显示时间，这里需要减去暂停的时间
+     *
      * @return
      */
     protected long getPTSUs() {

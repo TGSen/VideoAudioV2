@@ -2,7 +2,6 @@ package com.cgfay.cameralibrary.engine.camera;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
@@ -21,6 +20,9 @@ import java.util.List;
 /**
  * 相机引擎
  * Created by cain on 2017/7/9.
+ * by 唐家森：
+ * 设置相机的时候 Mediacodec 的分辨率必须是16的倍数，要不会报错mMediaCodec.dequeueOutputBuffer 出错，但是获取不到错误信息
+ * 预览的可以设置跟屏幕一样的大小，但是拍出来的片子就是规定的1280*720
  */
 
 public class CameraEngine {
@@ -39,25 +41,6 @@ public class CameraEngine {
     // 相机对象
     private Camera mCamera;
 
-    public void openCamera(Context context) {
-        openCamera(context, CameraParam.DESIRED_PREVIEW_FPS);
-    }
-
-    /**
-     * 根据ID打开相机
-     *
-     * @param expectFps
-     */
-    public void openCamera(Context context, int expectFps) {
-        int width = CameraParam.DEFAULT_16_9_WIDTH;
-        int height = CameraParam.DEFAULT_16_9_HEIGHT;
-        if (CameraParam.getInstance().currentRatio == CameraParam.Ratio_4_3) {
-            width = CameraParam.DEFAULT_4_3_WIDTH;
-            height = CameraParam.DEFAULT_4_3_HEIGHT;
-        }
-        openCamera(context, CameraParam.getInstance().cameraId, expectFps, width, height);
-    }
-
 
     /**
      * 根据SurfaceView 宽高来设置
@@ -66,8 +49,8 @@ public class CameraEngine {
      * @param surfaceWidth
      * @param surfaceHeight
      */
-    public void openCamera(Context context, int surfaceWidth, int surfaceHeight) {
-        openCamera(context, CameraParam.getInstance().cameraId, CameraParam.DESIRED_PREVIEW_FPS, surfaceWidth, surfaceHeight);
+    public Camera.Size openCamera(Context context, int surfaceWidth, int surfaceHeight, int picWidth, int picHeight) {
+        return openCamera(context, CameraParam.getInstance().cameraId, CameraParam.DESIRED_PREVIEW_FPS, surfaceWidth, surfaceHeight, picWidth, picHeight);
     }
 
     /**
@@ -79,7 +62,7 @@ public class CameraEngine {
      * @param expectWidth
      * @param expectHeight
      */
-    public void openCamera(Context context, int cameraID, int expectFps, int expectWidth, int expectHeight) {
+    public Camera.Size openCamera(Context context, int cameraID, int expectFps, int expectWidth, int expectHeight, int picWidth, int picHeight) {
         if (mCamera != null) {
             throw new RuntimeException("camera already initialized!");
         }
@@ -100,10 +83,25 @@ public class CameraEngine {
 
 
         mCamera.setParameters(parameters);
-        setPreviewSize(mCamera, expectWidth, expectHeight);
-        setPictureSize(mCamera, expectWidth, expectHeight);
+        Camera.Size size = setPreviewSize(mCamera, expectWidth, expectHeight);
+        setPictureSize(mCamera, picWidth, picHeight);
+        //由于很暗，所以得修改曝光补偿
+        setExposureCompensation(mCamera);
         calculateCameraPreviewOrientation((Activity) context);
         mCamera.setDisplayOrientation(cameraParam.orientation);
+        return size;
+    }
+
+    /**
+     * 设置爆光度
+     *
+     * @param mCamera
+     */
+    private void setExposureCompensation(Camera mCamera) {
+        Camera.Parameters parameters = mCamera.getParameters();
+        //设置曝光参数
+        parameters.setExposureCompensation(parameters.getMaxExposureCompensation() / 2);
+        mCamera.setParameters(parameters);
     }
 
     /**
@@ -251,17 +249,19 @@ public class CameraEngine {
      * @param expectWidth
      * @param expectHeight
      */
-    private void setPreviewSize(Camera camera, int expectWidth, int expectHeight) {
+    private Camera.Size setPreviewSize(Camera camera, int expectWidth, int expectHeight) {
         Camera.Parameters parameters = camera.getParameters();
         Log.e("Harrison", "expectWidth:" + expectWidth + "**" + expectHeight);
+        //这种方案不好
 //        Camera.Size size = calculatePerfectSize(parameters.getSupportedPreviewSizes(),
 //                expectWidth, expectHeight, CalculateType.Lower);
-        Camera.Size size = calculateSize(parameters.getSupportedPreviewSizes(),expectWidth, expectHeight);
+        Camera.Size size = calculateSize(parameters.getSupportedPreviewSizes(), expectWidth, expectHeight);
         Log.e("Harrison", "setPreviewSize:" + size.width + "**" + size.height);
         parameters.setPreviewSize(size.width, size.height);
         CameraParam.getInstance().previewWidth = size.width;
         CameraParam.getInstance().previewHeight = size.height;
         camera.setParameters(parameters);
+        return size;
     }
 
     /**
@@ -288,8 +288,8 @@ public class CameraEngine {
      */
     private void setPictureSize(Camera camera, int expectWidth, int expectHeight) {
         Camera.Parameters parameters = camera.getParameters();
-        Camera.Size size = calculatePerfectSize(parameters.getSupportedPictureSizes(),
-                expectWidth, expectHeight, CalculateType.Max);
+        Camera.Size size = calculateSize(parameters.getSupportedPictureSizes(), expectWidth, expectHeight);
+        Log.e("Harrison", "size" + size.width + "**" + size.height);
         parameters.setPictureSize(size.width, size.height);
         camera.setParameters(parameters);
     }

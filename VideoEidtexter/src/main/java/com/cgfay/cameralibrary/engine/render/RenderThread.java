@@ -172,11 +172,11 @@ public class RenderThread extends HandlerThread implements SurfaceTexture.OnFram
      * @param height
      */
     void surfaceChanged(int width, int height) {
-        mRenderManager.setDisplaySize( width, height);
+        mRenderManager.setDisplaySize(width, height);
 //        mTextureWidth = width;
 //        mTextureHeight = height;
-      //  openCamera();
-       // cameraSetting();
+        //  openCamera();
+        // cameraSetting();
         startPreview();
 
     }
@@ -243,8 +243,7 @@ public class RenderThread extends HandlerThread implements SurfaceTexture.OnFram
         // 是否处于录制状态
         if (isRecording && !isRecordingPause) {
             HardcodeEncoder.getInstance().frameAvailable();
-            HardcodeEncoder.getInstance()
-                    .drawRecorderFrame(mCurrentTexture, mSurfaceTexture.getTimestamp());
+            HardcodeEncoder.getInstance().drawRecorderFrame(mCurrentTexture, mSurfaceTexture.getTimestamp());
         }
     }
 
@@ -344,7 +343,7 @@ public class RenderThread extends HandlerThread implements SurfaceTexture.OnFram
     void startRecording() {
         if (mEglCore != null) {
             // 设置渲染Texture 的宽高
-            HardcodeEncoder.getInstance().setTextureSize(mTextureWidth, mTextureHeight);
+            HardcodeEncoder.getInstance().setTextureSize(CameraParam.getInstance().DEFAULT_16_9_WIDTH, CameraParam.getInstance().DEFAULT_16_9_HEIGHT);
             // 这里将EGLContext传递到录制线程共享。
             // 由于EGLContext是当前线程手动创建，也就是OpenGLES的main thread
             // 这里需要传自己手动创建的EglContext
@@ -380,8 +379,8 @@ public class RenderThread extends HandlerThread implements SurfaceTexture.OnFram
 
     // --------------------------------- 相机操作逻辑 ----------------------------------------------
 
-    private void cameraSetting(){
-      //  CameraEngine.getInstance().cameraSetting(mContext,mTextureWidth,mTextureHeight);
+    private void cameraSetting() {
+        //  CameraEngine.getInstance().cameraSetting(mContext,mTextureWidth,mTextureHeight);
     }
 
     /**
@@ -394,9 +393,10 @@ public class RenderThread extends HandlerThread implements SurfaceTexture.OnFram
         wm.getDefaultDisplay().getMetrics(dm);
         mTextureWidth = dm.widthPixels;
         mTextureHeight = dm.heightPixels;
-        CameraEngine.getInstance().openCamera(mContext,mTextureWidth,mTextureHeight);
-        Log.e("Harrison","****"+mTextureWidth+"****"+mTextureHeight);
-//        CameraEngine.getInstance().openCamera(mContext,mTextureWidth,mTextureHeight);
+        Camera.Size size = CameraEngine.getInstance().openCamera(mContext, mTextureWidth, mTextureHeight, CameraParam.getInstance().DEFAULT_16_9_WIDTH, CameraParam.getInstance().DEFAULT_16_9_HEIGHT);
+        mTextureWidth = size.height;
+        mTextureHeight = size.width;
+        Log.e("Harrison", "****" + mTextureWidth + "****" + mTextureHeight);
         CameraEngine.getInstance().setPreviewSurface(mSurfaceTexture);
         calculateImageSize();
         mPreviewBuffer = new byte[mTextureWidth * mTextureHeight * 3 / 2];

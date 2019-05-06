@@ -361,6 +361,7 @@ public final class HardcodeEncoder {
             synchronized (mReadyFence) {
                 mTextureWidth = width;
                 mTextureHeight = height;
+                Log.e("Harrison","setTextureSize **"+width+"**"+height);
             }
         }
 
