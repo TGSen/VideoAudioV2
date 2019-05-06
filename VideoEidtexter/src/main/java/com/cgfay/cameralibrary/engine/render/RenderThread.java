@@ -172,12 +172,13 @@ public class RenderThread extends HandlerThread implements SurfaceTexture.OnFram
      * @param height
      */
     void surfaceChanged(int width, int height) {
-        mRenderManager.setDisplaySize(width, height);
+        mRenderManager.setDisplaySize( width, height);
 //        mTextureWidth = width;
 //        mTextureHeight = height;
       //  openCamera();
        // cameraSetting();
         startPreview();
+
     }
 
 

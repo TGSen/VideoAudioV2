@@ -88,6 +88,7 @@ public class HorizontalIndicatorView extends View {
 
     /**
      * 初始化属性
+     *
      * @param attrs
      */
     @SuppressLint("RestrictedApi")
@@ -154,21 +155,23 @@ public class HorizontalIndicatorView extends View {
     }
 
     @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        mWidth = getMeasuredWidth();
+        mHeight = getMeasuredHeight();
+        mFontSize = mWidth / mSeeSize;
+    }
+
+    @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        if (isFirst) {
-            mWidth = getWidth();
-            mHeight = getHeight();
-            mFontSize = mWidth / mSeeSize;
-            isFirst = false;
-        }
         if (mCurrentIndex >= 0 && mCurrentIndex <= mIndicators.size() - 1) {
             String indicator = mIndicators.get(mCurrentIndex);
             mSelectedPaint.getTextBounds(indicator, 0, indicator.length(), mRect);
             mCenterTextWidth = mRect.width();
             mCenterTextHeight = mRect.height();
             canvas.drawText(mIndicators.get(mCurrentIndex), getWidth() / 2 - mCenterTextWidth / 2
-                            + mOffset, getHeight() / 2 + mCenterTextHeight / 2, mSelectedPaint);
+                    + mOffset, getHeight() / 2 + mCenterTextHeight / 2, mSelectedPaint);
             for (int i = 0; i < mIndicators.size(); i++) {
                 if (mCurrentIndex > 0 && mCurrentIndex < mIndicators.size() - 1) {
                     mTextPaint.getTextBounds(mIndicators.get(mCurrentIndex - 1), 0,
@@ -185,7 +188,7 @@ public class HorizontalIndicatorView extends View {
                 }
                 if (i != mCurrentIndex) {
                     canvas.drawText(mIndicators.get(i), (i - mCurrentIndex) * mFontSize
-                            + getWidth() / 2 - mTextWidth / 2 + mOffset,
+                                    + getWidth() / 2 - mTextWidth / 2 + mOffset,
                             getHeight() / 2 + mTextHeight / 2, mTextPaint);
                 }
 
@@ -199,6 +202,7 @@ public class HorizontalIndicatorView extends View {
 
     /**
      * 设置指示器所有制
+     *
      * @param indicators
      */
     public void setIndicators(List<String> indicators) {
@@ -217,6 +221,7 @@ public class HorizontalIndicatorView extends View {
 
     /**
      * 添加指示器监听回调
+     *
      * @param listener
      */
     public void addIndicatorListener(OnIndicatorListener listener) {

@@ -29,7 +29,8 @@ public class CameraEngine {
         public static CameraEngine instance = new CameraEngine();
     }
 
-    private CameraEngine() {}
+    private CameraEngine() {
+    }
 
     public static CameraEngine getInstance() {
         return CameraEngineHolder.instance;
@@ -44,6 +45,7 @@ public class CameraEngine {
 
     /**
      * 根据ID打开相机
+     *
      * @param expectFps
      */
     public void openCamera(Context context, int expectFps) {
@@ -59,16 +61,18 @@ public class CameraEngine {
 
     /**
      * 根据SurfaceView 宽高来设置
+     *
      * @param context
      * @param surfaceWidth
      * @param surfaceHeight
      */
-    public void openCamera(Context context,int surfaceWidth,int surfaceHeight){
+    public void openCamera(Context context, int surfaceWidth, int surfaceHeight) {
         openCamera(context, CameraParam.getInstance().cameraId, CameraParam.DESIRED_PREVIEW_FPS, surfaceWidth, surfaceHeight);
     }
 
     /**
      * 打开相机
+     *
      * @param context
      * @param cameraID
      * @param expectFps
@@ -104,8 +108,8 @@ public class CameraEngine {
 
     /**
      * 开始预览
-     * @param holder
-     * 部分手机预览会失效，慎用
+     *
+     * @param holder 部分手机预览会失效，慎用
      */
     public void startPreview(SurfaceHolder holder) {
         if (mCamera == null) {
@@ -121,8 +125,8 @@ public class CameraEngine {
 
     /**
      * 开始预览
-     * @param texture
-     * 部分手机预览会失效，慎用
+     *
+     * @param texture 部分手机预览会失效，慎用
      */
     public void startPreview(SurfaceTexture texture) {
         if (mCamera == null) {
@@ -140,6 +144,7 @@ public class CameraEngine {
 
     /**
      * 设置预览Surface
+     *
      * @param holder
      */
     public void setPreviewSurface(SurfaceHolder holder) {
@@ -155,6 +160,7 @@ public class CameraEngine {
 
     /**
      * 设置预览Surface
+     *
      * @param texture
      */
     public void setPreviewSurface(SurfaceTexture texture) {
@@ -204,6 +210,7 @@ public class CameraEngine {
 
     /**
      * 添加预览回调
+     *
      * @param callback
      * @param previewBuffer
      */
@@ -216,6 +223,7 @@ public class CameraEngine {
 
     /**
      * 添加预览回调
+     *
      * @param callback
      */
     public void setPreviewCallback(Camera.PreviewCallback callback) {
@@ -229,8 +237,8 @@ public class CameraEngine {
      * 拍照
      */
     public void takePicture(Camera.ShutterCallback shutterCallback,
-                                   Camera.PictureCallback rawCallback,
-                                   Camera.PictureCallback pictureCallback) {
+                            Camera.PictureCallback rawCallback,
+                            Camera.PictureCallback pictureCallback) {
         if (mCamera != null) {
             mCamera.takePicture(shutterCallback, rawCallback, pictureCallback);
         }
@@ -238,14 +246,18 @@ public class CameraEngine {
 
     /**
      * 设置预览大小
+     *
      * @param camera
      * @param expectWidth
      * @param expectHeight
      */
     private void setPreviewSize(Camera camera, int expectWidth, int expectHeight) {
         Camera.Parameters parameters = camera.getParameters();
-        Camera.Size size = calculatePerfectSize(parameters.getSupportedPreviewSizes(),
-                expectWidth, expectHeight, CalculateType.Lower);
+        Log.e("Harrison", "expectWidth:" + expectWidth + "**" + expectHeight);
+//        Camera.Size size = calculatePerfectSize(parameters.getSupportedPreviewSizes(),
+//                expectWidth, expectHeight, CalculateType.Lower);
+        Camera.Size size = calculateSize(parameters.getSupportedPreviewSizes(),expectWidth, expectHeight);
+        Log.e("Harrison", "setPreviewSize:" + size.width + "**" + size.height);
         parameters.setPreviewSize(size.width, size.height);
         CameraParam.getInstance().previewWidth = size.width;
         CameraParam.getInstance().previewHeight = size.height;
@@ -254,6 +266,7 @@ public class CameraEngine {
 
     /**
      * 设置预览大小
+     *
      * @param camera
      * @param expectWidth
      * @param expectHeight
@@ -268,6 +281,7 @@ public class CameraEngine {
 
     /**
      * 设置拍摄的照片大小
+     *
      * @param camera
      * @param expectWidth
      * @param expectHeight
@@ -286,6 +300,7 @@ public class CameraEngine {
      * previewFrameCallback以及拍摄出来的照片是不会发生改变的，拍摄出来的照片角度依旧不正常的
      * 拍摄的照片需要自行处理
      * 这里Nexus5X的相机简直没法吐槽，后置摄像头倒置了，切换摄像头之后就出现问题了。
+     *
      * @param activity
      */
     private int calculateCameraPreviewOrientation(Activity activity) {
@@ -325,6 +340,7 @@ public class CameraEngine {
      * previewFrameCallback以及拍摄出来的照片是不会发生改变的，拍摄出来的照片角度依旧不正常的
      * 拍摄的照片需要自行处理
      * 这里Nexus5X的相机简直没法吐槽，后置摄像头倒置了，切换摄像头之后就出现问题了。
+     *
      * @param activity
      */
     private int calculateCameraPreviewOrientation(Activity activity, int cameraId) {
@@ -361,9 +377,10 @@ public class CameraEngine {
 
     /**
      * 设置打开闪光灯
+     *
      * @param on
      */
-    public  void setFlashLight(boolean on) {
+    public void setFlashLight(boolean on) {
         if (mCamera != null) {
             Camera.Parameters parameters = mCamera.getParameters();
             if (on) {
@@ -377,8 +394,9 @@ public class CameraEngine {
 
     /**
      * 设置对焦区域
-     * @param rect      已经调整好的区域
-     * @param callback  自动对焦回调
+     *
+     * @param rect     已经调整好的区域
+     * @param callback 自动对焦回调
      */
     public void setFocusArea(Rect rect, Camera.AutoFocusCallback callback) {
         if (mCamera != null) {
@@ -398,6 +416,7 @@ public class CameraEngine {
 
     /**
      * 设置对焦
+     *
      * @param rect
      */
     public void setFocusArea(Rect rect) {
@@ -433,6 +452,7 @@ public class CameraEngine {
 
     /**
      * 计算触摸区域
+     *
      * @param x
      * @param y
      * @return
@@ -443,6 +463,7 @@ public class CameraEngine {
 
     /**
      * 计算点击区域
+     *
      * @param x
      * @param y
      * @param width
@@ -461,17 +482,18 @@ public class CameraEngine {
 
     /**
      * 确保所选区域在在合理范围内
+     *
      * @param touchCoordinateInCameraReper
      * @param focusAreaSize
      * @return
      */
     private static int clamp(int touchCoordinateInCameraReper, int focusAreaSize) {
         int result;
-        if (Math.abs(touchCoordinateInCameraReper) + focusAreaSize  > 1000) {
+        if (Math.abs(touchCoordinateInCameraReper) + focusAreaSize > 1000) {
             if (touchCoordinateInCameraReper > 0) {
-                result = 1000 - focusAreaSize ;
+                result = 1000 - focusAreaSize;
             } else {
-                result = -1000 + focusAreaSize ;
+                result = -1000 + focusAreaSize;
             }
         } else {
             result = touchCoordinateInCameraReper - focusAreaSize / 2;
@@ -481,7 +503,8 @@ public class CameraEngine {
 
     /**
      * 检查摄像头(前置/后置)是否支持闪光灯
-     * @param camera   摄像头
+     *
+     * @param camera 摄像头
      * @return
      */
     public static boolean checkSupportFlashLight(Camera camera) {
@@ -496,6 +519,7 @@ public class CameraEngine {
 
     /**
      * 检查摄像头(前置/后置)是否支持闪光灯
+     *
      * @param parameters 摄像头参数
      * @return
      */
@@ -517,17 +541,53 @@ public class CameraEngine {
 
     /**
      * 获取相机对象
+     *
      * @return
      */
-    public  Camera getCamera() {
+    public Camera getCamera() {
         return mCamera;
     }
 
 
+    /**
+     * 计算最完美的size
+     */
+    private static Camera.Size calculateSize(List<Camera.Size> sizes, int expectWidth, int expectHeight) {
+        int ReqTmpWidth;
+        int ReqTmpHeight;
+        // 当屏幕为垂直的时候需要把宽高值进行调换，保证宽大于高
 
+        ReqTmpWidth = expectHeight;
+        ReqTmpHeight = expectWidth;
+
+        //先查找preview中是否存在与surfaceview相同宽高的尺寸
+        for (Camera.Size size : sizes) {
+            if ((size.width == ReqTmpWidth) && (size.height == ReqTmpHeight)) {
+                return size;
+            }
+        }
+
+        // 得到与传入的宽高比最接近的size
+        float reqRatio = ((float) ReqTmpWidth) / ReqTmpHeight;
+        float curRatio, deltaRatio;
+        float deltaRatioMin = Float.MAX_VALUE;
+        Camera.Size retSize = null;
+        for (Camera.Size size : sizes) {
+            curRatio = ((float) size.width) / size.height;
+            deltaRatio = Math.abs(reqRatio - curRatio);
+            if (deltaRatio < deltaRatioMin) {
+                deltaRatioMin = deltaRatio;
+                retSize = size;
+            }
+        }
+
+        return retSize;
+
+    }
 
     /**
      * 计算最完美的Size
+     *
      * @param sizes
      * @param expectWidth
      * @param expectHeight
@@ -579,14 +639,14 @@ public class CameraEngine {
                 // 优先查找比期望尺寸小一点的，否则找大一点的，接受范围在0.8左右
                 if (noBigEnough.size() > 0) {
                     Camera.Size size = Collections.max(noBigEnough, new CompareAreaSize());
-                    if (((float)size.width / expectWidth) >= 0.8
-                            && ((float)size.height / expectHeight) > 0.8) {
+                    if (((float) size.width / expectWidth) >= 0.8
+                            && ((float) size.height / expectHeight) > 0.8) {
                         perfectSize = size;
                     }
                 } else if (bigEnough.size() > 0) {
                     Camera.Size size = Collections.min(bigEnough, new CompareAreaSize());
-                    if (((float)expectWidth / size.width) >= 0.8
-                            && ((float)(expectHeight / size.height)) >= 0.8) {
+                    if (((float) expectWidth / size.width) >= 0.8
+                            && ((float) (expectHeight / size.height)) >= 0.8) {
                         perfectSize = size;
                     }
                 }
@@ -597,14 +657,14 @@ public class CameraEngine {
                 // 优先查找比期望尺寸大一点的，否则找小一点的，接受范围在0.8左右
                 if (bigEnough.size() > 0) {
                     Camera.Size size = Collections.min(bigEnough, new CompareAreaSize());
-                    if (((float)expectWidth / size.width) >= 0.8
-                            && ((float)(expectHeight / size.height)) >= 0.8) {
+                    if (((float) expectWidth / size.width) >= 0.8
+                            && ((float) (expectHeight / size.height)) >= 0.8) {
                         perfectSize = size;
                     }
                 } else if (noBigEnough.size() > 0) {
                     Camera.Size size = Collections.max(noBigEnough, new CompareAreaSize());
-                    if (((float)size.width / expectWidth) >= 0.8
-                            && ((float)size.height / expectHeight) > 0.8) {
+                    if (((float) size.width / expectWidth) >= 0.8
+                            && ((float) size.height / expectHeight) > 0.8) {
                         perfectSize = size;
                     }
                 }
@@ -656,6 +716,7 @@ public class CameraEngine {
 
     /**
      * 分辨率由大到小排序
+     *
      * @param list
      */
     private static void sortList(List<Camera.Size> list) {
@@ -675,6 +736,7 @@ public class CameraEngine {
 
     /**
      * 选择合适的FPS
+     *
      * @param parameters
      * @param expectedThoudandFps 期望的FPS
      * @return
