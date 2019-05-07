@@ -343,7 +343,7 @@ public class RenderThread extends HandlerThread implements SurfaceTexture.OnFram
     void startRecording() {
         if (mEglCore != null) {
             // 设置渲染Texture 的宽高
-            HardcodeEncoder.getInstance().setTextureSize(CameraParam.getInstance().DEFAULT_16_9_WIDTH, CameraParam.getInstance().DEFAULT_16_9_HEIGHT);
+            HardcodeEncoder.getInstance().setTextureSize(CameraParam.getInstance().previewWidth,CameraParam.getInstance().previewWidth);
             // 这里将EGLContext传递到录制线程共享。
             // 由于EGLContext是当前线程手动创建，也就是OpenGLES的main thread
             // 这里需要传自己手动创建的EglContext
