@@ -251,7 +251,6 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
         unRegisterHomeReceiver();
         hideStickerView();
         hideEffectView();
-        // mBtnShutter.setEnableOpened(false);
     }
 
     @Override
@@ -680,7 +679,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
             if (VideoAudioCombine.getInstance().isBgMusicEnable()) {
                 MusicManager.getInstance().reStart();
             }
-
+            Log.e("Harrison","*****width"+width+"***"+height);
             // 开始录制
             PreviewRecorder.getInstance()
                     .setRecordType(PreviewRecorder.RecordType.Video)

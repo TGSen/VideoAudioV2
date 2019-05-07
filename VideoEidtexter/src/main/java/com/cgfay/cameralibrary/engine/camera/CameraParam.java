@@ -51,10 +51,12 @@ public final class CameraParam {
     public int expectWidth;
     // 期望预览高度
     public int expectHeight;
+
     // 实际预览宽度
     public int previewWidth;
     // 实际预览高度
     public int previewHeight;
+
     // 是否高清拍照
     public boolean highDefinition;
     // 预览角度

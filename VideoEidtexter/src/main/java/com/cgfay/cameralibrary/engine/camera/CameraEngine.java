@@ -258,8 +258,7 @@ public class CameraEngine {
         Camera.Size size = calculateSize(parameters.getSupportedPreviewSizes(), expectWidth, expectHeight);
         Log.e("Harrison", "setPreviewSize:" + size.width + "**" + size.height);
         parameters.setPreviewSize(size.width, size.height);
-        CameraParam.getInstance().previewWidth = size.width;
-        CameraParam.getInstance().previewHeight = size.height;
+
         camera.setParameters(parameters);
         return size;
     }
@@ -291,6 +290,8 @@ public class CameraEngine {
         Camera.Size size = calculateSize(parameters.getSupportedPictureSizes(), expectWidth, expectHeight);
         Log.e("Harrison", "size" + size.width + "**" + size.height);
         parameters.setPictureSize(size.width, size.height);
+        CameraParam.getInstance().previewWidth = size.width;
+        CameraParam.getInstance().previewHeight = size.height;
         camera.setParameters(parameters);
     }
 
@@ -555,10 +556,13 @@ public class CameraEngine {
     private static Camera.Size calculateSize(List<Camera.Size> sizes, int expectWidth, int expectHeight) {
         int ReqTmpWidth;
         int ReqTmpHeight;
-        // 当屏幕为垂直的时候需要把宽高值进行调换，保证宽大于高
 
         ReqTmpWidth = expectHeight;
         ReqTmpHeight = expectWidth;
+
+        for (Camera.Size size : sizes) {
+            Log.e("Harrison", "***" + size.width + "*" + size.height);
+        }
 
         //先查找preview中是否存在与surfaceview相同宽高的尺寸
         for (Camera.Size size : sizes) {
