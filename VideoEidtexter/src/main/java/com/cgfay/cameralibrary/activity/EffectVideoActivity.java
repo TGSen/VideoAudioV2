@@ -162,7 +162,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
         mVideoRenderer.setSurfaceView(mVideoPreviewView);
 
         EncodeDecodeSurface test = new EncodeDecodeSurface();
-        String outputPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download/out.mp4";
+        String outputPath = getExternalCacheDir().getAbsolutePath() + "/out.mp4";
         test.setVideoPath(videoPath, outputPath);
         //初始化渲染的管理
         OffSVideoRenderManager.getInstance().init(this.getApplicationContext());
@@ -170,7 +170,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
             test.testEncodeDecodeSurface();
         } catch (Throwable a) {
             a.printStackTrace();
-            Log.e("Harrison", a.getLocalizedMessage());
+            Log.e("Harrison", "off:"+a.getLocalizedMessage());
         }
 
         EXECUTOR.execute(new Runnable() {

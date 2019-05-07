@@ -9,6 +9,7 @@ import android.view.Surface;
 
 import com.cgfay.cameralibrary.media.bean.VideoInfo;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
@@ -59,16 +60,16 @@ public class SurfaceEncoder {
 
 
         encoder = null;
-
         try {
             encoder = MediaCodec.createEncoderByType(MIME_TYPE);
             encoder.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
             encodesurface = encoder.createInputSurface();
             encoder.start();
+
             mMuxer = new MediaMuxer(mVideoInfo.getOutPath(), MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
 
         } catch (IOException ioe) {
-
+            Log.e("Harrison", "IOException:" + ioe.getLocalizedMessage());
         }
 
         mTrackIndex = -1;
@@ -109,9 +110,12 @@ public class SurfaceEncoder {
                     throw new RuntimeException("format changed twice");
                 }
                 MediaFormat newFormat = encoder.getOutputFormat();
-
-                // now that we have the Magic Goodies, start the muxer
-                mTrackIndex = mMuxer.addTrack(newFormat);
+                if (newFormat == null) {
+                    Log.e("Harrison", "newFormat ==null");
+                } else {
+                    // now that we have the Magic Goodies, start the muxer
+                    mTrackIndex = mMuxer.addTrack(newFormat);
+                }
                 mMuxer.start();
                 mMuxerStarted = true;
             } else if (encoderStatus < 0) {

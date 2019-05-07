@@ -98,9 +98,9 @@ public class EncodeDecodeSurface {
             mEncoder.setVideoInfo(videoInfo);
             mEncoder.videoEncodePrepare();
             mDecoder.surfaceDecoderPrePare(mEncoder.getEncoderSurface());
-            doExtract();
+           doExtract();
         } catch (Exception e) {
-            Log.e("Harrison", "e" + e.getLocalizedMessage());
+            Log.e("Harrison", "*********e" + e.getLocalizedMessage());
         } finally {
             mDecoder.release();
             mEncoder.release();
@@ -157,8 +157,8 @@ public class EncodeDecodeSurface {
                     // not important for us, since we're using Surface
                     if (VERBOSE) Log.d(TAG, "decoder output buffers changed");
                 } else if (decoderStatus == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
-                    MediaFormat newFormat = mDecoder.decoder.getOutputFormat();
-                    if (VERBOSE) Log.d(TAG, "decoder output format changed: " + newFormat);
+//                    MediaFormat newFormat = mDecoder.decoder.getOutputFormat();
+//                    if (VERBOSE) Log.d(TAG, "decoder output format changed: " + newFormat);
                 } else if (decoderStatus < 0) {
 
                 } else { // decoderStatus >= 0
@@ -173,9 +173,8 @@ public class EncodeDecodeSurface {
                     mDecoder.decoder.releaseOutputBuffer(decoderStatus, doRender);
                     if (doRender) {
                         mDecoder.outputSurface.makeCurrent(1);
-                     //   mDecoder.outputSurface.awaitNewImage();
+                        mDecoder.outputSurface.awaitNewImage();
                         mDecoder.outputSurface.drawImage(true);
-
                         mEncoder.drainEncoder(false);
                         mDecoder.outputSurface.setPresentationTime(computePresentationTimeNsec(decodeCount));
                         mDecoder.outputSurface.swapBuffers();

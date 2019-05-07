@@ -8,6 +8,7 @@ import android.opengl.EGLDisplay;
 import android.opengl.EGLExt;
 import android.opengl.EGLSurface;
 import android.opengl.GLES30;
+import android.util.Log;
 import android.view.Surface;
 
 import com.cgfay.filterlibrary.glfilter.utils.OpenGLUtils;
@@ -75,8 +76,8 @@ public class CodecOutputSurface implements SurfaceTexture.OnFrameAvailableListen
      */
     private void setSurfaceCreated() {
         mTextureRender = new TextureRender();
-        //  mTextureRender.surfaceCreated();
-        mInputTexture = OpenGLUtils.createOESTexture();
+        mTextureRender.surfaceCreated();
+        mInputTexture = mTextureRender.getTextureId();
         mSurfaceTexture = new SurfaceTexture(mInputTexture);
         mSurfaceTexture.setOnFrameAvailableListener(this);
 
@@ -274,32 +275,46 @@ public class CodecOutputSurface implements SurfaceTexture.OnFrameAvailableListen
      * @param invert if set, render the image with Y inverted (0,0 in top left)
      */
     public void drawImage(boolean invert) {
-//          mTextureRender.drawFrame(mSurfaceTexture, invert);
-        // 如果存在新的帧，则更新帧
-        synchronized (mSyncFrameNum) {
-            synchronized (mSyncFence) {
-                if (mSurfaceTexture != null) {
-                    while (mFrameNum != 0) {
-                        mSurfaceTexture.updateTexImage();
-                        --mFrameNum;
-                    }
-                } else {
-                    return;
-                }
-            }
-        }
-
-        mSurfaceTexture.getTransformMatrix(mMatrix);
+          mTextureRender.drawFrame(mSurfaceTexture, invert);
+//        // 如果存在新的帧，则更新帧
+//        synchronized (mSyncFrameNum) {
+//            synchronized (mSyncFence) {
+//                if (mSurfaceTexture != null) {
+//                    while (mFrameNum != 0) {
+//                        Log.e("Harrison","mFrameNum:"+mFrameNum);
+//                        mSurfaceTexture.updateTexImage();
+//                        --mFrameNum;
+//                    }
+//                }
+//            }
+//        }
+//        mSurfaceTexture.getTransformMatrix(mMatrix);
 //        // 绘制渲染
-        OffSVideoRenderManager.getInstance().drawFrame(mInputTexture, mMatrix);
+//        OffSVideoRenderManager.getInstance().drawFrame(mInputTexture, mMatrix);
 
     }
 
     // SurfaceTexture callback
+//    @Override
+//    public void onFrameAvailable(SurfaceTexture st) {
+//        synchronized (mSyncFrameNum) {
+//            ++mFrameNum;
+//            Log.e("Harrison","onFrameAvailable mFrameNum:"+mFrameNum);
+//        }
+//    }
+
+    // SurfaceTexture callback
     @Override
     public void onFrameAvailable(SurfaceTexture st) {
-        synchronized (mSyncFrameNum) {
-            ++mFrameNum;
+        //new frame available
+        synchronized (mFrameSyncObject) {
+            if (mFrameAvailable) {
+                // throw new RuntimeException("mFrameAvailable already set, frame could be dropped");
+                return;
+            }
+            mFrameAvailable = true;
+            mFrameSyncObject.notifyAll();
+
         }
     }
 

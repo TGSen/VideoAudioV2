@@ -288,7 +288,6 @@ public class CameraEngine {
     private void setPictureSize(Camera camera, int expectWidth, int expectHeight) {
         Camera.Parameters parameters = camera.getParameters();
         Camera.Size size = calculateSize(parameters.getSupportedPictureSizes(), expectWidth, expectHeight);
-        Log.e("Harrison", "size" + size.width + "**" + size.height);
         parameters.setPictureSize(size.width, size.height);
         CameraParam.getInstance().recordWidth = size.width;
         CameraParam.getInstance().recordHeight = size.height;
@@ -560,9 +559,7 @@ public class CameraEngine {
         ReqTmpWidth = expectHeight;
         ReqTmpHeight = expectWidth;
 
-        for (Camera.Size size : sizes) {
-            Log.e("Harrison", "***" + size.width + "*" + size.height);
-        }
+
 
         //先查找preview中是否存在与surfaceview相同宽高的尺寸
         for (Camera.Size size : sizes) {
