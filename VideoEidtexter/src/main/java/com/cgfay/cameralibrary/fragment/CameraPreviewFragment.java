@@ -669,17 +669,16 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
                     && mCameraParam.mGalleryType == GalleryType.VIDEO && !VideoAudioCombine.getInstance().isBgMusicEnable();
 
             // 计算输入纹理的大小
-            int width = mCameraParam.previewWidth;
-            int height = mCameraParam.previewHeight;
+            int width = mCameraParam.recordWidth;
+            int height = mCameraParam.recordHeight;
             if (mCameraParam.orientation == 90 || mCameraParam.orientation == 270) {
-                width = mCameraParam.previewHeight;
-                height = mCameraParam.previewWidth;
+                width = mCameraParam.recordHeight;
+                height = mCameraParam.recordWidth;
             }
             //同时判断是否开启背景音乐
             if (VideoAudioCombine.getInstance().isBgMusicEnable()) {
                 MusicManager.getInstance().reStart();
             }
-            Log.e("Harrison","*****width"+width+"***"+height);
             // 开始录制
             PreviewRecorder.getInstance()
                     .setRecordType(PreviewRecorder.RecordType.Video)

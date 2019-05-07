@@ -290,8 +290,8 @@ public class CameraEngine {
         Camera.Size size = calculateSize(parameters.getSupportedPictureSizes(), expectWidth, expectHeight);
         Log.e("Harrison", "size" + size.width + "**" + size.height);
         parameters.setPictureSize(size.width, size.height);
-        CameraParam.getInstance().previewWidth = size.width;
-        CameraParam.getInstance().previewHeight = size.height;
+        CameraParam.getInstance().recordWidth = size.width;
+        CameraParam.getInstance().recordHeight = size.height;
         camera.setParameters(parameters);
     }
 

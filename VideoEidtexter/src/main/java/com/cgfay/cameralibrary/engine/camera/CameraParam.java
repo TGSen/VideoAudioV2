@@ -57,6 +57,11 @@ public final class CameraParam {
     // 实际预览高度
     public int previewHeight;
 
+    // 录制的宽度
+    public int recordWidth;
+    // 实际预览高度
+    public int recordHeight;
+
     // 是否高清拍照
     public boolean highDefinition;
     // 预览角度
@@ -108,6 +113,7 @@ public final class CameraParam {
     public boolean enableDepthBlur;
     // 是否允许暗角
     public boolean enableVignette;
+
 
 
     private static final CameraParam mInstance = new CameraParam();
