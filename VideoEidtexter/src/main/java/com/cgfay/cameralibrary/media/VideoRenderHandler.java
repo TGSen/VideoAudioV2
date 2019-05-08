@@ -98,10 +98,6 @@ class VideoRenderHandler extends Handler {
             case MSG_STOP_RECORDING:
                 thread.stopRecording();
                 break;
-
-
-
-
             case MSG_SURFACE_SET_VIDEO_PATH:
                 thread.setVideoPath((String) msg.obj);
                 break;

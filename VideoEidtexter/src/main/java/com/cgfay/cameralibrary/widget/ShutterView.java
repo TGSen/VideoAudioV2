@@ -135,19 +135,35 @@ public class ShutterView extends View {
 
     }
 
+    //是否开始编码
+    private boolean isStart;
+
     /**
      * 分长按和短按，进行动画
      *
      * @param event
      * @return
      */
+    private long mTouchStartTime;
+    private long mTouchEndTime;
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
+                mTouchStartTime = System.currentTimeMillis();
+                if (isStart) {
+                    mCurrentState = STATE_IDLE;
+                    stopAnimation();
+                    isStart = false;
+                    if (mOnShutterListener != null)
+                        mOnShutterListener.onStopRecord();
+                    return true;
+                }
                 if (mCurrentMode == MODE_CLICK_LONG) {
+                    mTouchEndTime = System.currentTimeMillis();
                     mCurrentState = STATE_START;
+                    isStart = true;
                     startZoomAnim(4, 20);
                     if (mOnShutterListener != null)
                         mOnShutterListener.onStartRecord();
@@ -155,7 +171,13 @@ public class ShutterView extends View {
                 break;
             // 松开手时，先复位按钮初始状态，如果开始录制，则放大，否则复位
             case MotionEvent.ACTION_UP:
+                mTouchEndTime = System.currentTimeMillis();
+                if((mTouchEndTime-mTouchStartTime)<2000){
+                    if (mOnShutterListener != null)
+                        mOnShutterListener.onStartRecord();
+                }
                 if (mCurrentMode == MODE_CLICK_SINGLE) {
+                    isStart = true;
                     mCurrentState = STATE_START;
                     //那么开启单击模式
                     startZoomAnim(4, 20);
@@ -166,6 +188,7 @@ public class ShutterView extends View {
                     stopAnimation();
                     if (mOnShutterListener != null)
                         mOnShutterListener.onStopRecord();
+
                 }
             case MotionEvent.ACTION_CANCEL:
                 break;
@@ -239,6 +262,11 @@ public class ShutterView extends View {
 
         // 退出录制
         void onStopRecord();
+
+        /**
+         * 段时间录制提醒
+         */
+        void onShortRecord();
 
     }
 

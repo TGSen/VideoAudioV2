@@ -23,6 +23,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cgfay.cameralibrary.R;
 import com.cgfay.cameralibrary.activity.EffectVideoActivity;
@@ -699,6 +700,11 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
             if (VideoAudioCombine.getInstance().isBgMusicEnable()) {
                 MusicManager.getInstance().stop();
             }
+        }
+
+        @Override
+        public void onShortRecord() {
+            Toast.makeText(mActivity,"录制的时间太短了",Toast.LENGTH_SHORT).show();
         }
 
 

@@ -449,10 +449,14 @@ public final class PreviewRecorder {
      * 获取剩余时间
      * @return
      */
-    private long getAvailableTime() {
+    public long getAvailableTime() {
         return mMaxMillisSeconds - getDuration() - mCurrentDuration;
     }
 
+    public boolean isRecordEnd() {
+        Log.e("Harrison","******"+getAvailableTime());
+        return mTimerFinish;
+    }
     /**
      * 获取当前实际时长 (跟显示的时长不一定不一样)
      * @return

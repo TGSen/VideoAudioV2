@@ -78,8 +78,12 @@ public class CodecOutputSurface implements SurfaceTexture.OnFrameAvailableListen
         mTextureRender = new TextureRender();
         mTextureRender.surfaceCreated();
         mInputTexture = mTextureRender.getTextureId();
+
         mSurfaceTexture = new SurfaceTexture(mInputTexture);
         mSurfaceTexture.setOnFrameAvailableListener(this);
+
+
+
 
         mSurface = new Surface(mSurfaceTexture);
 
