@@ -20,6 +20,7 @@ import com.cgfay.cameralibrary.media.VideoRenderer;
 import com.cgfay.cameralibrary.media.bean.VideoEffectType;
 import com.cgfay.cameralibrary.media.surface.EncodeDecodeSurface;
 import com.cgfay.cameralibrary.media.surface.OffSVideoRenderManager;
+import com.cgfay.cameralibrary.media.surface.OffScreenVideoRenderer;
 import com.cgfay.cameralibrary.widget.VideoPreviewView;
 
 /**
@@ -69,13 +70,12 @@ public class EditextVideoActivity extends AppCompatActivity implements View.OnCl
         String outputPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download/out.mp4";
         test.setVideoPath(videoPath, outputPath);
         //初始化渲染的管理
-          OffSVideoRenderManager.getInstance().init(this.getApplicationContext());
+        OffScreenVideoRenderer.getInstance().initRenderer(this);
         try {
-            Log.e("Harrison","testEncodeDecodeSurface");
+            Log.e("Harrison", "testEncodeDecodeSurface");
             test.testEncodeDecodeSurface();
         } catch (Throwable a) {
-            a.printStackTrace();
-            Log.e("Harrison","a"+a.getLocalizedMessage());
+            Log.e("Harrison", "a" + a.getLocalizedMessage());
         }
     }
 

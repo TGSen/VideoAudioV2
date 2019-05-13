@@ -16,8 +16,8 @@ import java.nio.ByteBuffer;
  */
 public class EncodeDecodeSurface {
 
-    private static final String TAG = "EncodeDecodeSurface";
-    private static final boolean VERBOSE = false;           // lots of logging
+    private static final String TAG = "Harrison";
+    private static final boolean VERBOSE = true;           // lots of logging
 
 
     SurfaceDecoder mDecoder = new SurfaceDecoder();
@@ -98,7 +98,7 @@ public class EncodeDecodeSurface {
             mEncoder.setVideoInfo(videoInfo);
             mEncoder.videoEncodePrepare();
             mDecoder.surfaceDecoderPrePare(mEncoder.getEncoderSurface());
-            doExtract();
+           doExtract();
         } catch (Exception e) {
             Log.e("Harrison", "*********Exception" + e.getLocalizedMessage());
         } finally {
@@ -128,7 +128,7 @@ public class EncodeDecodeSurface {
                         mDecoder.decoder.queueInputBuffer(inputBufIndex, 0, 0, 0L,
                                 MediaCodec.BUFFER_FLAG_END_OF_STREAM);
                         //   inputDone = true;
-                        if (VERBOSE) Log.d(TAG, "sent input EOS");
+                        if (VERBOSE) Log.e(TAG, "sent input EOS");
                     } else {
                         if (mDecoder.extractor.getSampleTrackIndex() != mDecoder.DecodetrackIndex) {
                             Log.w(TAG, "WEIRD: got sample from track " +
@@ -137,14 +137,14 @@ public class EncodeDecodeSurface {
                         long presentationTimeUs = mDecoder.extractor.getSampleTime();
                         mDecoder.decoder.queueInputBuffer(inputBufIndex, 0, chunkSize, presentationTimeUs, 0 /*flags*/);
                         if (VERBOSE) {
-                            Log.d(TAG, "submitted frame " + inputChunk + " to dec, size=" +
+                           Log.e(TAG, "submitted frame " + inputChunk + " to dec, size=" +
                                     chunkSize);
                         }
                         inputChunk++;
                         mDecoder.extractor.advance();
                     }
                 } else {
-                    if (VERBOSE) Log.d(TAG, "input buffer not available");
+                    if (VERBOSE)Log.e(TAG, "input buffer not available");
                 }
             }
 
@@ -152,33 +152,33 @@ public class EncodeDecodeSurface {
                 int decoderStatus = mDecoder.decoder.dequeueOutputBuffer(info, TIMEOUT_USEC);
                 if (decoderStatus == MediaCodec.INFO_TRY_AGAIN_LATER) {
                     // no output available yet
-                    if (VERBOSE) Log.d(TAG, "no output from decoder available");
+                    if (VERBOSE)Log.e(TAG, "no output from decoder available");
                 } else if (decoderStatus == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED) {
                     // not important for us, since we're using Surface
-                    if (VERBOSE) Log.d(TAG, "decoder output buffers changed");
+                    if (VERBOSE)Log.e(TAG, "decoder output buffers changed");
                 } else if (decoderStatus == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
 //                    MediaFormat newFormat = mDecoder.decoder.getOutputFormat();
-//                    if (VERBOSE) Log.d(TAG, "decoder output format changed: " + newFormat);
+//                    if (VERBOSE)Log.e(TAG, "decoder output format changed: " + newFormat);
                 } else if (decoderStatus < 0) {
 
                 } else { // decoderStatus >= 0
-                    if (VERBOSE) Log.d(TAG, "surface decoder given buffer " + decoderStatus +
+                    if (VERBOSE)Log.e(TAG, "surface decoder given buffer " + decoderStatus +
                             " (size=" + info.size + ")");
                     if ((info.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
-                        if (VERBOSE) Log.d(TAG, "output EOS");
+                        if (VERBOSE)Log.e(TAG, "output EOS");
                         outputDone = true;
                     }
 
                     boolean doRender = (info.size != 0);
                     mDecoder.decoder.releaseOutputBuffer(decoderStatus, doRender);
                     if (doRender) {
-                        mDecoder.outputSurface.makeCurrent(1);
-                        mDecoder.outputSurface.awaitNewImage();
-                        mDecoder.outputSurface.drawImage(true);
+                        OffScreenVideoRenderer.getInstance().makeCurrent();
+                  //      OffScreenVideoRenderer.getInstance().awaitNewImage();
+                        OffScreenVideoRenderer.getInstance().requestRender();
 
+                        OffScreenVideoRenderer.getInstance().setPresentationTime(computePresentationTimeNsec(decodeCount));
+                        OffScreenVideoRenderer.getInstance().swapBuffers();
                         mEncoder.drainEncoder(false);
-                        mDecoder.outputSurface.setPresentationTime(computePresentationTimeNsec(decodeCount));
-                        mDecoder.outputSurface.swapBuffers();
                         decodeCount++;
                         Log.e("Harrison", "decodeCont" + decodeCount);
                     }

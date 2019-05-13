@@ -235,7 +235,6 @@ public class VideoRenderThread extends HandlerThread implements SurfaceTexture.O
                 }
             }
         }
-
         // 切换渲染上下文
         mDisplaySurface.makeCurrent();
         mSurfaceTexture.getTransformMatrix(mMatrix);

@@ -57,17 +57,15 @@ public class CodecOutputSurface implements SurfaceTexture.OnFrameAvailableListen
         mWidth = width;
         mHeight = height;
 
-        eglSetup(surface);
-        makeCurrent(0);
-        setSurfaceCreated();
-        GLES30.glDisable(GLES30.GL_DEPTH_TEST);
-        GLES30.glDisable(GLES30.GL_CULL_FACE);
+        //gl 的配置
+        OffScreenVideoRenderer.getInstance().onSurfaceCreate(surface);
+        OffScreenVideoRenderer.getInstance().onSurfaceChanged(width, height);
 
-        /**
-         * 渲染器设置
-         */
-        OffSVideoRenderManager.getInstance().setTextureSize(width, height);
-        OffSVideoRenderManager.getInstance().setDisplaySize(width, height);
+//        eglSetup(surface);
+//        makeCurrent(0);
+//        setSurfaceCreated();
+//        GLES30.glDisable(GLES30.GL_DEPTH_TEST);
+//        GLES30.glDisable(GLES30.GL_CULL_FACE);
 
     }
 
@@ -81,6 +79,7 @@ public class CodecOutputSurface implements SurfaceTexture.OnFrameAvailableListen
 
         mSurfaceTexture = new SurfaceTexture(mInputTexture);
         mSurfaceTexture.setOnFrameAvailableListener(this);
+
 
         mSurface = new Surface(mSurfaceTexture);
 
@@ -246,29 +245,6 @@ public class CodecOutputSurface implements SurfaceTexture.OnFrameAvailableListen
     }
 
 
-    public void awaitNewImage() {
-        final int TIMEOUT_MS = 2500;
-
-        synchronized (mFrameSyncObject) {
-            while (!mFrameAvailable) {
-                try {
-                    // Wait for onFrameAvailable() to signal us.  Use a timeout to avoid
-                    // stalling the test if it doesn't arrive.
-                    mFrameSyncObject.wait(TIMEOUT_MS);
-                    if (!mFrameAvailable) {
-                        // TODO: if "spurious wakeup", continue while loop
-                        break;
-                    }
-                } catch (InterruptedException ie) {
-                    // shouldn't happen
-
-                }
-            }
-            mFrameAvailable = false;
-        }
-        mSurfaceTexture.updateTexImage();
-
-    }
 
     /**
      * Draws the data from SurfaceTexture onto the current EGL surface.
@@ -276,22 +252,9 @@ public class CodecOutputSurface implements SurfaceTexture.OnFrameAvailableListen
      * @param invert if set, render the image with Y inverted (0,0 in top left)
      */
     public void drawImage(boolean invert) {
-        mTextureRender.drawFrame(mSurfaceTexture, invert);
-//        // 如果存在新的帧，则更新帧
-//        synchronized (mSyncFrameNum) {
-//            synchronized (mSyncFence) {
-//                if (mSurfaceTexture != null) {
-//                    while (mFrameNum != 0) {
-//                        Log.e("Harrison","mFrameNum:"+mFrameNum);
-//                        mSurfaceTexture.updateTexImage();
-//                        --mFrameNum;
-//                    }
-//                }
-//            }
-//        }
+       // mTextureRender.drawFrame(mSurfaceTexture, invert);
 //        mSurfaceTexture.getTransformMatrix(mMatrix);
-//        // 绘制渲染
-//        OffSVideoRenderManager.getInstance().drawFrame(mInputTexture, mMatrix);
+        // 绘制渲染
 
     }
 

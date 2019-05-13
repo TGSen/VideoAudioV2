@@ -41,6 +41,7 @@ import com.cgfay.cameralibrary.media.bean.VideoEffect;
 import com.cgfay.cameralibrary.media.bean.VideoEffectType;
 import com.cgfay.cameralibrary.media.surface.EncodeDecodeSurface;
 import com.cgfay.cameralibrary.media.surface.OffSVideoRenderManager;
+import com.cgfay.cameralibrary.media.surface.OffScreenVideoRenderer;
 import com.cgfay.cameralibrary.utils.ImageBlur;
 import com.cgfay.cameralibrary.widget.SpaceItemDecoration;
 import com.cgfay.cameralibrary.widget.VideoEffectSeekBar;
@@ -163,9 +164,10 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
 
         EncodeDecodeSurface test = new EncodeDecodeSurface();
         String outputPath = getExternalCacheDir().getAbsolutePath() + "/out.mp4";
+
         test.setVideoPath(videoPath, outputPath);
+        OffScreenVideoRenderer.getInstance().initRenderer(this);
         //初始化渲染的管理
-        OffSVideoRenderManager.getInstance().init(this.getApplicationContext());
         try {
             test.testEncodeDecodeSurface();
         } catch (Throwable a) {

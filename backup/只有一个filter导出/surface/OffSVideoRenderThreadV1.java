@@ -2,15 +2,9 @@ package com.cgfay.cameralibrary.media.surface;
 
 import android.content.Context;
 import android.graphics.SurfaceTexture;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
-import android.opengl.EGLExt;
 import android.opengl.GLES30;
 import android.os.HandlerThread;
-import android.text.TextUtils;
-import android.util.Log;
 import android.view.Surface;
-import android.view.SurfaceHolder;
 
 import com.cgfay.cameralibrary.engine.recorder.HardcodeEncoder;
 import com.cgfay.filterlibrary.gles.EglCore;
@@ -20,15 +14,12 @@ import com.cgfay.filterlibrary.glfilter.resource.bean.ResourceType;
 import com.cgfay.filterlibrary.glfilter.stickers.bean.DynamicSticker;
 import com.cgfay.filterlibrary.glfilter.utils.OpenGLUtils;
 
-import java.io.File;
-import java.io.IOException;
-
 /**
  * 渲染线程
  * Created by cain on 2017/11/4.
  */
 
-class OffSVideoRenderThread extends HandlerThread implements SurfaceTexture.OnFrameAvailableListener {
+class OffSVideoRenderThreadV1 extends HandlerThread implements SurfaceTexture.OnFrameAvailableListener {
 
     private static final String TAG = "OffSVideoRenderThread";
     private static final boolean VERBOSE = false;
@@ -78,7 +69,7 @@ class OffSVideoRenderThread extends HandlerThread implements SurfaceTexture.OnFr
     public Surface mSurface;
 
 
-    public OffSVideoRenderThread(Context context, String name) {
+    public OffSVideoRenderThreadV1(Context context, String name) {
         super(name);
         mContext = context;
         mRenderManager = OffSVideoRenderManager.getInstance();
@@ -95,19 +86,7 @@ class OffSVideoRenderThread extends HandlerThread implements SurfaceTexture.OnFr
 
     @Override
     public void onFrameAvailable(SurfaceTexture surfaceTexture) {
-        Log.e("Harrison", "onFrameAvailable***1*");
         requestRender();
-//        mSurfaceTexture.updateTexImage();
-//        synchronized (mFrameSyncObject) {
-//            if (mFrameAvailable) {
-//                // throw new RuntimeException("mFrameAvailable already set, frame could be dropped");
-//                return;
-//            }
-//            Log.e("Harrison", "onFrameAvailable****");
-//            mFrameAvailable = true;
-//            mFrameSyncObject.notifyAll();
-//
-//        }
     }
 
 
@@ -131,7 +110,6 @@ class OffSVideoRenderThread extends HandlerThread implements SurfaceTexture.OnFr
 
         mSurface = new Surface(mSurfaceTexture);
         EncodeSurface = surface;
-
     }
 
 
@@ -146,7 +124,6 @@ class OffSVideoRenderThread extends HandlerThread implements SurfaceTexture.OnFr
         mRenderManager.setTextureSize(width, height);
         mRenderManager.setDisplaySize(width, height);
     }
-
 
     /**
      * Surface销毁
@@ -179,7 +156,6 @@ class OffSVideoRenderThread extends HandlerThread implements SurfaceTexture.OnFr
             synchronized (mSyncFence) {
                 if (mSurfaceTexture != null) {
                     while (mFrameNum != 0) {
-                        Log.e("Harrison","updateTexImage:"+mFrameNum);
                         mSurfaceTexture.updateTexImage();
                         --mFrameNum;
                     }
@@ -188,13 +164,15 @@ class OffSVideoRenderThread extends HandlerThread implements SurfaceTexture.OnFr
                 }
             }
         }
-        Log.e("Harrison", "makeCurrent");
+
         // 切换渲染上下文
-//        mDisplaySurface.makeCurrent();
+        mDisplaySurface.makeCurrent();
         mSurfaceTexture.getTransformMatrix(mMatrix);
 
         // 绘制渲染
         mCurrentTexture = mRenderManager.drawFrame(mInputTexture, mMatrix);
+        // 显示到屏幕
+        mDisplaySurface.swapBuffers();
 
 
         // 是否处于录制状态
@@ -203,33 +181,6 @@ class OffSVideoRenderThread extends HandlerThread implements SurfaceTexture.OnFr
             HardcodeEncoder.getInstance()
                     .drawRecorderFrame(mCurrentTexture, mSurfaceTexture.getTimestamp());
         }
-    }
-
-    private Object mFrameSyncObject = new Object();     // guards mFrameAvailable
-    private boolean mFrameAvailable;
-
-    public void awaitNewImage() {
-        final int TIMEOUT_MS =2500;
-        synchronized (mFrameSyncObject) {
-            while (!mFrameAvailable) {
-                try {
-                    // Wait for onFrameAvailable() to signal us.  Use a timeout to avoid
-                    // stalling the test if it doesn't arrive.
-                    mFrameSyncObject.wait(TIMEOUT_MS);
-                    if (!mFrameAvailable) {
-                        // TODO: if "spurious wakeup", continue while loop
-                        break;
-                    }
-                } catch (InterruptedException ie) {
-                    // shouldn't happen
-
-                }
-            }
-            mFrameAvailable = false;
-        }
-        Log.e("Harrison","updateTexImage");
-        mSurfaceTexture.updateTexImage();
-
     }
 
 
@@ -316,9 +267,9 @@ class OffSVideoRenderThread extends HandlerThread implements SurfaceTexture.OnFr
             if (isPreviewing) {
                 ++mFrameNum;
                 if (mRenderHandler != null) {
-                    Log.e("Harrison", "mRenderHandler*****");
                     mRenderHandler.removeMessages(OffSVideoRenderHandler.MSG_RENDER);
-                    mRenderHandler.sendMessage(mRenderHandler.obtainMessage(OffSVideoRenderHandler.MSG_RENDER));
+                    mRenderHandler.sendMessage(mRenderHandler
+                            .obtainMessage(OffSVideoRenderHandler.MSG_RENDER));
                 }
             }
         }
@@ -348,14 +299,4 @@ class OffSVideoRenderThread extends HandlerThread implements SurfaceTexture.OnFr
     public void swapBuffers() {
         mDisplaySurface.swapBuffers();
     }
-
-    public void updateTexImage() {
-        mSurfaceTexture.updateTexImage();
-    }
-
-    public void makeCurrent() {
-        mDisplaySurface.makeCurrent();
-    }
-
-
 }

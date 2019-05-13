@@ -1,6 +1,8 @@
 package com.cgfay.utilslibrary.utils;
 
+import android.app.Activity;
 import android.content.Context;
+import android.util.DisplayMetrics;
 import android.util.TypedValue;
 
 public class DensityUtils {
@@ -10,6 +12,7 @@ public class DensityUtils {
 
     /**
      * dp转px
+     *
      * @param context
      * @param dpVal
      * @return
@@ -21,6 +24,7 @@ public class DensityUtils {
 
     /**
      * px转dp
+     *
      * @param context
      * @param pxVal
      * @return
@@ -32,6 +36,7 @@ public class DensityUtils {
 
     /**
      * sp转px
+     *
      * @param context
      * @param spVal
      * @return
@@ -43,11 +48,26 @@ public class DensityUtils {
 
     /**
      * px转sp
+     *
      * @param context
      * @param pxVal
      * @return
      */
     public static float px2sp(Context context, float pxVal) {
         return (pxVal / context.getResources().getDisplayMetrics().scaledDensity);
+    }
+
+    /**
+     * 获取屏幕宽度
+     *
+     * @param context
+     * @return
+     */
+    public static int getDisplayWidthPixels(Context context) {
+        if (context == null) {
+            return -1;
+        }
+        DisplayMetrics dm = context.getResources().getDisplayMetrics();
+        return dm.widthPixels;// 宽度
     }
 }
