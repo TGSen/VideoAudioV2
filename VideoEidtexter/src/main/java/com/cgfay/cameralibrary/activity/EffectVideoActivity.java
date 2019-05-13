@@ -172,7 +172,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
             test.testEncodeDecodeSurface();
         } catch (Throwable a) {
             a.printStackTrace();
-            Log.e("Harrison", "off:"+a.getLocalizedMessage());
+            Log.e("Harrison", "off:" + a.getLocalizedMessage());
         }
 
         EXECUTOR.execute(new Runnable() {
@@ -408,6 +408,13 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                 isStartClick = false;
             }
         });
+
+    }
+
+    /**
+     * 显示贴纸的Framelayout
+     */
+    private void showStickerFragment(){
 
     }
 

@@ -52,7 +52,6 @@ public class MusicFragment extends Fragment {
     // 贴纸列表
     private RecyclerView mResourceView;
 
-    // 布局管理器
     private Activity mActivity;
 
     @Override
