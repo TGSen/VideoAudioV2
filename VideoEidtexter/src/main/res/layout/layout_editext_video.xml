@@ -102,6 +102,16 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent" />
 
+    <!-- ic_filter/贴纸等页面 -->
+    <FrameLayout
+        android:id="@+id/fragment_sticker"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
     <android.support.constraint.Group
         android:id="@+id/mainGroup"
         android:layout_width="wrap_content"

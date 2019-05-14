@@ -15,9 +15,7 @@ import android.view.View;
 import com.cgfay.cameralibrary.R;
 import com.cgfay.utilslibrary.utils.DensityUtils;
 
-import java.util.List;
-
-public class StickerView extends View {
+public class StickerViewV extends View {
 
 
     public static final float MAX_SCALE_SIZE = 20.0f;
@@ -53,15 +51,15 @@ public class StickerView extends View {
 
 
 
-    public StickerView(Context context) {
+    public StickerViewV(Context context) {
         this(context, null);
     }
 
-    public StickerView(Context context, AttributeSet attrs) {
+    public StickerViewV(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public StickerView(Context context, AttributeSet attrs, int defStyle) {
+    public StickerViewV(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         init();
     }

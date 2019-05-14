@@ -34,6 +34,7 @@ import android.widget.TextView;
 import com.cgfay.cameralibrary.R;
 import com.cgfay.cameralibrary.adapter.EffectResourceAdapter;
 import com.cgfay.cameralibrary.fragment.PreviewFiltersFragment;
+import com.cgfay.cameralibrary.fragment.StickerFragment;
 import com.cgfay.cameralibrary.fragment.VoiceAdjustFragment;
 import com.cgfay.cameralibrary.media.VideoRenderThread;
 import com.cgfay.cameralibrary.media.VideoRenderer;
@@ -89,6 +90,8 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
 
     // 滤镜页面
     private PreviewFiltersFragment mColorFilterFragment;
+    // 滤镜页面
+    private StickerFragment mStickerFragment;
     //
     private VoiceAdjustFragment mVoiceAdjustFragment;
     /**
@@ -264,6 +267,8 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
         mVideoPlayStatus = findViewById(R.id.imgVideo);
         ImageView imgNext = findViewById(R.id.imgNext);
         imgNext.setOnClickListener(this);
+        TextView sticker = findViewById(R.id.btSticker);
+        sticker.setOnClickListener(this);
         mVideoPlayStatus.setVisibility(View.GONE);
         btSave = findViewById(R.id.btSave);
         btCloseImag = findViewById(R.id.btCloseImag);
@@ -414,8 +419,15 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
     /**
      * 显示贴纸的Framelayout
      */
-    private void showStickerFragment(){
-
+    private void showStickerFragment() {
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        if (mStickerFragment == null) {
+            mStickerFragment = StickerFragment.getInstance();
+            ft.add(R.id.fragment_sticker, mStickerFragment);
+        } else {
+            ft.show(mStickerFragment);
+        }
+        ft.commit();
     }
 
     /**
@@ -614,6 +626,8 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                         }
                     });
 
+                }else{
+                    finish();
                 }
                 break;
             case R.id.btVoiceAdjust:
@@ -621,6 +635,11 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                 break;
             case R.id.imgNext:
                 //再次渲染特效成mp4
+
+                break;
+            case R.id.btSticker:
+                Log.e("Harrison","sticker");
+               showStickerFragment();
 
                 break;
 

@@ -17,7 +17,6 @@
     </declare-styleable>
 
 
-
     <declare-styleable name="ShutterView">
         <attr name="outer_oval_color" format="color" />
         <attr name="iner_oval_color" format="color" />
@@ -25,5 +24,13 @@
         <attr name="outer_oval_width" format="dimension" />
         <attr name="iner_oval_radius" format="dimension" />
         <attr name="AnimDuration" format="dimension" />
+    </declare-styleable>
+
+    <declare-styleable name="StickerView">
+        <attr name="showIcons" format="boolean" />
+        <attr name="showBorder" format="boolean" />
+        <attr name="bringToFrontCurrentSticker" format="boolean" />
+        <attr name="borderColor" format="color" />
+        <attr name="borderAlpha" format="integer" />
     </declare-styleable>
 </resources>

@@ -70,4 +70,18 @@ public class DensityUtils {
         DisplayMetrics dm = context.getResources().getDisplayMetrics();
         return dm.widthPixels;// 宽度
     }
+
+    /**
+     * 获取屏幕宽度
+     *
+     * @param context
+     * @return
+     */
+    public static int getDisplayHeightPixels(Context context) {
+        if (context == null) {
+            return -1;
+        }
+        DisplayMetrics dm = context.getResources().getDisplayMetrics();
+        return dm.heightPixels;// 宽度
+    }
 }
