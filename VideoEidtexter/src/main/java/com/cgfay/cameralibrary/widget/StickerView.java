@@ -9,6 +9,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -156,7 +157,7 @@ public class StickerView extends View {
         if (mBitmap == null || mMatrix == null) {
             return;
         }
-
+        Log.e("Harrison","onDrawonDrawonDraw");
         mMatrix.mapPoints(mPoints, mOriginPoints);
 
         mMatrix.mapRect(mContentRect, mOriginContentRect);

@@ -3,17 +3,21 @@ package com.cgfay.cameralibrary.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.support.constraint.Group;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -30,19 +34,31 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cgfay.cameralibrary.R;
 import com.cgfay.cameralibrary.adapter.EffectResourceAdapter;
 import com.cgfay.cameralibrary.fragment.PreviewFiltersFragment;
 import com.cgfay.cameralibrary.fragment.StickerFragment;
+import com.cgfay.cameralibrary.fragment.StickersFragment;
 import com.cgfay.cameralibrary.fragment.VoiceAdjustFragment;
 import com.cgfay.cameralibrary.media.VideoRenderThread;
 import com.cgfay.cameralibrary.media.VideoRenderer;
 import com.cgfay.cameralibrary.media.bean.VideoEffect;
 import com.cgfay.cameralibrary.media.bean.VideoEffectType;
+import com.cgfay.cameralibrary.media.bgmusic.MusicManager;
 import com.cgfay.cameralibrary.media.surface.EncodeDecodeSurface;
 import com.cgfay.cameralibrary.media.surface.OffSVideoRenderManager;
 import com.cgfay.cameralibrary.media.surface.OffScreenVideoRenderer;
+import com.cgfay.cameralibrary.sticker.BitmapStickerIcon;
+import com.cgfay.cameralibrary.sticker.DeleteIconEvent;
+import com.cgfay.cameralibrary.sticker.DrawableSticker;
+import com.cgfay.cameralibrary.sticker.FlipHorizontallyEvent;
+import com.cgfay.cameralibrary.sticker.Sticker;
+import com.cgfay.cameralibrary.sticker.StickerView;
+import com.cgfay.cameralibrary.sticker.TextSticker;
+import com.cgfay.cameralibrary.sticker.ZoomIconEvent;
+import com.cgfay.cameralibrary.utils.FileUtil;
 import com.cgfay.cameralibrary.utils.ImageBlur;
 import com.cgfay.cameralibrary.widget.SpaceItemDecoration;
 import com.cgfay.cameralibrary.widget.VideoEffectSeekBar;
@@ -58,6 +74,7 @@ import com.cgfay.utilslibrary.utils.StringUtils;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -69,6 +86,7 @@ import java.util.concurrent.Executors;
  * @date :2019/4/1 14:29
  */
 public class EffectVideoActivity extends AppCompatActivity implements View.OnClickListener {
+    private static final String TAG = "Harrison";
     // 显示滤镜页面
     private boolean isShowingFilters = false;
     private static final String KEY_VIDEO_PATH = "videoPath";
@@ -91,7 +109,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
     // 滤镜页面
     private PreviewFiltersFragment mColorFilterFragment;
     // 滤镜页面
-    private StickerFragment mStickerFragment;
+    private StickersFragment mStickerFragment;
     //
     private VoiceAdjustFragment mVoiceAdjustFragment;
     /**
@@ -137,6 +155,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
     private Group effectGroup;
     private FrameLayout mAspectLayout;
     private ImageView btCloseImag;
+    private StickerView mStickerView;
 
 
     @Override
@@ -155,6 +174,127 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
 
         initView();
         initData();
+
+       initStickerView();
+    }
+
+    /**
+     * 初始化贴纸 的view
+     */
+    private void initStickerView() {
+        mStickerView = findViewById(R.id.stickerView);
+
+        BitmapStickerIcon deleteIcon = new BitmapStickerIcon(ContextCompat.getDrawable(this,
+                R.mipmap.sticker_ic_close_white_18dp),
+                BitmapStickerIcon.LEFT_TOP);
+        deleteIcon.setIconEvent(new DeleteIconEvent());
+
+        BitmapStickerIcon zoomIcon = new BitmapStickerIcon(ContextCompat.getDrawable(this,
+                R.mipmap.sticker_ic_scale_white_18dp),
+                BitmapStickerIcon.RIGHT_BOTOM);
+        zoomIcon.setIconEvent(new ZoomIconEvent());
+
+        BitmapStickerIcon flipIcon = new BitmapStickerIcon(ContextCompat.getDrawable(this,
+                R.mipmap.sticker_ic_flip_white_18dp),
+                BitmapStickerIcon.RIGHT_TOP);
+        flipIcon.setIconEvent(new FlipHorizontallyEvent());
+
+        mStickerView.setIcons(Arrays.asList(deleteIcon, zoomIcon, flipIcon));
+        mStickerView.setBackgroundColor(Color.TRANSPARENT);
+        mStickerView.setLocked(false);
+        mStickerView.setConstrained(true);
+
+
+        mStickerView.setOnStickerOperationListener(new StickerView.OnStickerOperationListener() {
+            @Override
+            public void onStickerAdded(@NonNull Sticker sticker) {
+                Log.d(TAG, "onStickerAdded");
+            }
+
+            @Override
+            public void onStickerClicked(@NonNull Sticker sticker) {
+                //stickerView.removeAllSticker();
+                if (sticker instanceof TextSticker) {
+                    ((TextSticker) sticker).setTextColor(Color.RED);
+                    mStickerView.replace(sticker);
+                    mStickerView.invalidate();
+                }
+                Log.d(TAG, "onStickerClicked");
+            }
+
+            @Override
+            public void onStickerDeleted(@NonNull Sticker sticker) {
+                Log.d(TAG, "onStickerDeleted");
+            }
+
+            @Override
+            public void onStickerDragFinished(@NonNull Sticker sticker) {
+                Log.d(TAG, "onStickerDragFinished");
+            }
+
+            @Override
+            public void onStickerTouchedDown(@NonNull Sticker sticker) {
+                Log.d(TAG, "onStickerTouchedDown");
+            }
+
+            @Override
+            public void onStickerZoomFinished(@NonNull Sticker sticker) {
+                Log.d(TAG, "onStickerZoomFinished");
+            }
+
+            @Override
+            public void onStickerFlipped(@NonNull Sticker sticker) {
+                Log.d(TAG, "onStickerFlipped");
+            }
+
+            @Override
+            public void onStickerDoubleTapped(@NonNull Sticker sticker) {
+                Log.d(TAG, "onDoubleTapped: double tap will be with two click");
+            }
+        });
+
+        loadSticker();
+    }
+
+    private void loadSticker() {
+        Drawable drawable = ContextCompat.getDrawable(this, R.mipmap.sticker);
+
+        mStickerView.addSticker(new DrawableSticker(drawable));
+        mStickerView.addSticker(new DrawableSticker(drawable));
+        mStickerView.addSticker(new DrawableSticker(drawable));
+        mStickerView.addSticker(new DrawableSticker(drawable));
+        mStickerView.addSticker(new DrawableSticker(drawable));
+        mStickerView.addSticker(new DrawableSticker(drawable));
+        mStickerView.addSticker(new DrawableSticker(drawable));
+
+
+//        Drawable bubble = ContextCompat.getDrawable(mActivity, R.mipmap.bubble);
+//        stickerView.addSticker(
+//                new TextSticker(mActivity.getApplicationContext())
+//                        .setDrawable(bubble)
+//                        .setText("Sticker\n")
+//                        .setMaxTextSize(14)
+//                        .resizeText()
+//                , Sticker.Position.CENTER);
+
+//        mStickerView.postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                File file = FileUtil.getNewFile(this, "Sticker");
+//                if (file != null) {
+//                    mStickerView.save(file);
+//                    if (file.exists()) {
+//                        Log.e("Harrison", "file" + file.getAbsolutePath());
+//                    } else {
+//                        Log.e("Harrison", "file: null");
+//                    }
+//                    Toast.makeText(mActivity, "saved in " + file.getAbsolutePath(),
+//                            Toast.LENGTH_SHORT).show();
+//                } else {
+//                    Toast.makeText(mActivity, "the file is null", Toast.LENGTH_SHORT).show();
+//                }
+//            }
+//        }, 25000);
     }
 
     private void initData() {
@@ -292,7 +432,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
         //mAspectLayout.setAspectRatio(mCameraParam.currentRatio);
         mVideoPreviewView = new VideoPreviewView(this);
 
-        mAspectLayout.addView(mVideoPreviewView);
+        mAspectLayout.addView(mVideoPreviewView,0);
         mAspectLayout.requestLayout();
         mVideoPreviewView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -421,14 +561,16 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
      */
     private void showStickerFragment() {
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        hideFragment(ft);
         if (mStickerFragment == null) {
-            mStickerFragment = StickerFragment.getInstance();
-            ft.add(R.id.fragment_sticker, mStickerFragment);
+            mStickerFragment = StickersFragment.getInstance();
+            ft.add(R.id.fragment_container, mStickerFragment);
         } else {
             ft.show(mStickerFragment);
         }
         ft.commit();
     }
+
 
     /**
      * 隐藏滤镜页面
@@ -542,6 +684,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
     private void showFilterView() {
         isShowingFilters = true;
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        hideFragment(ft);
         if (mColorFilterFragment == null) {
             mColorFilterFragment = PreviewFiltersFragment.getInstance(PreviewFiltersFragment.TYPE_COLOR_FILTER, PreviewFiltersFragment.TYPE_VIDEO_EIDTEXT);
             mColorFilterFragment.setVideoRenderer(mVideoRenderer);
@@ -555,6 +698,25 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
         }
         ft.commit();
         //  hideToolsLayout();
+    }
+
+    /**
+     * 隐藏其他的Fragment
+     *
+     * @param ft
+     */
+    private void hideFragment(FragmentTransaction ft) {
+
+        if (mColorFilterFragment != null && mColorFilterFragment.isAdded()) {
+            ft.hide(mColorFilterFragment);
+        }
+        if (mVoiceAdjustFragment != null && mVoiceAdjustFragment.isAdded()) {
+            ft.hide(mVoiceAdjustFragment);
+        }
+        if (mStickerFragment != null && mStickerFragment.isAdded()) {
+            ft.hide(mStickerFragment);
+        }
+
     }
 
 
@@ -626,7 +788,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                         }
                     });
 
-                }else{
+                } else {
                     finish();
                 }
                 break;
@@ -638,8 +800,8 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
 
                 break;
             case R.id.btSticker:
-                Log.e("Harrison","sticker");
-               showStickerFragment();
+                Log.e("Harrison", "sticker");
+                showStickerFragment();
 
                 break;
 

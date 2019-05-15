@@ -27,7 +27,7 @@ class StickerUtils {
     }
     try {
       FileOutputStream fos = new FileOutputStream(file);
-      bmp.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+      bmp.compress(Bitmap.CompressFormat.PNG, 100, fos);
       fos.flush();
       fos.close();
     } catch (IOException e) {

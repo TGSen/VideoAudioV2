@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -15,16 +16,20 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.cgfay.cameralibrary.R;
 import com.cgfay.cameralibrary.sticker.BitmapStickerIcon;
 import com.cgfay.cameralibrary.sticker.DeleteIconEvent;
+import com.cgfay.cameralibrary.sticker.DrawableSticker;
 import com.cgfay.cameralibrary.sticker.FlipHorizontallyEvent;
 import com.cgfay.cameralibrary.sticker.Sticker;
 import com.cgfay.cameralibrary.sticker.StickerView;
 import com.cgfay.cameralibrary.sticker.TextSticker;
 import com.cgfay.cameralibrary.sticker.ZoomIconEvent;
+import com.cgfay.cameralibrary.utils.FileUtil;
 
+import java.io.File;
 import java.util.Arrays;
 
 /**
@@ -37,6 +42,7 @@ public class StickerFragment extends Fragment {
 
     private static final String TAG = "Harrison";
     private View mContentView;
+    private StickerView stickerView;
 
     public static StickerFragment getInstance() {
         Bundle bundle = new Bundle();
@@ -78,7 +84,7 @@ public class StickerFragment extends Fragment {
     }
 
     private void initView(View view) {
-        final StickerView stickerView = view.findViewById(R.id.stickerView);
+        stickerView = view.findViewById(R.id.stickerView);
 
         BitmapStickerIcon deleteIcon = new BitmapStickerIcon(ContextCompat.getDrawable(mActivity,
                 R.mipmap.sticker_ic_close_white_18dp),
@@ -95,28 +101,11 @@ public class StickerFragment extends Fragment {
                 BitmapStickerIcon.RIGHT_TOP);
         flipIcon.setIconEvent(new FlipHorizontallyEvent());
 
-        BitmapStickerIcon heartIcon =
-                new BitmapStickerIcon(ContextCompat.getDrawable(mActivity, R.mipmap.sticker),
-                        BitmapStickerIcon.LEFT_BOTTOM);
-//        heartIcon.setIconEvent(new HelloIconEvent());
-
-        stickerView.setIcons(Arrays.asList(deleteIcon, zoomIcon, flipIcon, heartIcon));
-
-        //default icon layout
-        //stickerView.configDefaultIcons();
-
-        stickerView.setBackgroundColor(Color.WHITE);
+        stickerView.setIcons(Arrays.asList(deleteIcon, zoomIcon, flipIcon));
+        stickerView.setBackgroundColor(Color.TRANSPARENT);
         stickerView.setLocked(false);
         stickerView.setConstrained(true);
 
-//        sticker = new TextSticker(this);
-//
-//        sticker.setDrawable(ContextCompat.getDrawable(getApplicationContext(),
-//                R.drawable.sticker_transparent_background));
-//        sticker.setText("Hello, world!");
-//        sticker.setTextColor(Color.BLACK);
-//        sticker.setTextAlign(Layout.Alignment.ALIGN_CENTER);
-//        sticker.resizeText();
 
         stickerView.setOnStickerOperationListener(new StickerView.OnStickerOperationListener() {
             @Override
@@ -166,9 +155,47 @@ public class StickerFragment extends Fragment {
             }
         });
 
+        loadSticker();
+
     }
-    
-    
+
+
+    private void loadSticker() {
+        Drawable drawable =
+                ContextCompat.getDrawable(mActivity, R.mipmap.sticker);
+
+        stickerView.addSticker(new DrawableSticker(drawable));
+
+
+//        Drawable bubble = ContextCompat.getDrawable(mActivity, R.mipmap.bubble);
+//        stickerView.addSticker(
+//                new TextSticker(mActivity.getApplicationContext())
+//                        .setDrawable(bubble)
+//                        .setText("Sticker\n")
+//                        .setMaxTextSize(14)
+//                        .resizeText()
+//                , Sticker.Position.CENTER);
+
+        stickerView.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                File file = FileUtil.getNewFile(mActivity, "Sticker");
+                if (file != null) {
+                    stickerView.save(file);
+                    if (file.exists()) {
+                        Log.e("Harrison", "file" + file.getAbsolutePath());
+                    } else {
+                        Log.e("Harrison", "file: null");
+                    }
+                    Toast.makeText(mActivity, "saved in " + file.getAbsolutePath(),
+                            Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(mActivity, "the file is null", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }, 25000);
+
+    }
 
 
 }
