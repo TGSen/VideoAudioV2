@@ -254,9 +254,9 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                         int extractH = DensityUtils.dp2px(EffectVideoActivity.this, 62);
                         mExtractFrameWorkThread = new ExtractFrameWorkThread(extractW, extractH, mHandler, videoPath,
                                 outPutFileDirPath, 0, mSeekBar.getMax(), MAX_COUNT_RANGE);
-                        thumbnailsCount = (int) ( mSeekBar.getMax() * 1.0f / (MAX_CUT_DURATION * 1.0f) * MAX_COUNT_RANGE);
+                        thumbnailsCount = (int) (mSeekBar.getMax() * 1.0f / (MAX_CUT_DURATION * 1.0f) * MAX_COUNT_RANGE);
                         rangeWidth = mMaxWidth / MAX_COUNT_RANGE * thumbnailsCount;
-                        averageMsPx =  mSeekBar.getMax() * 1.0f / rangeWidth * 1.0f;
+                        averageMsPx = mSeekBar.getMax() * 1.0f / rangeWidth * 1.0f;
                         mExtractFrameWorkThread.start();
                     }
                 });
@@ -502,7 +502,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                 .setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         mVideoEditAdapter = new ThumbVideoAdapter(this, mMaxWidth / 10);
         mThumbRecyclerView.setAdapter(mVideoEditAdapter);
-         mRecyclerView.addOnScrollListener(mOnScrollListener);
+        mRecyclerView.addOnScrollListener(mOnScrollListener);
 
 
         //贴纸得显示时间选择
@@ -522,11 +522,15 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                 if (mainGroup.getVisibility() == View.VISIBLE) {
                     hideFilterView();
                 } else {
-                    if (mVideoRenderer.isVideoPlay()) {
-                        mVideoRenderer.stopPlayVideo();
-                    } else {
-                        mVideoRenderer.startPlayVideo();
+                    //假如不是贴图的布局显示，那么就可以点击暂停和播放
+                    if (rangeThumbGroup.getVisibility() != View.VISIBLE) {
+                        if (mVideoRenderer.isVideoPlay()) {
+                            mVideoRenderer.stopPlayVideo();
+                        } else {
+                            mVideoRenderer.startPlayVideo();
+                        }
                     }
+
                 }
 
             }
@@ -680,14 +684,14 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                 scrollPos = 0;
             } else {
                 // why 在这里处理一下,因为onScrollStateChanged早于onScrolled回调
-               // videoPause();
+                // videoPause();
                 isSeeking = true;
                 scrollPos = (long) (averageMsPx * (MARGIN + scrollX));
                 Log.d(TAG, "-------scrollPos:>>>>>" + scrollPos);
                 leftProgress = mRangeSeekBar.getSelectedMinValue() + scrollPos;
                 rightProgress = mRangeSeekBar.getSelectedMaxValue() + scrollPos;
                 Log.d(TAG, "-------leftProgress:>>>>>" + leftProgress);
-               // mMediaPlayer.seekTo((int) leftProgress);
+                // mMediaPlayer.seekTo((int) leftProgress);
             }
             lastScrollX = scrollX;
         }
@@ -729,7 +733,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
 //                            leftProgress : rightProgress));
                     break;
                 case MotionEvent.ACTION_UP:
-                   Log.e(TAG, "-----ACTION_UP--leftProgress--->>>>>>" + leftProgress);
+                    Log.e(TAG, "-----ACTION_UP--leftProgress--->>>>>>" + leftProgress);
 //                    isSeeking = false;
 //                    //从minValue开始播
 //                    mMediaPlayer.seekTo((int) leftProgress);
