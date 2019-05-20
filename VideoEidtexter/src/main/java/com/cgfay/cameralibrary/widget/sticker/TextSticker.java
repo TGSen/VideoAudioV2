@@ -1,4 +1,4 @@
-package com.cgfay.cameralibrary.sticker;
+package com.cgfay.cameralibrary.widget.sticker;
 
 import android.content.Context;
 import android.graphics.Canvas;

@@ -1,4 +1,4 @@
-package com.cgfay.cameralibrary.sticker;
+package com.cgfay.cameralibrary.widget.sticker;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -42,6 +42,8 @@ public class StickerView extends FrameLayout {
     private final boolean showIcons;
     private final boolean showBorder;
     private final boolean bringToFrontCurrentSticker;
+
+
 
     @IntDef({
             ActionMode.NONE, ActionMode.DRAG, ActionMode.ZOOM_WITH_TWO_FINGER, ActionMode.ICON,
@@ -199,7 +201,7 @@ public class StickerView extends FrameLayout {
     @Override
     protected void dispatchDraw(Canvas canvas) {
         super.dispatchDraw(canvas);
-        Log.e("Harrison", "dispatchDraw");
+
         drawStickers(canvas);
     }
 
@@ -210,6 +212,7 @@ public class StickerView extends FrameLayout {
                 sticker.draw(canvas);
             }
         }
+
 
         if (handlingSticker != null && !locked && (showBorder || showIcons)) {
 
@@ -331,6 +334,10 @@ public class StickerView extends FrameLayout {
         }
 
         return true;
+    }
+
+    public void setBorder(boolean isShow) {
+
     }
 
     /**
@@ -569,25 +576,23 @@ public class StickerView extends FrameLayout {
     protected float calculateDistance(float x1, float y1, float x2, float y2) {
         double x = x1 - x2;
         double y = y1 - y2;
-
         return (float) Math.sqrt(x * x + y * y);
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldW, int oldH) {
         super.onSizeChanged(w, h, oldW, oldH);
-        if(oldW ==0|| oldH==0)return;
-        float scaleFactor = Math.min(w/oldW,h/oldH);
-        for (int i = 0; i < stickers.size(); i++) {
-            Sticker sticker = stickers.get(i);
-            if (sticker != null) {
-                Matrix currentMatrix = sticker.getMatrix();
-                currentMatrix.postScale(scaleFactor,scaleFactor);
-                sticker.getMatrix().reset();
-                sticker.setMatrix(currentMatrix);
-            }
-        }
-        invalidate();
+        if (oldW == 0 || oldH == 0) return;
+//        float scaleFactor = Math.min(w / oldW, h / oldH);
+//        for (int i = 0; i < stickers.size(); i++) {
+//            Sticker sticker = stickers.get(i);
+//            if (sticker != null) {
+//                Matrix currentMatrix = sticker.getMatrix();
+//                currentMatrix.postScale(scaleFactor, scaleFactor);
+//                sticker.setMatrix(currentMatrix);
+//            }
+//        }
+//        invalidate();
     }
 
     /**
@@ -624,7 +629,7 @@ public class StickerView extends FrameLayout {
 
         sizeMatrix.postScale(scaleFactor / 2f, scaleFactor / 2f, width / 2f, height / 2f);
         Matrix currentMatrix = sticker.getMatrix();
-        currentMatrix.postScale(scaleFactor,scaleFactor);
+        currentMatrix.postScale(scaleFactor, scaleFactor);
         sticker.getMatrix().reset();
         sticker.setMatrix(sizeMatrix);
 

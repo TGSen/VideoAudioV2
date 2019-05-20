@@ -5,7 +5,7 @@
     android:layout_height="match_parent">
 
 
-    <com.cgfay.cameralibrary.sticker.StickerView
+    <com.cgfay.cameralibrary.widget.sticker.StickerView
         android:id="@+id/stickerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -17,7 +17,7 @@
         app:showIcons="true">
 
 
-    </com.cgfay.cameralibrary.sticker.StickerView>
+    </com.cgfay.cameralibrary.widget.sticker.StickerView>
 
 
 </android.support.constraint.ConstraintLayout>

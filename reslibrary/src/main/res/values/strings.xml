@@ -15,6 +15,8 @@
     <string name="revoke">撤销</string>
 
     <string name="filter_use_tip">选择位置后,按住使用效果</string>
+    <string name="sticker_use_tip">选择贴图后，可自行调整位置与大小，不同时间段可选择不同得贴纸</string>
+    <string name="sticker_choose_time">已选择贴图持续时间:%sS</string>
     <string name="original_voice">原声</string>
     <!-- 相机类型 -->
     <string-array name="gallery_indicator">

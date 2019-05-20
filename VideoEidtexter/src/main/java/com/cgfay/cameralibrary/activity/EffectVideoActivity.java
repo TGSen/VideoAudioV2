@@ -7,7 +7,6 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -27,6 +26,7 @@ import android.transition.TransitionManager;
 import android.transition.TransitionValues;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -34,31 +34,30 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.cgfay.cameralibrary.R;
 import com.cgfay.cameralibrary.adapter.EffectResourceAdapter;
+import com.cgfay.cameralibrary.adapter.ThumbVideoAdapter;
 import com.cgfay.cameralibrary.fragment.PreviewFiltersFragment;
-import com.cgfay.cameralibrary.fragment.StickerFragment;
 import com.cgfay.cameralibrary.fragment.StickersFragment;
 import com.cgfay.cameralibrary.fragment.VoiceAdjustFragment;
 import com.cgfay.cameralibrary.media.VideoRenderThread;
 import com.cgfay.cameralibrary.media.VideoRenderer;
 import com.cgfay.cameralibrary.media.bean.VideoEffect;
 import com.cgfay.cameralibrary.media.bean.VideoEffectType;
-import com.cgfay.cameralibrary.media.bgmusic.MusicManager;
 import com.cgfay.cameralibrary.media.surface.EncodeDecodeSurface;
-import com.cgfay.cameralibrary.media.surface.OffSVideoRenderManager;
 import com.cgfay.cameralibrary.media.surface.OffScreenVideoRenderer;
-import com.cgfay.cameralibrary.sticker.BitmapStickerIcon;
-import com.cgfay.cameralibrary.sticker.DeleteIconEvent;
-import com.cgfay.cameralibrary.sticker.DrawableSticker;
-import com.cgfay.cameralibrary.sticker.FlipHorizontallyEvent;
-import com.cgfay.cameralibrary.sticker.Sticker;
-import com.cgfay.cameralibrary.sticker.StickerView;
-import com.cgfay.cameralibrary.sticker.TextSticker;
-import com.cgfay.cameralibrary.sticker.ZoomIconEvent;
-import com.cgfay.cameralibrary.utils.FileUtil;
+import com.cgfay.cameralibrary.thumb.video.ExtractFrameWorkThread;
+import com.cgfay.cameralibrary.thumb.video.VideoEditInfo;
+import com.cgfay.cameralibrary.widget.RangeSeekBar;
+import com.cgfay.cameralibrary.widget.sticker.BitmapStickerIcon;
+import com.cgfay.cameralibrary.widget.sticker.DeleteIconEvent;
+import com.cgfay.cameralibrary.widget.sticker.DrawableSticker;
+import com.cgfay.cameralibrary.widget.sticker.Sticker;
+import com.cgfay.cameralibrary.widget.sticker.StickerIconEvent;
+import com.cgfay.cameralibrary.widget.sticker.StickerView;
+import com.cgfay.cameralibrary.widget.sticker.TextSticker;
+import com.cgfay.cameralibrary.widget.sticker.ZoomIconEvent;
 import com.cgfay.cameralibrary.utils.ImageBlur;
 import com.cgfay.cameralibrary.widget.SpaceItemDecoration;
 import com.cgfay.cameralibrary.widget.VideoEffectSeekBar;
@@ -70,6 +69,7 @@ import com.cgfay.filterlibrary.glfilter.resource.bean.ResourceData;
 import com.cgfay.filterlibrary.glfilter.resource.bean.ResourceType;
 import com.cgfay.filterlibrary.glfilter.stickers.bean.DynamicSticker;
 import com.cgfay.utilslibrary.utils.BitmapUtils;
+import com.cgfay.utilslibrary.utils.DensityUtils;
 import com.cgfay.utilslibrary.utils.StringUtils;
 
 import java.io.File;
@@ -98,6 +98,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
     private String videoPath;
     private VideoPreviewView mVideoPreviewView;
     private VideoRenderer mVideoRenderer;
+    private int mMaxWidth; //可裁剪区域的最大宽度
 
     // 设置video paths
     public static final int MSG_VIDEO_PLAY_PROGRESS = 0x001;
@@ -106,12 +107,18 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
     private int currentEffectKey;
     private boolean isStartClick;
 
+    private static final long MIN_CUT_DURATION = 1 * 1000L;// 最小剪辑时间3s
+    private static final long MAX_CUT_DURATION = 10 * 1000L;//视频最多剪切多长时间
+    private static final int MAX_COUNT_RANGE = 10;//seekBar的区域内一共有多少张图片
+
     // 滤镜页面
     private PreviewFiltersFragment mColorFilterFragment;
     // 滤镜页面
     private StickersFragment mStickerFragment;
     //
     private VoiceAdjustFragment mVoiceAdjustFragment;
+
+
     /**
      * 记录 video 的特效时间
      */
@@ -135,12 +142,18 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                 case MSG_VIDEO_PLAY_STATUS_START:
                     mVideoPlayStatus.setVisibility(View.GONE);
                     break;
+                case ExtractFrameWorkThread.MSG_SAVE_SUCCESS:
+                    VideoEditInfo info = (VideoEditInfo) msg.obj;
+                    Log.e("Harrison", "info:" + info.path);
+                    mVideoEditAdapter.addItemVideoInfo(info);
+                    mVideoEditAdapter.notifyDataSetChanged();
+                    break;
 
             }
         }
     };
     private ConstraintLayout mRootView;
-    private RecyclerView mRecyclerView;
+    private RecyclerView mRecyclerView, mThumbRecyclerView;
     private TextView tvTotalTime, tvStartTime;
     private ImageView mVideoPlayStatus;
     private VideoEffectSeekBar mSeekBar;
@@ -153,9 +166,15 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
     private boolean isVideoPlayCompleted;
     private Group mainGroup;
     private Group effectGroup;
+    private Group rangeThumbGroup;
     private FrameLayout mAspectLayout;
     private ImageView btCloseImag;
     private StickerView mStickerView;
+    private RangeSeekBar mRangeSeekBar;
+    private int MARGIN = 56;
+    private ExtractFrameWorkThread mExtractFrameWorkThread;
+    private ThumbVideoAdapter mVideoEditAdapter;
+    private float averageMsPx;
 
 
     @Override
@@ -175,7 +194,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
         initView();
         initData();
 
-       initStickerView();
+        initStickerView();
     }
 
     /**
@@ -197,7 +216,53 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
         BitmapStickerIcon flipIcon = new BitmapStickerIcon(ContextCompat.getDrawable(this,
                 R.mipmap.sticker_ic_flip_white_18dp),
                 BitmapStickerIcon.RIGHT_TOP);
-        flipIcon.setIconEvent(new FlipHorizontallyEvent());
+        flipIcon.setIconEvent(new StickerIconEvent() {
+            @Override
+            public void onActionDown(StickerView stickerView, MotionEvent event) {
+
+            }
+
+            @Override
+            public void onActionMove(StickerView stickerView, MotionEvent event) {
+
+            }
+
+            @Override
+            public void onActionUp(StickerView stickerView, MotionEvent event) {
+                if (rangeThumbGroup.getVisibility() == View.VISIBLE) {
+                    mStickerView.setBorder(false);
+                    return;
+                }
+                ConstraintSet constraintSet = new ConstraintSet();
+                constraintSet.clone(mRootView);
+                constraintSet.clear(R.id.layout_aspect);
+                constraintSet.connect(R.id.layout_aspect, ConstraintSet.TOP, R.id.btCloseImag, ConstraintSet.BOTTOM, 70);
+                constraintSet.connect(R.id.layout_aspect, ConstraintSet.LEFT, ConstraintSet.PARENT_ID, ConstraintSet.LEFT, 150);
+                constraintSet.connect(R.id.layout_aspect, ConstraintSet.RIGHT, ConstraintSet.PARENT_ID, ConstraintSet.RIGHT, 150);
+                constraintSet.connect(R.id.layout_aspect, ConstraintSet.BOTTOM, R.id.stickerTip, ConstraintSet.TOP, 70);
+
+                constraintSet.applyTo(mRootView);
+                mainGroup.setVisibility(View.GONE);
+                effectGroup.setVisibility(View.GONE);
+                rangeThumbGroup.setVisibility(View.VISIBLE);
+
+                EXECUTOR.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        String outPutFileDirPath = getExternalCacheDir().getAbsolutePath() + "/";
+                        int extractW = mMaxWidth / MAX_COUNT_RANGE;
+                        int extractH = DensityUtils.dp2px(EffectVideoActivity.this, 62);
+                        mExtractFrameWorkThread = new ExtractFrameWorkThread(extractW, extractH, mHandler, videoPath,
+                                outPutFileDirPath, 0, mSeekBar.getMax(), MAX_COUNT_RANGE);
+                        thumbnailsCount = (int) ( mSeekBar.getMax() * 1.0f / (MAX_CUT_DURATION * 1.0f) * MAX_COUNT_RANGE);
+                        rangeWidth = mMaxWidth / MAX_COUNT_RANGE * thumbnailsCount;
+                        averageMsPx =  mSeekBar.getMax() * 1.0f / rangeWidth * 1.0f;
+                        mExtractFrameWorkThread.start();
+                    }
+                });
+
+            }
+        });
 
         mStickerView.setIcons(Arrays.asList(deleteIcon, zoomIcon, flipIcon));
         mStickerView.setBackgroundColor(Color.TRANSPARENT);
@@ -298,6 +363,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
     }
 
     private void initData() {
+
         Bundle bundle = getIntent().getBundleExtra(BUNDLE_VIDEO_PATH);
         videoPath = bundle.getString(KEY_VIDEO_PATH);
         //设置播放的视频路径
@@ -331,6 +397,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                     public void run() {
                         mRootView.setBackground(new BitmapDrawable(getResources(), bitmap));
                         mPreviewResourceAdapter.notifyDataSetChanged();
+
                     }
                 });
             }
@@ -399,6 +466,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
     private void initView() {
         mAspectLayout = findViewById(R.id.layout_aspect);
         mRecyclerView = findViewById(R.id.recyclerView);
+        mThumbRecyclerView = findViewById(R.id.thumbRecyclerView);
 
         mRootView = findViewById(R.id.rootView);
         mSeekBar = findViewById(R.id.seekBar);
@@ -423,16 +491,30 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
         btEffect.setOnClickListener(this);
         effectGroup = findViewById(R.id.effectGroup);
         mainGroup = findViewById(R.id.mainGroup);
+        rangeThumbGroup = findViewById(R.id.rangeThumbGroup);
         effectGroup.setVisibility(View.GONE);
+        rangeThumbGroup.setVisibility(View.GONE);
         mainGroup.setVisibility(View.VISIBLE);
 
         btFilters.setOnClickListener(this);
+        mMaxWidth = DensityUtils.getDisplayWidthPixels(this);
+        mThumbRecyclerView
+                .setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        mVideoEditAdapter = new ThumbVideoAdapter(this, mMaxWidth / 10);
+        mThumbRecyclerView.setAdapter(mVideoEditAdapter);
+         mRecyclerView.addOnScrollListener(mOnScrollListener);
 
 
-        //mAspectLayout.setAspectRatio(mCameraParam.currentRatio);
+        //贴纸得显示时间选择
+        mRangeSeekBar = findViewById(R.id.rangeSeekBar);
+        mRangeSeekBar.setSelectedMinValue(0L);
+        mRangeSeekBar.setSelectedMaxValue(MAX_CUT_DURATION);
+        mRangeSeekBar.setMin_cut_time(MIN_CUT_DURATION);//设置最小裁剪时间
+        mRangeSeekBar.setNotifyWhileDragging(true);
+        mRangeSeekBar.setOnRangeSeekBarChangeListener(mOnRangeSeekBarChangeListener);
+
         mVideoPreviewView = new VideoPreviewView(this);
-
-        mAspectLayout.addView(mVideoPreviewView,0);
+        mAspectLayout.addView(mVideoPreviewView, 0);
         mAspectLayout.requestLayout();
         mVideoPreviewView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -555,6 +637,112 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
         });
 
     }
+
+    private long leftProgress, rightProgress; //裁剪视频左边区域的时间位置, 右边时间位置
+    private long scrollPos = 0;
+    private int mScaledTouchSlop;
+    private int lastScrollX;
+    private boolean isSeeking;
+    private boolean isOverScaledTouchSlop;
+    private int thumbnailsCount;
+    private int rangeWidth;
+
+    private final RecyclerView.OnScrollListener mOnScrollListener = new RecyclerView.OnScrollListener() {
+        @Override
+        public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+            super.onScrollStateChanged(recyclerView, newState);
+            Log.d(TAG, "-------newState:>>>>>" + newState);
+            if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                isSeeking = false;
+//                videoStart();
+            } else {
+                isSeeking = true;
+//                if (isOverScaledTouchSlop) {
+//                   // videoPause();
+//                }
+            }
+        }
+
+        @Override
+        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            super.onScrolled(recyclerView, dx, dy);
+            isSeeking = false;
+            int scrollX = getScrollXDistance();
+            //达不到滑动的距离
+            if (Math.abs(lastScrollX - scrollX) < mScaledTouchSlop) {
+                isOverScaledTouchSlop = false;
+                return;
+            }
+            isOverScaledTouchSlop = true;
+            Log.d(TAG, "-------scrollX:>>>>>" + scrollX);
+            //初始状态,why ? 因为默认的时候有56dp的空白！
+            if (scrollX == -MARGIN) {
+                scrollPos = 0;
+            } else {
+                // why 在这里处理一下,因为onScrollStateChanged早于onScrolled回调
+               // videoPause();
+                isSeeking = true;
+                scrollPos = (long) (averageMsPx * (MARGIN + scrollX));
+                Log.d(TAG, "-------scrollPos:>>>>>" + scrollPos);
+                leftProgress = mRangeSeekBar.getSelectedMinValue() + scrollPos;
+                rightProgress = mRangeSeekBar.getSelectedMaxValue() + scrollPos;
+                Log.d(TAG, "-------leftProgress:>>>>>" + leftProgress);
+               // mMediaPlayer.seekTo((int) leftProgress);
+            }
+            lastScrollX = scrollX;
+        }
+    };
+
+    /**
+     * 水平滑动了多少px
+     *
+     * @return int px
+     */
+    private int getScrollXDistance() {
+        LinearLayoutManager layoutManager = (LinearLayoutManager) mRecyclerView.getLayoutManager();
+        int position = layoutManager.findFirstVisibleItemPosition();
+        View firstVisibleChildView = layoutManager.findViewByPosition(position);
+        int itemWidth = firstVisibleChildView.getWidth();
+        return (position) * itemWidth - firstVisibleChildView.getLeft();
+    }
+
+
+    private final RangeSeekBar.OnRangeSeekBarChangeListener mOnRangeSeekBarChangeListener = new RangeSeekBar.OnRangeSeekBarChangeListener() {
+        @Override
+        public void onRangeSeekBarValuesChanged(RangeSeekBar bar, long minValue, long maxValue,
+                                                int action, boolean isMin, RangeSeekBar.Thumb pressedThumb) {
+
+            switch (action) {
+                case MotionEvent.ACTION_DOWN:
+                    leftProgress = minValue + scrollPos;
+                    rightProgress = maxValue + scrollPos;
+                    Log.e(TAG, "-----leftProgress----->>>>>>" + leftProgress);
+                    Log.e(TAG, "-----rightProgress----->>>>>>" + rightProgress);
+//                    isSeeking = false;
+//                    videoPause();
+                    //暂停视频
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    Log.e(TAG, "-----ACTION_MOVE---->>>>>>");
+//                    isSeeking = true;
+//                    mMediaPlayer.seekTo((int) (pressedThumb == RangeSeekBar.Thumb.MIN ?
+//                            leftProgress : rightProgress));
+                    break;
+                case MotionEvent.ACTION_UP:
+                   Log.e(TAG, "-----ACTION_UP--leftProgress--->>>>>>" + leftProgress);
+//                    isSeeking = false;
+//                    //从minValue开始播
+//                    mMediaPlayer.seekTo((int) leftProgress);
+////                    videoStart();
+//                    mTvShootTip
+//                            .setText(String.format("裁剪 %d s", (rightProgress - leftProgress) / 1000));
+
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
 
     /**
      * 显示贴纸的Framelayout
@@ -719,22 +907,23 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
 
     }
 
+    //这个是特效的
+    private void setVideoPreviewSize() {
+
+
+    }
 
     @Override
     public void onClick(View v) {
         int id = v.getId();
         switch (id) {
             case R.id.btSave:
-                int size = mVideoEffects.size();
-                for (int i = size - 1; i >= 0; i--) {
-                    Log.e("Harrison", "posistion:" + mVideoEffects.get(i).getDynamicColorId() +
-                            "*start:" + mVideoEffects.get(i).getStartTime() + "*end:" + mVideoEffects.get(i).getEndTime());
-                }
                 break;
             case R.id.btFilters:
                 showFilterView();
                 break;
             case R.id.btEffect:
+//                mStickerView.setLocked(true);
                 ConstraintSet constraintSet = new ConstraintSet();
                 constraintSet.clone(mRootView);
                 constraintSet.clear(R.id.layout_aspect);
@@ -743,11 +932,14 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                 constraintSet.connect(R.id.layout_aspect, ConstraintSet.RIGHT, ConstraintSet.PARENT_ID, ConstraintSet.RIGHT, 150);
                 constraintSet.connect(R.id.layout_aspect, ConstraintSet.BOTTOM, R.id.startTime, ConstraintSet.TOP, 70);
                 constraintSet.applyTo(mRootView);
+
                 TransitionManager.beginDelayedTransition(mRootView, new Transition() {
                     @Override
                     public void captureStartValues(TransitionValues transitionValues) {
                         mainGroup.setVisibility(View.GONE);
+                        rangeThumbGroup.setVisibility(View.GONE);
                         effectGroup.setVisibility(View.VISIBLE);
+
                     }
 
                     @Override
@@ -780,6 +972,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                         @Override
                         public void captureStartValues(TransitionValues transitionValues) {
                             effectGroup.setVisibility(View.GONE);
+                            rangeThumbGroup.setVisibility(View.GONE);
                         }
 
                         @Override

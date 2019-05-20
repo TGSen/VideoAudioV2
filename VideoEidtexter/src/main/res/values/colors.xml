@@ -20,4 +20,8 @@
     <!-- 指示器颜色 -->
     <color name="colorHorizontalIndicator">#FFCC00</color>
 
+
+    <color name="cccccc">#cccccc</color>
+    <color name="ff7f000000">#7f000000</color>
+
 </resources>

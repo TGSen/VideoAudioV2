@@ -1,4 +1,4 @@
-package com.cgfay.cameralibrary.sticker;
+package com.cgfay.cameralibrary.widget.sticker;
 
 /**
  * @author wupanjie

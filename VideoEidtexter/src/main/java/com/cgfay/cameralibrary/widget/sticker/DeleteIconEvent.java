@@ -1,9 +1,12 @@
-package com.cgfay.cameralibrary.sticker;
+package com.cgfay.cameralibrary.widget.sticker;
 
 import android.view.MotionEvent;
 
-public abstract class AbstractFlipEvent implements StickerIconEvent {
+/**
+ * @author wupanjie
+ */
 
+public class DeleteIconEvent implements StickerIconEvent {
   @Override public void onActionDown(StickerView stickerView, MotionEvent event) {
 
   }
@@ -13,8 +16,6 @@ public abstract class AbstractFlipEvent implements StickerIconEvent {
   }
 
   @Override public void onActionUp(StickerView stickerView, MotionEvent event) {
-    stickerView.flipCurrentSticker(getFlipDirection());
+    stickerView.removeCurrentSticker();
   }
-
-  @StickerView.Flip protected abstract int getFlipDirection();
 }
