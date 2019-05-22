@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -34,6 +35,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cgfay.cameralibrary.R;
 import com.cgfay.cameralibrary.adapter.EffectResourceAdapter;
@@ -47,6 +49,11 @@ import com.cgfay.cameralibrary.media.bean.VideoEffect;
 import com.cgfay.cameralibrary.media.bean.VideoEffectType;
 import com.cgfay.cameralibrary.media.surface.EncodeDecodeSurface;
 import com.cgfay.cameralibrary.media.surface.OffScreenVideoRenderer;
+import com.cgfay.cameralibrary.mp4compose.FillMode;
+import com.cgfay.cameralibrary.mp4compose.composer.Mp4Composer;
+import com.cgfay.cameralibrary.mp4compose.filter.GlFilterGroup;
+import com.cgfay.cameralibrary.mp4compose.filter.GlMonochromeFilter;
+import com.cgfay.cameralibrary.mp4compose.filter.GlVignetteFilter;
 import com.cgfay.cameralibrary.thumb.video.ExtractFrameWorkThread;
 import com.cgfay.cameralibrary.thumb.video.VideoEditInfo;
 import com.cgfay.cameralibrary.widget.DragSeekBar;
@@ -72,6 +79,7 @@ import com.cgfay.filterlibrary.glfilter.stickers.bean.DynamicSticker;
 import com.cgfay.utilslibrary.utils.BitmapUtils;
 import com.cgfay.utilslibrary.utils.DensityUtils;
 import com.cgfay.utilslibrary.utils.StringUtils;
+
 
 import java.io.File;
 import java.util.ArrayList;
@@ -180,6 +188,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
     private ExtractFrameWorkThread mExtractFrameWorkThread;
     private ThumbVideoAdapter mVideoEditAdapter;
     private float averageMsPx;
+    private boolean isCombine;
 
 
     @Override
@@ -350,18 +359,20 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
         // 绑定需要渲染的SurfaceView
         mVideoRenderer.setSurfaceView(mVideoPreviewView);
 
-        EncodeDecodeSurface test = new EncodeDecodeSurface();
-        String outputPath = getExternalCacheDir().getAbsolutePath() + "/out.mp4";
+//        EncodeDecodeSurface test = new EncodeDecodeSurface();
+//        String outputPath = getExternalCacheDir().getAbsolutePath() + "/out.mp4";
+//
+//        test.setVideoPath(videoPath, outputPath);
+//        OffScreenVideoRenderer.getInstance().initRenderer(this);
+//        //初始化渲染的管理
+//        try {
+//            test.testEncodeDecodeSurface();
+//        } catch (Throwable a) {
+//            a.printStackTrace();
+//            Log.e("Harrison", "off:" + a.getLocalizedMessage());
 
-        test.setVideoPath(videoPath, outputPath);
-        OffScreenVideoRenderer.getInstance().initRenderer(this);
-        //初始化渲染的管理
-        try {
-            test.testEncodeDecodeSurface();
-        } catch (Throwable a) {
-            a.printStackTrace();
-            Log.e("Harrison", "off:" + a.getLocalizedMessage());
-        }
+//        }
+
 
         EXECUTOR.execute(new Runnable() {
             @Override
@@ -428,6 +439,53 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
 
         });
 
+    }
+
+    //特效，贴纸，合成Mp4
+    private void combineFilterToVideoFile() {
+        isCombine = true;
+        EXECUTOR.execute(new Runnable() {
+            @Override
+            public void run() {
+                String outputPath = getExternalCacheDir().getAbsolutePath() + File.separator+System.currentTimeMillis()+".mp4";
+                //获取视频文件的宽高
+                MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+                retriever.setDataSource(videoPath);
+                int width = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
+                int height = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
+                retriever.release();
+                Log.e(TAG, "EXECUTOR = " + width + "****" + height);
+                new Mp4Composer(videoPath, outputPath)
+                        .size(width, height)
+                        .fillMode(FillMode.PRESERVE_ASPECT_FIT)
+                        .filter(new GlFilterGroup(new GlMonochromeFilter(), new GlVignetteFilter()))
+                        .listener(new Mp4Composer.Listener() {
+                            @Override
+                            public void onProgress(double progress) {
+                                Log.e(TAG, "onProgress = " + progress);
+                            }
+
+                            @Override
+                            public void onCompleted() {
+                                Log.d(TAG, "onCompleted()");
+                                isCombine = false;
+                            }
+
+                            @Override
+                            public void onCanceled() {
+                                Log.e(TAG, "onCanceled");
+                                isCombine = false;
+                            }
+
+                            @Override
+                            public void onFailed(Exception exception) {
+                                Log.e(TAG, "onFailed()", exception);
+                                isCombine = false;
+                            }
+                        })
+                        .start();
+            }
+        });
     }
 
     public static void gotoThis(Context context, String path) {
@@ -994,7 +1052,8 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                 break;
             case R.id.imgNext:
                 //再次渲染特效成mp4
-
+                if(isCombine)return;
+                combineFilterToVideoFile();
                 break;
             case R.id.btSticker:
                 Log.e("Harrison", "sticker");
