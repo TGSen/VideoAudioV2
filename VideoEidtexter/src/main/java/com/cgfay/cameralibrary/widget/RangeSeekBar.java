@@ -15,8 +15,6 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
-import android.widget.SeekBar;
-
 
 import com.cgfay.cameralibrary.R;
 import com.cgfay.utilslibrary.utils.DensityUtils;
@@ -35,7 +33,7 @@ import java.text.DecimalFormat;
  */
 
 public class RangeSeekBar extends View {
-    private static final long MIN_CUT_DURATION = 3 * 1000L;// 最小剪辑时间3s
+    private static final long MIN_CUT_DURATION = 0L;// 最小剪辑时间3s
     private static final long MAX_CUT_DURATION = 10 * 1000L;//视频最多剪切多长时间
 
 
@@ -43,7 +41,7 @@ public class RangeSeekBar extends View {
     private double absoluteMinValuePrim = MIN_CUT_DURATION, absoluteMaxValuePrim = MAX_CUT_DURATION;
     private double normalizedMinValue = 0d;//点坐标占总长度的比例值，范围从0-1
     private double normalizedMaxValue = 1d;//点坐标占总长度的比例值，范围从0-1
-    private long min_cut_time = 3000;
+    private long min_cut_time = 0;
     private double normalizedMinValueTime = 0d;
     private double normalizedMaxValueTime = 1d;// normalized：规格化的--点坐标占总长度的比例值，范围从0-1
     private int mScaledTouchSlop;
@@ -158,25 +156,21 @@ public class RangeSeekBar extends View {
             try {
                 Matrix pro_mx = new Matrix();
                 pro_mx.postScale(scale_pro, 1f);
-                Bitmap m_bitmap_pro_new = Bitmap.createBitmap(mBitmapPro, 0, 0, mBitmapPro.getWidth(),
-                        mBitmapPro.getHeight(), pro_mx, true);
+                Bitmap m_bitmap_pro_new = Bitmap.createBitmap(mBitmapPro, 0, 0, mBitmapPro.getWidth(), mBitmapPro.getHeight(), pro_mx, true);
 
                 //画中间的透明遮罩
                 canvas.drawBitmap(m_bitmap_pro_new, rangeL, thumbPaddingTop, paint);
 
                 Matrix mx = new Matrix();
                 mx.postScale(scale, 1f);
-                Bitmap m_bitmap_black_new = Bitmap
-                        .createBitmap(mBitmapBlack, 0, 0, mBitmapBlack.getWidth(), mBitmapBlack.getHeight(), mx, true);
+                Bitmap m_bitmap_black_new = Bitmap.createBitmap(mBitmapBlack, 0, 0, mBitmapBlack.getWidth(), mBitmapBlack.getHeight(), mx, true);
 
                 //画左边的半透明遮罩
-                Bitmap m_bg_new1 = Bitmap
-                        .createBitmap(m_bitmap_black_new, 0, 0, (int) (rangeL - bg_middle_left) + (int) thumbWidth / 2, mBitmapBlack.getHeight());
+                Bitmap m_bg_new1 = Bitmap.createBitmap(m_bitmap_black_new, 0, 0, (int) (rangeL - bg_middle_left) + (int) thumbWidth / 2, mBitmapBlack.getHeight());
                 canvas.drawBitmap(m_bg_new1, bg_middle_left, thumbPaddingTop, paint);
 
                 //画右边的半透明遮罩
-                Bitmap m_bg_new2 = Bitmap
-                        .createBitmap(m_bitmap_black_new, (int) (rangeR - thumbWidth / 2), 0, (int) (getWidth() - rangeR) + (int) thumbWidth / 2, mBitmapBlack.getHeight());
+                Bitmap m_bg_new2 = Bitmap.createBitmap(m_bitmap_black_new, (int) (rangeR - thumbWidth / 2), 0, (int) (getWidth() - rangeR) + (int) thumbWidth / 2, mBitmapBlack.getHeight());
                 canvas.drawBitmap(m_bg_new2, (int) (rangeR - thumbWidth / 2), thumbPaddingTop, paint);
 
                 //画上下的矩形
@@ -202,12 +196,12 @@ public class RangeSeekBar extends View {
                         thumbPaddingTop + left_right_gray_margin,
                         normalizedToScreen(normalizedMaxValue) - thumbWidth + top_bottom_border_height + left_right_gray_width,
                         thumbPaddingTop + left_right_gray_margin + left_right_gray_height, mGrayPaint);
+
             } catch (Exception e) {
                 // 当pro_scale非常小，例如width=12，Height=48，pro_scale=0.01979065时，
                 // 宽高按比例计算后值为0.237、0.949，系统强转为int型后宽就变成0了。就出现非法参数异常
-                Log.e(TAG,
-                        "IllegalArgumentException--width=" + mBitmapPro.getWidth() + "Height=" + mBitmapPro.getHeight()
-                                + "scale_pro=" + scale_pro, e);
+                Log.e(TAG, "IllegalArgumentException--width=" + mBitmapPro.getWidth() + "Height=" + mBitmapPro.getHeight()
+                        + "scale_pro=" + scale_pro, e);
             }
         }
     }

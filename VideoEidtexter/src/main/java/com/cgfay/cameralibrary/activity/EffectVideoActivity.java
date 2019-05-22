@@ -49,6 +49,7 @@ import com.cgfay.cameralibrary.media.surface.EncodeDecodeSurface;
 import com.cgfay.cameralibrary.media.surface.OffScreenVideoRenderer;
 import com.cgfay.cameralibrary.thumb.video.ExtractFrameWorkThread;
 import com.cgfay.cameralibrary.thumb.video.VideoEditInfo;
+import com.cgfay.cameralibrary.widget.DragSeekBar;
 import com.cgfay.cameralibrary.widget.RangeSeekBar;
 import com.cgfay.cameralibrary.widget.sticker.BitmapStickerIcon;
 import com.cgfay.cameralibrary.widget.sticker.DeleteIconEvent;
@@ -107,7 +108,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
     private int currentEffectKey;
     private boolean isStartClick;
 
-    private static final long MIN_CUT_DURATION = 1 * 1000L;// 最小剪辑时间3s
+    private static final long MIN_CUT_DURATION = 0L;// 最小剪辑时间3s
     private static final long MAX_CUT_DURATION = 10 * 1000L;//视频最多剪切多长时间
     private static final int MAX_COUNT_RANGE = 10;//seekBar的区域内一共有多少张图片
 
@@ -135,6 +136,9 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                     tvStartTime.setText(TextUtils.isEmpty(time) ? "00:00" : time);
                     mSeekBar.setProgress(progress);
                     mHandler.sendEmptyMessage(MSG_VIDEO_PLAY_PROGRESS);
+
+                    //改变贴纸的显示时间
+                    mStickerSeekBar.setProgress(progress);
                     break;
                 case MSG_VIDEO_PLAY_STATUS_STOP:
                     mVideoPlayStatus.setVisibility(View.VISIBLE);
@@ -157,6 +161,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
     private TextView tvTotalTime, tvStartTime;
     private ImageView mVideoPlayStatus;
     private VideoEffectSeekBar mSeekBar;
+    private DragSeekBar mStickerSeekBar;
     private List<ResourceData> mResourceData = new ArrayList<>();
     private EffectResourceAdapter mPreviewResourceAdapter;
     private long mStartClickTime;
@@ -171,7 +176,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
     private ImageView btCloseImag;
     private StickerView mStickerView;
     private RangeSeekBar mRangeSeekBar;
-    private int MARGIN = 56;
+    private int MARGIN = 46;
     private ExtractFrameWorkThread mExtractFrameWorkThread;
     private ThumbVideoAdapter mVideoEditAdapter;
     private float averageMsPx;
@@ -318,48 +323,22 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
             }
         });
 
-        loadSticker();
+
     }
 
     private void loadSticker() {
         Drawable drawable = ContextCompat.getDrawable(this, R.mipmap.sticker);
 
-        mStickerView.addSticker(new DrawableSticker(drawable));
-        mStickerView.addSticker(new DrawableSticker(drawable));
-        mStickerView.addSticker(new DrawableSticker(drawable));
-        mStickerView.addSticker(new DrawableSticker(drawable));
-        mStickerView.addSticker(new DrawableSticker(drawable));
-        mStickerView.addSticker(new DrawableSticker(drawable));
-        mStickerView.addSticker(new DrawableSticker(drawable));
+        mStickerView.addSticker(new DrawableSticker(drawable).setEndTime(mSeekBar.getMax()));
+        mStickerView.addSticker(new DrawableSticker(drawable).setEndTime(mSeekBar.getMax()));
+        mStickerView.addSticker(new DrawableSticker(drawable).setEndTime(mSeekBar.getMax()));
+        mStickerView.addSticker(new DrawableSticker(drawable).setEndTime(mSeekBar.getMax()));
+        mStickerView.addSticker(new DrawableSticker(drawable).setEndTime(mSeekBar.getMax()));
+        mStickerView.addSticker(new DrawableSticker(drawable).setEndTime(mSeekBar.getMax()));
+        mStickerView.addSticker(new DrawableSticker(drawable).setEndTime(mSeekBar.getMax()));
+        mStickerView.addSticker(new DrawableSticker(drawable).setEndTime(mSeekBar.getMax()));
 
 
-//        Drawable bubble = ContextCompat.getDrawable(mActivity, R.mipmap.bubble);
-//        stickerView.addSticker(
-//                new TextSticker(mActivity.getApplicationContext())
-//                        .setDrawable(bubble)
-//                        .setText("Sticker\n")
-//                        .setMaxTextSize(14)
-//                        .resizeText()
-//                , Sticker.Position.CENTER);
-
-//        mStickerView.postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                File file = FileUtil.getNewFile(this, "Sticker");
-//                if (file != null) {
-//                    mStickerView.save(file);
-//                    if (file.exists()) {
-//                        Log.e("Harrison", "file" + file.getAbsolutePath());
-//                    } else {
-//                        Log.e("Harrison", "file: null");
-//                    }
-//                    Toast.makeText(mActivity, "saved in " + file.getAbsolutePath(),
-//                            Toast.LENGTH_SHORT).show();
-//                } else {
-//                    Toast.makeText(mActivity, "the file is null", Toast.LENGTH_SHORT).show();
-//                }
-//            }
-//        }, 25000);
     }
 
     private void initData() {
@@ -412,12 +391,13 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                     @Override
                     public void run() {
                         mSeekBar.setMax(totalTime);
+                        mStickerSeekBar.setMax(totalTime);
                         Log.e("Harrison", "totalTime" + totalTime);
                         String time = StringUtils.generateTime(totalTime);
                         tvTotalTime.setText(TextUtils.isEmpty(time) ? "00:00" : time);
                         mHandler.sendEmptyMessage(MSG_VIDEO_PLAY_PROGRESS);
-                        //设置Seekbar 的颜色
-
+                        //加载贴纸
+                        loadSticker();
                     }
                 });
                 mHandler.sendEmptyMessage(MSG_VIDEO_PLAY_STATUS_START);
@@ -470,6 +450,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
 
         mRootView = findViewById(R.id.rootView);
         mSeekBar = findViewById(R.id.seekBar);
+        mStickerSeekBar = findViewById(R.id.mStickerSeekBar);
         tvTotalTime = findViewById(R.id.totalTime);
         tvStartTime = findViewById(R.id.startTime);
         mVideoPlayStatus = findViewById(R.id.imgVideo);
@@ -500,7 +481,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
         mMaxWidth = DensityUtils.getDisplayWidthPixels(this);
         mThumbRecyclerView
                 .setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        mVideoEditAdapter = new ThumbVideoAdapter(this, mMaxWidth / 10);
+        mVideoEditAdapter = new ThumbVideoAdapter(this, mMaxWidth / 11);
         mThumbRecyclerView.setAdapter(mVideoEditAdapter);
         mRecyclerView.addOnScrollListener(mOnScrollListener);
 
@@ -535,7 +516,25 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
 
             }
         });
+        mStickerSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                synchronized (EffectVideoActivity.class) {
+                    //改变显示的时间
+                    mStickerView.setShowSticker(progress);
+                }
+            }
 
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
 
         mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -727,13 +726,14 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                     //暂停视频
                     break;
                 case MotionEvent.ACTION_MOVE:
-                    Log.e(TAG, "-----ACTION_MOVE---->>>>>>");
+                    Log.e(TAG, "-----ACTION_MOVE---->>>>>>" + minValue + "-----" + maxValue);
 //                    isSeeking = true;
 //                    mMediaPlayer.seekTo((int) (pressedThumb == RangeSeekBar.Thumb.MIN ?
 //                            leftProgress : rightProgress));
                     break;
                 case MotionEvent.ACTION_UP:
-                    Log.e(TAG, "-----ACTION_UP--leftProgress--->>>>>>" + leftProgress);
+                    mStickerView.setStickerTime(minValue, maxValue);
+                    Log.e(TAG, "-----ACTION_UP--leftProgress--->>>>>>" + minValue + "-----" + maxValue);
 //                    isSeeking = false;
 //                    //从minValue开始播
 //                    mMediaPlayer.seekTo((int) leftProgress);

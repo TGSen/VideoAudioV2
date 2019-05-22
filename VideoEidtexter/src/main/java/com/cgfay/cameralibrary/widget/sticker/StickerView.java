@@ -44,7 +44,6 @@ public class StickerView extends FrameLayout {
     private final boolean bringToFrontCurrentSticker;
 
 
-
     @IntDef({
             ActionMode.NONE, ActionMode.DRAG, ActionMode.ZOOM_WITH_TWO_FINGER, ActionMode.ICON,
             ActionMode.CLICK
@@ -208,7 +207,7 @@ public class StickerView extends FrameLayout {
     protected void drawStickers(Canvas canvas) {
         for (int i = 0; i < stickers.size(); i++) {
             Sticker sticker = stickers.get(i);
-            if (sticker != null) {
+            if (sticker != null && sticker.isShow()) {
                 sticker.draw(canvas);
             }
         }
@@ -582,17 +581,19 @@ public class StickerView extends FrameLayout {
     @Override
     protected void onSizeChanged(int w, int h, int oldW, int oldH) {
         super.onSizeChanged(w, h, oldW, oldH);
+
+        Log.e("Harrison","onSizeChanged"+w+"*"+oldW+"*"+h+"*"+oldH);
         if (oldW == 0 || oldH == 0) return;
-//        float scaleFactor = Math.min(w / oldW, h / oldH);
-//        for (int i = 0; i < stickers.size(); i++) {
-//            Sticker sticker = stickers.get(i);
-//            if (sticker != null) {
-//                Matrix currentMatrix = sticker.getMatrix();
-//                currentMatrix.postScale(scaleFactor, scaleFactor);
-//                sticker.setMatrix(currentMatrix);
-//            }
-//        }
-//        invalidate();
+        float scaleFactor = (float) h / (float) oldH;
+        for (int i = 0; i < stickers.size(); i++) {
+            Sticker sticker = stickers.get(i);
+            if (sticker != null) {
+                Log.e("Harrison","scaleFactor"+scaleFactor);
+                Matrix matrix = sticker.getMatrix();
+                matrix.postScale(scaleFactor, scaleFactor);
+            }
+        }
+        invalidate();
     }
 
     /**
@@ -750,12 +751,20 @@ public class StickerView extends FrameLayout {
         return this;
     }
 
+    /**
+     * 开始时间，结束时间
+     *
+     * @param startTime
+     * @param endTime
+     */
+    public void setStickerTime(long startTime, long endTime) {
+        handlingSticker.setStartTime(startTime);
+        handlingSticker.setEndTime(endTime);
+    }
+
     protected void addStickerImmediately(@NonNull Sticker sticker, @Sticker.Position int position) {
         setStickerPosition(sticker, position);
-
-
         float scaleFactor, widthScaleFactor, heightScaleFactor;
-
         widthScaleFactor = (float) getWidth() / sticker.getDrawable().getIntrinsicWidth();
         heightScaleFactor = (float) getHeight() / sticker.getDrawable().getIntrinsicHeight();
         scaleFactor = widthScaleFactor > heightScaleFactor ? heightScaleFactor : widthScaleFactor;
@@ -893,6 +902,26 @@ public class StickerView extends FrameLayout {
         this.icons.clear();
         this.icons.addAll(icons);
         invalidate();
+    }
+
+    /**
+     * 设置sticker 的显示是否
+     *
+     * @param progress
+     */
+    public void setShowSticker(int progress) {
+        if (stickers == null) return;
+        int size = stickers.size();
+        for (int i = 0; i < size; i++) {
+            Sticker sticker = stickers.get(i);
+            if (sticker.getStartTime() > progress || sticker.getEndTime() < progress) {
+                sticker.setShow(false);
+            } else {
+                sticker.setShow(true);
+            }
+        }
+        postInvalidate();
+
     }
 
     public interface OnStickerOperationListener {
