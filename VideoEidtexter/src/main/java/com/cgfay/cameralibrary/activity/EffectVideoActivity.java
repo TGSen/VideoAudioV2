@@ -303,7 +303,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
         mStickerView.setOnStickerOperationListener(new StickerView.OnStickerOperationListener() {
             @Override
             public void onStickerAdded(@NonNull Sticker sticker) {
-                Log.d(TAG, "onStickerAdded");
+                Log.e(TAG, "onStickerAdded");
             }
 
             @Override
@@ -314,37 +314,37 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                     mStickerView.replace(sticker);
                     mStickerView.invalidate();
                 }
-                Log.d(TAG, "onStickerClicked");
+                Log.e(TAG, "onStickerClicked");
             }
 
             @Override
             public void onStickerDeleted(@NonNull Sticker sticker) {
-                Log.d(TAG, "onStickerDeleted");
+                Log.e(TAG, "onStickerDeleted");
             }
 
             @Override
             public void onStickerDragFinished(@NonNull Sticker sticker) {
-                Log.d(TAG, "onStickerDragFinished");
+                Log.e(TAG, "onStickerDragFinished");
             }
 
             @Override
             public void onStickerTouchedDown(@NonNull Sticker sticker) {
-                Log.d(TAG, "onStickerTouchedDown");
+                Log.e(TAG, "onStickerTouchedDown");
             }
 
             @Override
             public void onStickerZoomFinished(@NonNull Sticker sticker) {
-                Log.d(TAG, "onStickerZoomFinished");
+                Log.e(TAG, "onStickerZoomFinished");
             }
 
             @Override
             public void onStickerFlipped(@NonNull Sticker sticker) {
-                Log.d(TAG, "onStickerFlipped");
+                Log.e(TAG, "onStickerFlipped");
             }
 
             @Override
             public void onStickerDoubleTapped(@NonNull Sticker sticker) {
-                Log.d(TAG, "onDoubleTapped: double tap will be with two click");
+                Log.e(TAG, "onDoubleTapped: double tap will be with two click");
             }
         });
 
@@ -510,7 +510,6 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                 int width = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
                 int height = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
                 retriever.release();
-                Log.e(TAG, "EXECUTOR = " + width + "****" + height);
                 new Mp4Composer(videoPath, outputPath)
                         .size(width, height)
                         .fillMode(FillMode.PRESERVE_ASPECT_FIT)
@@ -523,7 +522,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
 
                             @Override
                             public void onCompleted() {
-                                Log.d(TAG, "onCompleted()");
+                                Log.e(TAG, "onCompleted()");
                                 isCombine = false;
                             }
 
@@ -769,7 +768,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
         @Override
         public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
             super.onScrollStateChanged(recyclerView, newState);
-            Log.d(TAG, "-------newState:>>>>>" + newState);
+            Log.e(TAG, "-------newState:>>>>>" + newState);
             if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                 isSeeking = false;
 //                videoStart();
@@ -792,7 +791,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                 return;
             }
             isOverScaledTouchSlop = true;
-            Log.d(TAG, "-------scrollX:>>>>>" + scrollX);
+            Log.e(TAG, "-------scrollX:>>>>>" + scrollX);
             //初始状态,why ? 因为默认的时候有56dp的空白！
             if (scrollX == -MARGIN) {
                 scrollPos = 0;
@@ -801,10 +800,10 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                 // videoPause();
                 isSeeking = true;
                 scrollPos = (long) (averageMsPx * (MARGIN + scrollX));
-                Log.d(TAG, "-------scrollPos:>>>>>" + scrollPos);
+                Log.e(TAG, "-------scrollPos:>>>>>" + scrollPos);
                 leftProgress = mRangeSeekBar.getSelectedMinValue() + scrollPos;
                 rightProgress = mRangeSeekBar.getSelectedMaxValue() + scrollPos;
-                Log.d(TAG, "-------leftProgress:>>>>>" + leftProgress);
+                Log.e(TAG, "-------leftProgress:>>>>>" + leftProgress);
                 // mMediaPlayer.seekTo((int) leftProgress);
             }
             lastScrollX = scrollX;

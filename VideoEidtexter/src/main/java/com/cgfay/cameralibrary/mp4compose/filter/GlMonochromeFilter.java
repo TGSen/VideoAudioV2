@@ -31,7 +31,6 @@ public class GlMonochromeFilter extends GlFilter {
                     "(desat.b < 0.5 ? (2.0 * desat.b * 0.3) : (1.0 - 2.0 * (1.0 - desat.b) * (1.0 - 0.3)))," +
                     "1.0" +
                     ");" +
-
                     "gl_FragColor = vec4(mix(textureColor.rgb, outputColor.rgb, intensity), textureColor.a);" +
                     "}";
 
