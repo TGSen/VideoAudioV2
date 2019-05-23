@@ -179,7 +179,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
     private boolean isVideoPlayCompleted;
     private Group mainGroup;
     private Group effectGroup;
-    private Group rangeThumbGroup;
+    private ConstraintLayout layoutStickerTool;
     private FrameLayout mAspectLayout;
     private ImageView btCloseImag;
     private StickerView mStickerView;
@@ -243,37 +243,53 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
 
             @Override
             public void onActionUp(StickerView stickerView, MotionEvent event) {
-                if (rangeThumbGroup.getVisibility() == View.VISIBLE) {
+                if (layoutStickerTool.getVisibility() == View.VISIBLE) {
                     mStickerView.setBorder(false);
                     return;
                 }
-                ConstraintSet constraintSet = new ConstraintSet();
-                constraintSet.clone(mRootView);
-                constraintSet.clear(R.id.layout_aspect);
-                constraintSet.connect(R.id.layout_aspect, ConstraintSet.TOP, R.id.btCloseImag, ConstraintSet.BOTTOM, 70);
-                constraintSet.connect(R.id.layout_aspect, ConstraintSet.LEFT, ConstraintSet.PARENT_ID, ConstraintSet.LEFT, 150);
-                constraintSet.connect(R.id.layout_aspect, ConstraintSet.RIGHT, ConstraintSet.PARENT_ID, ConstraintSet.RIGHT, 150);
-                constraintSet.connect(R.id.layout_aspect, ConstraintSet.BOTTOM, R.id.stickerTip, ConstraintSet.TOP, 70);
-
-                constraintSet.applyTo(mRootView);
                 mainGroup.setVisibility(View.GONE);
                 effectGroup.setVisibility(View.GONE);
-                rangeThumbGroup.setVisibility(View.VISIBLE);
-
-                EXECUTOR.execute(new Runnable() {
+                layoutStickerTool.setVisibility(View.VISIBLE);
+                layoutStickerTool.post(new Runnable() {
                     @Override
                     public void run() {
-                        String outPutFileDirPath = getExternalCacheDir().getAbsolutePath() + "/";
-                        int extractW = mMaxWidth / MAX_COUNT_RANGE;
-                        int extractH = DensityUtils.dp2px(EffectVideoActivity.this, 62);
-                        mExtractFrameWorkThread = new ExtractFrameWorkThread(extractW, extractH, mHandler, videoPath,
-                                outPutFileDirPath, 0, mSeekBar.getMax(), MAX_COUNT_RANGE);
-                        thumbnailsCount = (int) (mSeekBar.getMax() * 1.0f / (MAX_CUT_DURATION * 1.0f) * MAX_COUNT_RANGE);
-                        rangeWidth = mMaxWidth / MAX_COUNT_RANGE * thumbnailsCount;
-                        averageMsPx = mSeekBar.getMax() * 1.0f / rangeWidth * 1.0f;
-                        mExtractFrameWorkThread.start();
+                        int[] margin = calculation();
+
+
+                        ConstraintSet constraintSet = new ConstraintSet();
+                        constraintSet.clone(mRootView);
+                        constraintSet.clear(R.id.layout_aspect);
+                        constraintSet.constrainWidth(R.id.layout_aspect, ConstraintLayout.LayoutParams.WRAP_CONTENT);
+                        constraintSet.constrainHeight(R.id.layout_aspect, ConstraintLayout.LayoutParams.WRAP_CONTENT);
+
+                        constraintSet.connect(R.id.layout_aspect, ConstraintSet.TOP, R.id.btCloseImag, ConstraintSet.BOTTOM);
+                        constraintSet.connect(R.id.layout_aspect, ConstraintSet.LEFT, ConstraintSet.PARENT_ID, ConstraintSet.LEFT);
+                        constraintSet.connect(R.id.layout_aspect, ConstraintSet.RIGHT, ConstraintSet.PARENT_ID, ConstraintSet.RIGHT);
+                        constraintSet.connect(R.id.layout_aspect, ConstraintSet.BOTTOM, R.id.layoutStickerTool, ConstraintSet.TOP);
+
+                        constraintSet.applyTo(mRootView);
+                        ConstraintLayout.LayoutParams layoutParams = (ConstraintLayout.LayoutParams) mAspectLayout.getLayoutParams();
+
+                        layoutParams.width = margin[0];
+                        layoutParams.height = margin[1];
+                        mAspectLayout.setLayoutParams(layoutParams);
+                        EXECUTOR.execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                String outPutFileDirPath = getExternalCacheDir().getAbsolutePath() + "/";
+                                int extractW = mMaxWidth / MAX_COUNT_RANGE;
+                                int extractH = DensityUtils.dp2px(EffectVideoActivity.this, 62);
+                                mExtractFrameWorkThread = new ExtractFrameWorkThread(extractW, extractH, mHandler, videoPath,
+                                        outPutFileDirPath, 0, mSeekBar.getMax(), MAX_COUNT_RANGE);
+                                thumbnailsCount = (int) (mSeekBar.getMax() * 1.0f / (MAX_CUT_DURATION * 1.0f) * MAX_COUNT_RANGE);
+                                rangeWidth = mMaxWidth / MAX_COUNT_RANGE * thumbnailsCount;
+                                averageMsPx = mSeekBar.getMax() * 1.0f / rangeWidth * 1.0f;
+                                mExtractFrameWorkThread.start();
+                            }
+                        });
                     }
                 });
+
 
             }
         });
@@ -333,6 +349,46 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
         });
 
 
+    }
+
+    /**
+     * //得计算比例，宽和高都是720*1280 的比例，得注意底部的高度
+     *
+     * @return
+     */
+    private int[] calculation() {
+
+
+        int[] border = new int[2];
+
+        int exWidth = 720;
+        int exHeight = 1280;
+        //左右两边最小的边距
+        int minLeft = 40;
+        int minBottom = 40;
+        //计算一个我认为最佳的比例
+        int width = DensityUtils.getDisplayWidthPixels(EffectVideoActivity.this);
+        int height = DensityUtils.getDisplayHeightPixels(EffectVideoActivity.this);
+        int[] position = new int[2];
+        btCloseImag.getLocationOnScreen(position);
+        Log.e("Harrison", layoutStickerTool.getHeight() + "*" + "height*" + height + "width" + width);
+        //开始的比例
+        float ratio = 1.2f;
+        float step = 0.1f;
+        while (true) {
+            if ((exWidth * ratio > width - minLeft * 2) || (exHeight * ratio > height - layoutStickerTool.getHeight() - minBottom * 2 - position[1])) {
+                ratio -= step;
+                if (ratio <= 0) {
+                    ratio = step;
+                    break;
+                }
+            } else {
+                break;
+            }
+        }
+        border[0] = (int) (exWidth * ratio);
+        border[1] = (int) (exHeight * ratio);
+        return border;
     }
 
     private void loadSticker() {
@@ -447,7 +503,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
         EXECUTOR.execute(new Runnable() {
             @Override
             public void run() {
-                String outputPath = getExternalCacheDir().getAbsolutePath() + File.separator+System.currentTimeMillis()+".mp4";
+                String outputPath = getExternalCacheDir().getAbsolutePath() + File.separator + System.currentTimeMillis() + ".mp4";
                 //获取视频文件的宽高
                 MediaMetadataRetriever retriever = new MediaMetadataRetriever();
                 retriever.setDataSource(videoPath);
@@ -512,6 +568,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
         tvTotalTime = findViewById(R.id.totalTime);
         tvStartTime = findViewById(R.id.startTime);
         mVideoPlayStatus = findViewById(R.id.imgVideo);
+        layoutStickerTool = findViewById(R.id.layoutStickerTool);
         ImageView imgNext = findViewById(R.id.imgNext);
         imgNext.setOnClickListener(this);
         TextView sticker = findViewById(R.id.btSticker);
@@ -530,9 +587,9 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
         btEffect.setOnClickListener(this);
         effectGroup = findViewById(R.id.effectGroup);
         mainGroup = findViewById(R.id.mainGroup);
-        rangeThumbGroup = findViewById(R.id.rangeThumbGroup);
+        layoutStickerTool = findViewById(R.id.layoutStickerTool);
         effectGroup.setVisibility(View.GONE);
-        rangeThumbGroup.setVisibility(View.GONE);
+        layoutStickerTool.setVisibility(View.GONE);
         mainGroup.setVisibility(View.VISIBLE);
 
         btFilters.setOnClickListener(this);
@@ -562,7 +619,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                     hideFilterView();
                 } else {
                     //假如不是贴图的布局显示，那么就可以点击暂停和播放
-                    if (rangeThumbGroup.getVisibility() != View.VISIBLE) {
+                    if (layoutStickerTool.getVisibility() != View.VISIBLE) {
                         if (mVideoRenderer.isVideoPlay()) {
                             mVideoRenderer.stopPlayVideo();
                         } else {
@@ -989,6 +1046,8 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                 ConstraintSet constraintSet = new ConstraintSet();
                 constraintSet.clone(mRootView);
                 constraintSet.clear(R.id.layout_aspect);
+                constraintSet.constrainWidth(R.id.layout_aspect,0);
+                constraintSet.constrainHeight(R.id.layout_aspect, 0);
                 constraintSet.connect(R.id.layout_aspect, ConstraintSet.TOP, R.id.btCloseImag, ConstraintSet.BOTTOM, 70);
                 constraintSet.connect(R.id.layout_aspect, ConstraintSet.LEFT, ConstraintSet.PARENT_ID, ConstraintSet.LEFT, 150);
                 constraintSet.connect(R.id.layout_aspect, ConstraintSet.RIGHT, ConstraintSet.PARENT_ID, ConstraintSet.RIGHT, 150);
@@ -999,7 +1058,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                     @Override
                     public void captureStartValues(TransitionValues transitionValues) {
                         mainGroup.setVisibility(View.GONE);
-                        rangeThumbGroup.setVisibility(View.GONE);
+                        layoutStickerTool.setVisibility(View.GONE);
                         effectGroup.setVisibility(View.VISIBLE);
 
                     }
@@ -1034,7 +1093,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                         @Override
                         public void captureStartValues(TransitionValues transitionValues) {
                             effectGroup.setVisibility(View.GONE);
-                            rangeThumbGroup.setVisibility(View.GONE);
+                            layoutStickerTool.setVisibility(View.GONE);
                         }
 
                         @Override
@@ -1052,7 +1111,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                 break;
             case R.id.imgNext:
                 //再次渲染特效成mp4
-                if(isCombine)return;
+                if (isCombine) return;
                 combineFilterToVideoFile();
                 break;
             case R.id.btSticker:
