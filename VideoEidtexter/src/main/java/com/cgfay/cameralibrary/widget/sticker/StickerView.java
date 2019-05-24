@@ -295,6 +295,15 @@ public class StickerView extends FrameLayout {
         return super.onInterceptTouchEvent(ev);
     }
 
+    /**
+     * 获取所有的贴纸
+     * @param
+     * @return
+     */
+
+    public List<Sticker> getStickers(){
+        return stickers;
+    }
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (locked) {

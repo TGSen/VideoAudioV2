@@ -4,6 +4,7 @@ package com.cgfay.cameralibrary.mp4compose.composer;
 import android.media.MediaCodec;
 import android.media.MediaExtractor;
 import android.media.MediaFormat;
+import android.util.Log;
 import android.util.Size;
 
 

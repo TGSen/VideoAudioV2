@@ -1,6 +1,7 @@
 package com.cgfay.cameralibrary.mp4compose.filter;
 
 import android.opengl.GLES20;
+import android.util.Log;
 import android.util.Pair;
 
 
@@ -20,7 +21,13 @@ public class GlFilterGroup extends GlFilter {
     private final ArrayList<Pair<GlFilter, GlFramebufferObject>> list = new ArrayList<Pair<GlFilter, GlFramebufferObject>>();
 
     public GlFilterGroup(final GlFilter... glFilters) {
-        this(Arrays.asList(glFilters));
+        filters = new ArrayList<>();
+    }
+
+    public void addFilterItem(GlFilter filter){
+        if(filter!=null && filters!=null){
+            filters.add(filter);
+        }
     }
 
     public GlFilterGroup(final Collection<GlFilter> glFilters) {
@@ -51,6 +58,7 @@ public class GlFilterGroup extends GlFilter {
 
     @Override
     public void release() {
+        Log.e("Harrison","GlFramebufferObject***");
         for (final Pair<GlFilter, GlFramebufferObject> pair : list) {
             if (pair.first != null) {
                 pair.first.release();
@@ -60,7 +68,7 @@ public class GlFilterGroup extends GlFilter {
             }
         }
         list.clear();
-        super.release();
+       super.release();
     }
 
     @Override

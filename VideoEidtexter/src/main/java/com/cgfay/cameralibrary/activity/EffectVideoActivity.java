@@ -2,8 +2,12 @@ package com.cgfay.cameralibrary.activity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.MediaMetadataRetriever;
@@ -40,6 +44,7 @@ import android.widget.Toast;
 import com.cgfay.cameralibrary.R;
 import com.cgfay.cameralibrary.adapter.EffectResourceAdapter;
 import com.cgfay.cameralibrary.adapter.ThumbVideoAdapter;
+import com.cgfay.cameralibrary.filter.GLStickerFilter;
 import com.cgfay.cameralibrary.fragment.PreviewFiltersFragment;
 import com.cgfay.cameralibrary.fragment.StickersFragment;
 import com.cgfay.cameralibrary.fragment.VoiceAdjustFragment;
@@ -82,6 +87,7 @@ import com.cgfay.utilslibrary.utils.StringUtils;
 
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -443,7 +449,6 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                     public void run() {
                         mRootView.setBackground(new BitmapDrawable(getResources(), bitmap));
                         mPreviewResourceAdapter.notifyDataSetChanged();
-
                     }
                 });
             }
@@ -507,13 +512,47 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                 //获取视频文件的宽高
                 MediaMetadataRetriever retriever = new MediaMetadataRetriever();
                 retriever.setDataSource(videoPath);
-                int width = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
-                int height = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
+                final int width = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
+                final int height = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
                 retriever.release();
+
+                final GlFilterGroup filterGroup = new GlFilterGroup();
+
+
+                final GLStickerFilter glStickerFilter = new GLStickerFilter() {
+                    @Override
+                    protected void drawCanvas(Canvas canvas) {
+
+                        List<Sticker> stickers = mStickerView.getStickers();
+                        for (int i = 0; i < mStickerView.getStickerCount(); i++) {
+                            final Sticker sticker = stickers.get(i);
+                            BitmapDrawable bd = (BitmapDrawable) sticker.getDrawable();
+                            final Bitmap bitmap = bd.getBitmap();
+                            //计算比例
+                            int widthScreen = DensityUtils.getDisplayWidthPixels(EffectVideoActivity.this);
+                            int heightScreen = DensityUtils.getDisplayHeightPixels(EffectVideoActivity.this);
+                            float scaleWidth = (float) width / widthScreen;
+                            float scaleHeight = (float) height / heightScreen;
+                            final float scale = Math.max(scaleWidth, scaleHeight);
+                            //使用在Sticker
+                            Log.e("Harrison", "drawCanvas" + canvas.getWidth() + "***" + canvas.getHeight());
+                            Matrix matrix = new Matrix();
+                            Matrix srcMatix = sticker.getMatrix();
+                            matrix.set(srcMatix);
+                            canvas.drawBitmap(bitmap, matrix, null);
+
+                        }
+                    }
+
+
+                };
+                filterGroup.addFilterItem(glStickerFilter);
+
+
                 new Mp4Composer(videoPath, outputPath)
                         .size(width, height)
                         .fillMode(FillMode.PRESERVE_ASPECT_FIT)
-                        .filter(new GlFilterGroup(new GlMonochromeFilter(), new GlVignetteFilter()))
+                        .filter(filterGroup)
                         .listener(new Mp4Composer.Listener() {
                             @Override
                             public void onProgress(double progress) {
@@ -1045,7 +1084,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                 ConstraintSet constraintSet = new ConstraintSet();
                 constraintSet.clone(mRootView);
                 constraintSet.clear(R.id.layout_aspect);
-                constraintSet.constrainWidth(R.id.layout_aspect,0);
+                constraintSet.constrainWidth(R.id.layout_aspect, 0);
                 constraintSet.constrainHeight(R.id.layout_aspect, 0);
                 constraintSet.connect(R.id.layout_aspect, ConstraintSet.TOP, R.id.btCloseImag, ConstraintSet.BOTTOM, 70);
                 constraintSet.connect(R.id.layout_aspect, ConstraintSet.LEFT, ConstraintSet.PARENT_ID, ConstraintSet.LEFT, 150);
