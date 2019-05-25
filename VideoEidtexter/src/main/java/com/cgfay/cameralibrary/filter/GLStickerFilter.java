@@ -1,16 +1,23 @@
 package com.cgfay.cameralibrary.filter;
 
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.opengl.GLES20;
 import android.util.Log;
 
-import com.cgfay.cameralibrary.mp4compose.filter.GlFilter;
 import com.cgfay.cameralibrary.mp4compose.filter.GlOverlayFilter;
 
 public abstract class GLStickerFilter extends GlOverlayFilter {
+    //当前时间
+    private double currentTime;
 
-//    private Bitmap bitmap;
+    public double getCurrentTime() {
+        return currentTime;
+    }
+
+    public void setCurrentTime(double currentTime) {
+        this.currentTime = currentTime;
+    }
+
+
+    //    private Bitmap bitmap;
 //
 //    public GLStickerFilter(Bitmap bitmap) {
 //        this.bitmap = bitmap;
@@ -34,6 +41,7 @@ public abstract class GLStickerFilter extends GlOverlayFilter {
      */
     @Override
     public void release() {
+
         Log.e("Harrison", "release**********");
 //        if (bitmap != null && !bitmap.isRecycled()) {
 //            bitmap.recycle();

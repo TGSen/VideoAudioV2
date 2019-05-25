@@ -195,6 +195,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
     private ThumbVideoAdapter mVideoEditAdapter;
     private float averageMsPx;
     private boolean isCombine;
+    private GLStickerFilter glStickerFilter;
 
 
     @Override
@@ -519,13 +520,18 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                 final GlFilterGroup filterGroup = new GlFilterGroup();
 
 
-                final GLStickerFilter glStickerFilter = new GLStickerFilter() {
+                glStickerFilter = new GLStickerFilter() {
+
+
                     @Override
                     protected void drawCanvas(Canvas canvas) {
 
                         List<Sticker> stickers = mStickerView.getStickers();
                         for (int i = 0; i < mStickerView.getStickerCount(); i++) {
                             final Sticker sticker = stickers.get(i);
+                            if (sticker.getStartTime() > glStickerFilter.getCurrentTime() || sticker.getEndTime() < glStickerFilter.getCurrentTime()) {
+                                break;
+                            }
                             BitmapDrawable bd = (BitmapDrawable) sticker.getDrawable();
                             final Bitmap bitmap = bd.getBitmap();
                             //计算比例
@@ -535,7 +541,6 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                             float scaleHeight = (float) height / heightScreen;
                             final float scale = Math.max(scaleWidth, scaleHeight);
                             //使用在Sticker
-                            Log.e("Harrison", "drawCanvas" + canvas.getWidth() + "***" + canvas.getHeight());
                             Matrix matrix = new Matrix();
                             Matrix srcMatix = sticker.getMatrix();
                             matrix.set(srcMatix);
@@ -555,25 +560,27 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                         .filter(filterGroup)
                         .listener(new Mp4Composer.Listener() {
                             @Override
-                            public void onProgress(double progress) {
-                                Log.e(TAG, "onProgress = " + progress);
+                            public void onProgress(double progress,double time) {
+                                //time 是纳秒的，需要除以 1000 转化为毫秒 好计算
+                                 glStickerFilter.setCurrentTime(time/1000);
+
                             }
 
                             @Override
                             public void onCompleted() {
-                                Log.e(TAG, "onCompleted()");
+//                                Log.e(TAG, "onCompleted()");
                                 isCombine = false;
                             }
 
                             @Override
                             public void onCanceled() {
-                                Log.e(TAG, "onCanceled");
+//                                Log.e(TAG, "onCanceled");
                                 isCombine = false;
                             }
 
                             @Override
                             public void onFailed(Exception exception) {
-                                Log.e(TAG, "onFailed()", exception);
+//                                Log.e(TAG, "onFailed()", exception);
                                 isCombine = false;
                             }
                         })

@@ -172,7 +172,7 @@ class Mp4ComposerEngine {
         long loopCount = 0;
         if (durationUs <= 0) {
             if (progressCallback != null) {
-                progressCallback.onProgress(PROGRESS_UNKNOWN);
+                progressCallback.onProgress( PROGRESS_UNKNOWN,videoComposer.getWrittenPresentationTimeUs());
             }// unknown
         }
         while (!(videoComposer.isFinished() && audioComposer.isFinished())) {
@@ -184,7 +184,7 @@ class Mp4ComposerEngine {
                 double audioProgress = audioComposer.isFinished() ? 1.0 : Math.min(1.0, (double) audioComposer.getWrittenPresentationTimeUs() / durationUs);
                 double progress = (videoProgress + audioProgress) / 2.0;
                 if (progressCallback != null) {
-                    progressCallback.onProgress(progress);
+                    progressCallback.onProgress(progress,videoComposer.getWrittenPresentationTimeUs());
                 }
             }
             if (!stepped) {
@@ -201,7 +201,7 @@ class Mp4ComposerEngine {
         long loopCount = 0;
         if (durationUs <= 0) {
             if (progressCallback != null) {
-                progressCallback.onProgress(PROGRESS_UNKNOWN);
+                progressCallback.onProgress( PROGRESS_UNKNOWN,videoComposer.getWrittenPresentationTimeUs());
             } // unknown
         }
         while (!videoComposer.isFinished()) {
@@ -210,7 +210,7 @@ class Mp4ComposerEngine {
             if (durationUs > 0 && loopCount % PROGRESS_INTERVAL_STEPS == 0) {
                 double videoProgress = videoComposer.isFinished() ? 1.0 : Math.min(1.0, (double) videoComposer.getWrittenPresentationTimeUs() / durationUs);
                 if (progressCallback != null) {
-                    progressCallback.onProgress(videoProgress);
+                    progressCallback.onProgress( videoProgress,videoComposer.getWrittenPresentationTimeUs());
                 }
             }
             if (!stepped) {
@@ -230,8 +230,9 @@ class Mp4ComposerEngine {
         /**
          * Called to notify progress. Same thread which initiated transcode is used.
          *
+         * @param v
          * @param progress Progress in [0.0, 1.0] range, or negative value if progress is unknown.
          */
-        void onProgress(double progress);
+        void onProgress(double v, double progress);
     }
 }

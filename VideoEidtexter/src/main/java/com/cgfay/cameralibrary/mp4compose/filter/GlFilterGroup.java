@@ -8,20 +8,24 @@ import android.util.Pair;
 import com.cgfay.cameralibrary.mp4compose.gl.GlFramebufferObject;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 
 import static android.opengl.GLES20.GL_COLOR_BUFFER_BIT;
 import static android.opengl.GLES20.GL_FRAMEBUFFER;
 
 public class GlFilterGroup extends GlFilter {
 
-    private final Collection<GlFilter> filters;
+    private final ArrayList<GlFilter> filters;
 
     private final ArrayList<Pair<GlFilter, GlFramebufferObject>> list = new ArrayList<Pair<GlFilter, GlFramebufferObject>>();
 
     public GlFilterGroup(final GlFilter... glFilters) {
         filters = new ArrayList<>();
+    }
+
+    public GlFilter getFilterByIndex(int index){
+        if(filters==null ) return null;
+        if(index<0|| index>=filters.size()) return null;
+        return filters.get(index);
     }
 
     public void addFilterItem(GlFilter filter){
@@ -30,7 +34,7 @@ public class GlFilterGroup extends GlFilter {
         }
     }
 
-    public GlFilterGroup(final Collection<GlFilter> glFilters) {
+    public GlFilterGroup(final ArrayList<GlFilter> glFilters) {
         filters = glFilters;
     }
 

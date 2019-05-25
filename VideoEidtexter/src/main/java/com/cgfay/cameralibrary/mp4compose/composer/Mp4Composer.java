@@ -120,9 +120,9 @@ public class Mp4Composer {
 
                 engine.setProgressCallback(new Mp4ComposerEngine.ProgressCallback() {
                     @Override
-                    public void onProgress(final double progress) {
+                    public void onProgress(double progress, final double time) {
                         if (listener != null) {
-                            listener.onProgress(progress);
+                            listener.onProgress(progress,time);
                         }
                     }
                 });
@@ -238,7 +238,7 @@ public class Mp4Composer {
          *
          * @param progress Progress in [0.0, 1.0] range, or negative value if progress is unknown.
          */
-        void onProgress(double progress);
+        void onProgress(double progress,double time);
 
         /**
          * Called when transcode completed.
