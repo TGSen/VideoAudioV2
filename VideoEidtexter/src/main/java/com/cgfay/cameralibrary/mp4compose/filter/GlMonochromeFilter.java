@@ -12,7 +12,7 @@ public class GlMonochromeFilter extends GlFilter {
     private static final String FRAGMENT_SHADER =
             "precision lowp float;" +
 
-                    "varying highp vec2 vTextureCoord;" +
+                    "varying highp vec2 textureCoordinate;" +
                     "uniform lowp sampler2D sTexture;" +
                     "uniform float intensity;" +
 
@@ -20,7 +20,7 @@ public class GlMonochromeFilter extends GlFilter {
 
                     "void main() {" +
 
-                    "lowp vec4 textureColor = texture2D(sTexture, vTextureCoord);" +
+                    "lowp vec4 textureColor = texture2D(sTexture, textureCoordinate);" +
                     "float luminance = dot(textureColor.rgb, luminanceWeighting);" +
 
                     "lowp vec4 desat = vec4(vec3(luminance), 1.0);" +

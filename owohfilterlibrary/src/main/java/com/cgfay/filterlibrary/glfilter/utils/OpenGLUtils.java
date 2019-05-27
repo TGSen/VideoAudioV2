@@ -189,8 +189,6 @@ public class OpenGLUtils {
             String msg = op + ": glError 0x" + Integer.toHexString(error);
             Log.e(TAG, msg);
            // throw new RuntimeException(msg);
-        }else{
-            Log.e(TAG, op);
         }
     }
 

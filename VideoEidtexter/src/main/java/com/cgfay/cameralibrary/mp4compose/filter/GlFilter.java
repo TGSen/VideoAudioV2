@@ -87,7 +87,6 @@ public class GlFilter {
         program = EglUtil.createProgram(vertexShader, fragmentShader);
         vertexBufferName = EglUtil.createBuffer(VERTICES_DATA);
 
-        OpenGLUtils.checkGlError("Error:");
         getHandle("aPosition");
         getHandle("aTextureCoord");
         getHandle("sTexture");

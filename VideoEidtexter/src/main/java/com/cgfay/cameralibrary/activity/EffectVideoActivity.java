@@ -52,6 +52,7 @@ import com.cgfay.cameralibrary.media.bean.VideoEffectType;
 import com.cgfay.cameralibrary.mp4compose.FillMode;
 import com.cgfay.cameralibrary.mp4compose.composer.Mp4Composer;
 import com.cgfay.cameralibrary.mp4compose.filter.GlFilterGroup;
+import com.cgfay.cameralibrary.mp4compose.filter.GlMonochromeFilter;
 import com.cgfay.cameralibrary.thumb.video.ExtractFrameWorkThread;
 import com.cgfay.cameralibrary.thumb.video.VideoEditInfo;
 import com.cgfay.cameralibrary.widget.DragSeekBar;
@@ -548,9 +549,10 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
 
 
                 };
-
+                //滤镜的先后有一定的影响
+                filterGroup.addFilterItem(new GlMonochromeFilter());
                 filterGroup.addFilterItem(glStickerFilter);
-//                filterGroup.addFilterItem(new GlMonochromeFilter());
+
 
 
                 new Mp4Composer(videoPath, outputPath)
