@@ -513,18 +513,17 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                 //获取视频文件的宽高
                 MediaMetadataRetriever retriever = new MediaMetadataRetriever();
                 retriever.setDataSource(videoPath);
-                final int width = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
-                final int height = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
+                final int videoWidth = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
+                final int videoHeight = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
                 retriever.release();
 
                 final GlFilterGroup filterGroup = new GlFilterGroup();
 
 
                 glStickerFilter = new GLStickerFilter() {
-
-
                     @Override
                     protected void drawCanvas(Canvas canvas) {
+
 
                         List<Sticker> stickers = mStickerView.getStickers();
                         for (int i = 0; i < mStickerView.getStickerCount(); i++) {
@@ -537,15 +536,20 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                             //计算比例
                             int widthScreen = DensityUtils.getDisplayWidthPixels(EffectVideoActivity.this);
                             int heightScreen = DensityUtils.getDisplayHeightPixels(EffectVideoActivity.this);
-                            float scaleWidth = (float) width / widthScreen;
-                            float scaleHeight = (float) height / heightScreen;
-                            final float scale = Math.max(scaleWidth, scaleHeight);
+                            float scale = 1.0f;
+                            if (widthScreen < heightScreen) {
+                                scale = (float) videoWidth / widthScreen;
+                            } else {
+                                scale = (float) videoHeight / heightScreen;
+                            }
+                            Matrix srcMatrix = sticker.getMatrix();
                             //使用在Sticker
                             Matrix matrix = new Matrix();
-                            Matrix srcMatix = sticker.getMatrix();
-                            matrix.set(srcMatix);
+                            Log.e("Harrison", "getCurrentScale" + sticker.getBoundPoints() + "sticker.getCurrentScale()" + sticker.getCurrentScale());
+                            matrix.postScale(sticker.getCurrentScale(), sticker.getCurrentScale());
+                            matrix.postRotate(sticker.getCurrentAngle());
+                            //   matrix.postTranslate((canvas.getWidth() - sticker.getWidth()) / 2, (canvas.getHeight() - sticker.getHeight()) / 2);
                             canvas.drawBitmap(bitmap, matrix, null);
-
                         }
                     }
 
@@ -555,14 +559,14 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
 
 
                 new Mp4Composer(videoPath, outputPath)
-                        .size(width, height)
+                        .size(videoWidth, videoHeight)
                         .fillMode(FillMode.PRESERVE_ASPECT_FIT)
                         .filter(filterGroup)
                         .listener(new Mp4Composer.Listener() {
                             @Override
-                            public void onProgress(double progress,double time) {
+                            public void onProgress(double progress, double time) {
                                 //time 是纳秒的，需要除以 1000 转化为毫秒 好计算
-                                 glStickerFilter.setCurrentTime(time/1000);
+                                glStickerFilter.setCurrentTime(time / 1000);
 
                             }
 
@@ -684,6 +688,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                     mStickerView.setShowSticker(progress);
                 }
             }
+
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {

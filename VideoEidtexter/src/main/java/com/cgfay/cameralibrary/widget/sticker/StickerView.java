@@ -559,6 +559,7 @@ public class StickerView extends FrameLayout {
             return midPoint;
         }
         handlingSticker.getMappedCenterPoint(midPoint, point, tmp);
+        Log.e("Harrison","获取的中心点："+midPoint.x+midPoint.y);
         return midPoint;
     }
 
@@ -644,6 +645,7 @@ public class StickerView extends FrameLayout {
         } else {
             scaleFactor = height / stickerHeight;
         }
+
 
         sizeMatrix.postScale(scaleFactor / 2f, scaleFactor / 2f, width / 2f, height / 2f);
         Matrix currentMatrix = sticker.getMatrix();
