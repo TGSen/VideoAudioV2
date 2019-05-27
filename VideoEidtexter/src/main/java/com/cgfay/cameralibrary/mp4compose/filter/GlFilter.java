@@ -2,14 +2,18 @@ package com.cgfay.cameralibrary.mp4compose.filter;
 
 import android.content.res.Resources;
 import android.opengl.GLES20;
+import android.util.Log;
 
 
 import com.cgfay.cameralibrary.mp4compose.gl.GlFramebufferObject;
 import com.cgfay.cameralibrary.mp4compose.utils.EglUtil;
+import com.cgfay.filterlibrary.glfilter.utils.OpenGLUtils;
 
 import java.util.HashMap;
 
 import static android.opengl.GLES20.GL_FLOAT;
+import static android.opengl.GLES20.glBlendEquationSeparate;
+import static android.opengl.GLES20.glGetActiveAttrib;
 
 /**
  * Created by sudamasayuki on 2017/11/14.
@@ -22,18 +26,18 @@ public class GlFilter {
     protected static final String DEFAULT_VERTEX_SHADER =
             "attribute highp vec4 aPosition;\n" +
                     "attribute highp vec4 aTextureCoord;\n" +
-                    "varying highp vec2 vTextureCoord;\n" +
+                    "varying highp vec2 textureCoordinate;\n" +
                     "void main() {\n" +
                     "gl_Position = aPosition;\n" +
-                    "vTextureCoord = aTextureCoord.xy;\n" +
+                    "textureCoordinate = aTextureCoord.xy;\n" +
                     "}\n";
 
     protected static final String DEFAULT_FRAGMENT_SHADER =
             "precision mediump float;\n" +
-                    "varying highp vec2 vTextureCoord;\n" +
+                    "varying highp vec2 textureCoordinate;\n" +
                     "uniform lowp sampler2D sTexture;\n" +
                     "void main() {\n" +
-                    "gl_FragColor = texture2D(sTexture, vTextureCoord);\n" +
+                    "gl_FragColor = texture2D(sTexture, textureCoordinate);\n" +
                     "}\n";
 
     private static final float[] VERTICES_DATA = new float[]{
@@ -83,6 +87,7 @@ public class GlFilter {
         program = EglUtil.createProgram(vertexShader, fragmentShader);
         vertexBufferName = EglUtil.createBuffer(VERTICES_DATA);
 
+        OpenGLUtils.checkGlError("Error:");
         getHandle("aPosition");
         getHandle("aTextureCoord");
         getHandle("sTexture");

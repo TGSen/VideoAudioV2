@@ -30,7 +30,7 @@ import javax.microedition.khronos.egl.EGL11;
 
 public class OpenGLUtils {
 
-    public static final String TAG = "OpenGLUtils";
+    public static final String TAG = "Harrison";
 
     // 从初始化失败
     public static final int GL_NOT_INIT = -1;
@@ -188,7 +188,9 @@ public class OpenGLUtils {
         if (error != GLES30.GL_NO_ERROR) {
             String msg = op + ": glError 0x" + Integer.toHexString(error);
             Log.e(TAG, msg);
-            throw new RuntimeException(msg);
+           // throw new RuntimeException(msg);
+        }else{
+            Log.e(TAG, op);
         }
     }
 

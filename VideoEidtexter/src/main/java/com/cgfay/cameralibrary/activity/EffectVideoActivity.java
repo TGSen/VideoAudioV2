@@ -2,9 +2,7 @@ package com.cgfay.cameralibrary.activity;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
@@ -39,7 +37,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.cgfay.cameralibrary.R;
 import com.cgfay.cameralibrary.adapter.EffectResourceAdapter;
@@ -52,13 +49,9 @@ import com.cgfay.cameralibrary.media.VideoRenderThread;
 import com.cgfay.cameralibrary.media.VideoRenderer;
 import com.cgfay.cameralibrary.media.bean.VideoEffect;
 import com.cgfay.cameralibrary.media.bean.VideoEffectType;
-import com.cgfay.cameralibrary.media.surface.EncodeDecodeSurface;
-import com.cgfay.cameralibrary.media.surface.OffScreenVideoRenderer;
 import com.cgfay.cameralibrary.mp4compose.FillMode;
 import com.cgfay.cameralibrary.mp4compose.composer.Mp4Composer;
 import com.cgfay.cameralibrary.mp4compose.filter.GlFilterGroup;
-import com.cgfay.cameralibrary.mp4compose.filter.GlMonochromeFilter;
-import com.cgfay.cameralibrary.mp4compose.filter.GlVignetteFilter;
 import com.cgfay.cameralibrary.thumb.video.ExtractFrameWorkThread;
 import com.cgfay.cameralibrary.thumb.video.VideoEditInfo;
 import com.cgfay.cameralibrary.widget.DragSeekBar;
@@ -87,7 +80,6 @@ import com.cgfay.utilslibrary.utils.StringUtils;
 
 
 import java.io.File;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -548,14 +540,17 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                             Log.e("Harrison", "getCurrentScale" + sticker.getBoundPoints() + "sticker.getCurrentScale()" + sticker.getCurrentScale());
                             matrix.postScale(sticker.getCurrentScale(), sticker.getCurrentScale());
                             matrix.postRotate(sticker.getCurrentAngle());
-                            //   matrix.postTranslate((canvas.getWidth() - sticker.getWidth()) / 2, (canvas.getHeight() - sticker.getHeight()) / 2);
+                            //  matrix.postTranslate((canvas.getWidth() - sticker.getCurrentWidth()) / 2, (canvas.getHeight() - sticker.getCurrentHeight()) / 2);
+                            matrix.postTranslate((canvas.getWidth() - bitmap.getWidth() * sticker.getCurrentScale()) / 2, (canvas.getHeight() - bitmap.getHeight() * sticker.getCurrentScale()) / 2);
                             canvas.drawBitmap(bitmap, matrix, null);
                         }
                     }
 
 
                 };
+
                 filterGroup.addFilterItem(glStickerFilter);
+//                filterGroup.addFilterItem(new GlMonochromeFilter());
 
 
                 new Mp4Composer(videoPath, outputPath)

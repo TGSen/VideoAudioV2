@@ -22,13 +22,13 @@ public class GlPreviewFilter extends GlFilter {
 
                     "attribute vec4 aPosition;\n" +
                     "attribute vec4 aTextureCoord;\n" +
-                    "varying highp vec2 vTextureCoord;\n" +
+                    "varying highp vec2 textureCoordinate;\n" +
 
                     "void main() {\n" +
                     "vec4 scaledPos = aPosition;\n" +
                     "scaledPos.x = scaledPos.x * uCRatio;\n" +
                     "gl_Position = uMVPMatrix * scaledPos;\n" +
-                    "vTextureCoord = (uSTMatrix * aTextureCoord).xy;\n" +
+                    "textureCoordinate = (uSTMatrix * aTextureCoord).xy;\n" +
                     "}\n";
 
     private final int texTarget;

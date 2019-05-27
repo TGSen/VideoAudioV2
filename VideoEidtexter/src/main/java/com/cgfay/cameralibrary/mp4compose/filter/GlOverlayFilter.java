@@ -18,7 +18,7 @@ public abstract class GlOverlayFilter extends GlFilter {
 
     private Bitmap bitmap = null;
 
-    protected Size inputResolution = new Size(1280, 720);
+    protected Size inputResolution = new Size(720, 1280);
 
     public GlOverlayFilter() {
         super(DEFAULT_VERTEX_SHADER, FRAGMENT_SHADER);
@@ -26,12 +26,12 @@ public abstract class GlOverlayFilter extends GlFilter {
 
     private final static String FRAGMENT_SHADER =
             "precision mediump float;\n" +
-                    "varying vec2 vTextureCoord;\n" +
+                    "varying vec2 textureCoordinate;\n" +
                     "uniform lowp sampler2D sTexture;\n" +
                     "uniform lowp sampler2D oTexture;\n" +
                     "void main() {\n" +
-                    "   lowp vec4 textureColor = texture2D(sTexture, vTextureCoord);\n" +
-                    "   lowp vec4 textureColor2 = texture2D(oTexture, vTextureCoord);\n" +
+                    "   lowp vec4 textureColor = texture2D(sTexture, textureCoordinate);\n" +
+                    "   lowp vec4 textureColor2 = texture2D(oTexture, textureCoordinate);\n" +
                     "   \n" +
                     "   gl_FragColor = mix(textureColor, textureColor2, textureColor2.a);\n" +
                     "}\n";
