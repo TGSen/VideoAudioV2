@@ -3,6 +3,7 @@ package com.cgfay.cameralibrary.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
@@ -41,6 +42,8 @@ import android.widget.TextView;
 import com.cgfay.cameralibrary.R;
 import com.cgfay.cameralibrary.adapter.EffectResourceAdapter;
 import com.cgfay.cameralibrary.adapter.ThumbVideoAdapter;
+import com.cgfay.cameralibrary.filter.GLColorFilter;
+import com.cgfay.cameralibrary.filter.GLEffectFilter;
 import com.cgfay.cameralibrary.filter.GLStickerFilter;
 import com.cgfay.cameralibrary.fragment.PreviewFiltersFragment;
 import com.cgfay.cameralibrary.fragment.StickersFragment;
@@ -52,7 +55,6 @@ import com.cgfay.cameralibrary.media.bean.VideoEffectType;
 import com.cgfay.cameralibrary.mp4compose.FillMode;
 import com.cgfay.cameralibrary.mp4compose.composer.Mp4Composer;
 import com.cgfay.cameralibrary.mp4compose.filter.GlFilterGroup;
-import com.cgfay.cameralibrary.mp4compose.filter.GlMonochromeFilter;
 import com.cgfay.cameralibrary.thumb.video.ExtractFrameWorkThread;
 import com.cgfay.cameralibrary.thumb.video.VideoEditInfo;
 import com.cgfay.cameralibrary.widget.DragSeekBar;
@@ -70,11 +72,13 @@ import com.cgfay.cameralibrary.widget.SpaceItemDecoration;
 import com.cgfay.cameralibrary.widget.VideoEffectSeekBar;
 import com.cgfay.cameralibrary.widget.VideoPreviewView;
 import com.cgfay.filterlibrary.glfilter.color.bean.DynamicColor;
+import com.cgfay.filterlibrary.glfilter.color.bean.DynamicColorData;
 import com.cgfay.filterlibrary.glfilter.resource.ResourceHelper;
 import com.cgfay.filterlibrary.glfilter.resource.ResourceJsonCodec;
 import com.cgfay.filterlibrary.glfilter.resource.bean.ResourceData;
 import com.cgfay.filterlibrary.glfilter.resource.bean.ResourceType;
 import com.cgfay.filterlibrary.glfilter.stickers.bean.DynamicSticker;
+import com.cgfay.filterlibrary.glfilter.utils.OpenGLUtils;
 import com.cgfay.utilslibrary.utils.BitmapUtils;
 import com.cgfay.utilslibrary.utils.DensityUtils;
 import com.cgfay.utilslibrary.utils.StringUtils;
@@ -189,6 +193,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
     private float averageMsPx;
     private boolean isCombine;
     private GLStickerFilter glStickerFilter;
+    private GLEffectFilter mEffectFilter;
 
 
     @Override
@@ -346,6 +351,13 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
             public void onStickerDoubleTapped(@NonNull Sticker sticker) {
                 Log.e(TAG, "onDoubleTapped: double tap will be with two click");
             }
+
+            @Override
+            public void onStickerTouchedOutSide() {
+                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                hideFragment(ft);
+                ft.commit();
+            }
         });
 
 
@@ -391,20 +403,6 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
         return border;
     }
 
-    private void loadSticker() {
-        Drawable drawable = ContextCompat.getDrawable(this, R.mipmap.sticker);
-
-        mStickerView.addSticker(new DrawableSticker(drawable).setEndTime(mSeekBar.getMax()));
-        mStickerView.addSticker(new DrawableSticker(drawable).setEndTime(mSeekBar.getMax()));
-        mStickerView.addSticker(new DrawableSticker(drawable).setEndTime(mSeekBar.getMax()));
-        mStickerView.addSticker(new DrawableSticker(drawable).setEndTime(mSeekBar.getMax()));
-        mStickerView.addSticker(new DrawableSticker(drawable).setEndTime(mSeekBar.getMax()));
-        mStickerView.addSticker(new DrawableSticker(drawable).setEndTime(mSeekBar.getMax()));
-        mStickerView.addSticker(new DrawableSticker(drawable).setEndTime(mSeekBar.getMax()));
-        mStickerView.addSticker(new DrawableSticker(drawable).setEndTime(mSeekBar.getMax()));
-
-
-    }
 
     private void initData() {
 
@@ -414,21 +412,6 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
         mVideoRenderer.setVideoPaths(videoPath);
         // 绑定需要渲染的SurfaceView
         mVideoRenderer.setSurfaceView(mVideoPreviewView);
-
-//        EncodeDecodeSurface test = new EncodeDecodeSurface();
-//        String outputPath = getExternalCacheDir().getAbsolutePath() + "/out.mp4";
-//
-//        test.setVideoPath(videoPath, outputPath);
-//        OffScreenVideoRenderer.getInstance().initRenderer(this);
-//        //初始化渲染的管理
-//        try {
-//            test.testEncodeDecodeSurface();
-//        } catch (Throwable a) {
-//            a.printStackTrace();
-//            Log.e("Harrison", "off:" + a.getLocalizedMessage());
-
-//        }
-
 
         EXECUTOR.execute(new Runnable() {
             @Override
@@ -462,8 +445,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                         String time = StringUtils.generateTime(totalTime);
                         tvTotalTime.setText(TextUtils.isEmpty(time) ? "00:00" : time);
                         mHandler.sendEmptyMessage(MSG_VIDEO_PLAY_PROGRESS);
-                        //加载贴纸
-                        loadSticker();
+
                     }
                 });
                 mHandler.sendEmptyMessage(MSG_VIDEO_PLAY_STATUS_START);
@@ -512,11 +494,25 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
 
                 final GlFilterGroup filterGroup = new GlFilterGroup();
 
+                //这个是颜色的滤镜
+                if (mColorFilterFragment != null) {
+                    DynamicColorData colorData = mColorFilterFragment.getCurrentColorFilter();
+                    if (colorData != null) {
+                        GLColorFilter colorFilter = new GLColorFilter();
+                        colorFilter.setFragmentShaderSource(OpenGLUtils.getShaderFromFile(colorData.getFsPath()));
+                        Log.e("Harrison", OpenGLUtils.getShaderFromFile(colorData.getFsPath()));
+                        filterGroup.addFilterItem(colorFilter);
+                    }
+                }
+
+                //这个是特效的滤镜切换
+                mEffectFilter = new GLEffectFilter();
+                mEffectFilter.setFilters(mVideoEffects);
+
 
                 glStickerFilter = new GLStickerFilter() {
                     @Override
                     protected void drawCanvas(Canvas canvas) {
-
 
                         List<Sticker> stickers = mStickerView.getStickers();
                         for (int i = 0; i < mStickerView.getStickerCount(); i++) {
@@ -550,9 +546,9 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
 
                 };
                 //滤镜的先后有一定的影响
-                filterGroup.addFilterItem(new GlMonochromeFilter());
+//                 filterGroup.addFilterItem(new GlMonochromeFilter());
+                filterGroup.addFilterItem(mEffectFilter);
                 filterGroup.addFilterItem(glStickerFilter);
-
 
 
                 new Mp4Composer(videoPath, outputPath)
@@ -564,6 +560,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                             public void onProgress(double progress, double time) {
                                 //time 是纳秒的，需要除以 1000 转化为毫秒 好计算
                                 glStickerFilter.setCurrentTime(time / 1000);
+                                mEffectFilter.setCurrentTime(time / 1000);
 
                             }
 
@@ -780,7 +777,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                 int current = mSeekBar.getProgress();
                 currentEffectKey = current;
                 //如果有重叠的话
-                newVideoEffect = new VideoEffect().setStartTime(currentEffectKey).setDynamicColorId(position).setResColorId(position);
+                newVideoEffect = new VideoEffect().setStartTime(currentEffectKey).setDynamicColorId(position).setResColorId(position).setDynamicColor(mDynamicColorFilter.get(position));
                 mVideoEffects.add(newVideoEffect);
 
             }
@@ -914,11 +911,25 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
      * 显示贴纸的Framelayout
      */
     private void showStickerFragment() {
+
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         hideFragment(ft);
         if (mStickerFragment == null) {
             mStickerFragment = StickersFragment.getInstance();
             ft.add(R.id.fragment_container, mStickerFragment);
+            mStickerFragment.setOnStickerAddListener(new StickersFragment.OnStickerAddListener() {
+                @Override
+                public void addSticker(String url) {
+
+                    if (!TextUtils.isEmpty(url) && new File(url).exists()) {
+                        Bitmap bitmap = BitmapFactory.decodeFile(url);
+                        BitmapDrawable drawable = new BitmapDrawable(bitmap);
+                        mStickerView.addSticker(new DrawableSticker(drawable).setEndTime(mSeekBar.getMax()));
+                    }
+
+                }
+            });
+
         } else {
             ft.show(mStickerFragment);
         }
@@ -964,6 +975,9 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                         String folderPath = ResourceHelper.getResourceDirectory(EffectVideoActivity.this) + File.separator + unzipFolder;
                         DynamicColor color = ResourceJsonCodec.decodeFilterData(folderPath);
                         color.setColorType(ResourceType.FILTER.getIndex());
+                        DynamicColorData colorData = color.filterList.get(0);
+                        colorData.setVsPath(folderPath + colorData.vertexShader);
+                        colorData.setFsPath(folderPath + File.separator + colorData.fragmentShader);
                         mVideoRenderer.changeDynamicColorFilter(color);
                         mDynamicColorFilter.put(position, color);
                     }
@@ -987,6 +1001,8 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                         DynamicColor color = new DynamicColor().setColorType(ResourceType.FILTER.getIndex());
                         mVideoRenderer.changeDynamicColorFilter(color);
                         //  color.addItemTimes(new DynamicColor.ItemTime().setStartTime(mVideoRenderer.getVideoProgress()));
+                        DynamicColorData colorData = color.filterList.get(0);
+                        colorData.setFsPath("");
                         mDynamicColorFilter.put(position, color);
                     }
                     break;

@@ -6,7 +6,6 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -88,7 +87,7 @@ public class PreviewResourceAdapter extends RecyclerView.Adapter<PreviewResource
                 notifyItemChanged(last);
                 notifyItemChanged(currentPosition);
                 if (mListener != null) {
-                    mListener.onResourceChanged(mResourceList.get(currentPosition));
+                    mListener.onResourceChanged(mResourceList.get(currentPosition),currentPosition);
                 }
             }
         });
@@ -113,7 +112,7 @@ public class PreviewResourceAdapter extends RecyclerView.Adapter<PreviewResource
 
 
     public interface OnResourceChangeListener {
-        void onResourceChanged(ResourceData resourceData);
+        void onResourceChanged(ResourceData resourceData, int currentPosition);
     }
 
     public void setOnResourceChangeListener(OnResourceChangeListener listener) {

@@ -3,12 +3,15 @@ package com.cgfay.cameralibrary.widget.sticker;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PointF;
 import android.graphics.RectF;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.SystemClock;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
@@ -42,6 +45,8 @@ public class StickerView extends FrameLayout {
     private final boolean showIcons;
     private final boolean showBorder;
     private final boolean bringToFrontCurrentSticker;
+
+
 
 
     @IntDef({
@@ -189,7 +194,7 @@ public class StickerView extends FrameLayout {
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
         if (changed) {
-            Log.e("Harrison", "onLayout *********changed");
+
             stickerRect.left = left;
             stickerRect.top = top;
             stickerRect.right = right;
@@ -315,15 +320,14 @@ public class StickerView extends FrameLayout {
         switch (action) {
             case MotionEvent.ACTION_DOWN:
                 if (!onTouchDown(event)) {
+                    Log.e("Hariison","onTouchDown*******");
                     return false;
                 }
                 break;
             case MotionEvent.ACTION_POINTER_DOWN:
                 oldDistance = calculateDistance(event);
                 oldRotation = calculateRotation(event);
-
                 midPoint = calculateMidPoint(event);
-
                 if (handlingSticker != null && isInStickerArea(handlingSticker, event.getX(1),
                         event.getY(1)) && findCurrentIconTouched() == null) {
                     currentMode = ActionMode.ZOOM_WITH_TWO_FINGER;
@@ -390,6 +394,7 @@ public class StickerView extends FrameLayout {
         }
 
         if (currentIcon == null && handlingSticker == null) {
+            onStickerOperationListener.onStickerTouchedOutSide();
             return false;
         }
         invalidate();
@@ -559,7 +564,6 @@ public class StickerView extends FrameLayout {
             return midPoint;
         }
         handlingSticker.getMappedCenterPoint(midPoint, point, tmp);
-        Log.e("Harrison","获取的中心点："+midPoint.x+midPoint.y);
         return midPoint;
     }
 
@@ -750,6 +754,8 @@ public class StickerView extends FrameLayout {
         invalidate();
     }
 
+
+
     @NonNull
     public StickerView addSticker(@NonNull Sticker sticker) {
         return addSticker(sticker, Sticker.Position.CENTER);
@@ -779,7 +785,7 @@ public class StickerView extends FrameLayout {
     public void setStickerTime(long startTime, long endTime) {
         handlingSticker.setStartTime(startTime);
         handlingSticker.setEndTime(endTime);
-        Log.e("Harrison", "************" + startTime + "*****" + endTime + "****" + handlingSticker);
+
     }
 
     protected void addStickerImmediately(@NonNull Sticker sticker, @Sticker.Position int position) {
@@ -960,5 +966,7 @@ public class StickerView extends FrameLayout {
         void onStickerFlipped(@NonNull Sticker sticker);
 
         void onStickerDoubleTapped(@NonNull Sticker sticker);
+        //触摸外边
+        void onStickerTouchedOutSide();
     }
 }

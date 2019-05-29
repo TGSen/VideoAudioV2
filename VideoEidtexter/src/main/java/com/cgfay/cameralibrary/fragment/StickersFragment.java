@@ -3,7 +3,6 @@ package com.cgfay.cameralibrary.fragment;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -14,9 +13,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.cgfay.cameralibrary.R;
-import com.cgfay.cameralibrary.adapter.MusicAdapter;
+import com.cgfay.cameralibrary.adapter.StickersAdapter;
+import com.cgfay.cameralibrary.bean.ItemSticker;
 import com.cgfay.cameralibrary.media.VideoRenderer;
-import com.cgfay.cameralibrary.media.bgmusic.ItemMusic;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,12 +26,12 @@ import java.util.List;
 public class StickersFragment extends Fragment {
 
     private static final String TAG = "PreviewFiltersFragment";
-    private MusicAdapter musicAdapter;
+    private StickersAdapter stickersAdapter;
 
-    private List<ItemMusic> mResourceData = new ArrayList<>();
+    private List<ItemSticker> mResourceData = new ArrayList<>();
 
     private VideoRenderer mVideoRenderer;
-    private OnMusicChangeListener onMusicChangeListener;
+    private OnStickerAddListener onStickerAddListener;
 
     public void setVideoRenderer(VideoRenderer mVideoRenderer) {
         this.mVideoRenderer = mVideoRenderer;
@@ -79,7 +78,7 @@ public class StickersFragment extends Fragment {
     }
 
     private void initStickerData() {
-        musicAdapter.notifyDataSetChanged();
+        stickersAdapter.notifyDataSetChanged();
     }
 
 
@@ -88,14 +87,14 @@ public class StickersFragment extends Fragment {
 
         GridLayoutManager manager = new GridLayoutManager(mActivity, 5);
         mResourceView.setLayoutManager(manager);
-        musicAdapter = new MusicAdapter(mActivity, mResourceData);
-        mResourceView.setAdapter(musicAdapter);
-        musicAdapter.setOnItemClickListener(new MusicAdapter.OnItemClickListener() {
+        mResourceData.addAll(ItemSticker.getStickerList());
+        stickersAdapter = new StickersAdapter(mActivity, mResourceData);
+        mResourceView.setAdapter(stickersAdapter);
+        stickersAdapter.setOnItemClickListener(new StickersAdapter.OnItemClickListener() {
             @Override
             public void onClick(int position) {
-                //切换音乐
-                if (onMusicChangeListener != null) {
-                    onMusicChangeListener.change(mResourceData.get(position).getPath());
+                if (onStickerAddListener != null) {
+                    onStickerAddListener.addSticker(mResourceData.get(position).getPath());
                 }
             }
         });
@@ -120,14 +119,14 @@ public class StickersFragment extends Fragment {
         super.onDestroy();
     }
 
-    public void setOnMusicChangeListener(OnMusicChangeListener listener) {
-        this.onMusicChangeListener = listener;
+    public void setOnStickerAddListener(OnStickerAddListener listener) {
+        this.onStickerAddListener = listener;
     }
 
     /**
      * music 切换监听
      */
-    public interface OnMusicChangeListener {
-        void change(String url);
+    public interface OnStickerAddListener {
+        void addSticker(String url);
     }
 }

@@ -2,18 +2,13 @@ package com.cgfay.cameralibrary.mp4compose.filter;
 
 import android.content.res.Resources;
 import android.opengl.GLES20;
-import android.util.Log;
-
 
 import com.cgfay.cameralibrary.mp4compose.gl.GlFramebufferObject;
 import com.cgfay.cameralibrary.mp4compose.utils.EglUtil;
-import com.cgfay.filterlibrary.glfilter.utils.OpenGLUtils;
 
 import java.util.HashMap;
 
 import static android.opengl.GLES20.GL_FLOAT;
-import static android.opengl.GLES20.glBlendEquationSeparate;
-import static android.opengl.GLES20.glGetActiveAttrib;
 
 /**
  * Created by sudamasayuki on 2017/11/14.
@@ -21,7 +16,7 @@ import static android.opengl.GLES20.glGetActiveAttrib;
 
 public class GlFilter {
 
-    public static final String DEFAULT_UNIFORM_SAMPLER = "sTexture";
+    public static final String DEFAULT_UNIFORM_SAMPLER = "inputTexture";
 
     protected static final String DEFAULT_VERTEX_SHADER =
             "attribute highp vec4 aPosition;\n" +
@@ -35,9 +30,9 @@ public class GlFilter {
     protected static final String DEFAULT_FRAGMENT_SHADER =
             "precision mediump float;\n" +
                     "varying highp vec2 textureCoordinate;\n" +
-                    "uniform lowp sampler2D sTexture;\n" +
+                    "uniform lowp sampler2D inputTexture;\n" +
                     "void main() {\n" +
-                    "gl_FragColor = texture2D(sTexture, textureCoordinate);\n" +
+                    "gl_FragColor = texture2D(inputTexture, textureCoordinate);\n" +
                     "}\n";
 
     private static final float[] VERTICES_DATA = new float[]{
@@ -55,7 +50,7 @@ public class GlFilter {
     protected static final int VERTICES_DATA_POS_OFFSET = 0 * FLOAT_SIZE_BYTES;
     protected static final int VERTICES_DATA_UV_OFFSET = VERTICES_DATA_POS_OFFSET + VERTICES_DATA_POS_SIZE * FLOAT_SIZE_BYTES;
 
-    private final String vertexShaderSource;
+    private  String vertexShaderSource;
     private String fragmentShaderSource;
 
     private int program;
@@ -79,17 +74,29 @@ public class GlFilter {
         this.vertexShaderSource = vertexShaderSource;
         this.fragmentShaderSource = fragmentShaderSource;
     }
+    public GlFilter( final String fragmentShaderSource) {
+        this.fragmentShaderSource = fragmentShaderSource;
+    }
+
 
     public void setup() {
         release();
         vertexShader = EglUtil.loadShader(vertexShaderSource, GLES20.GL_VERTEX_SHADER);
         fragmentShader = EglUtil.loadShader(fragmentShaderSource, GLES20.GL_FRAGMENT_SHADER);
+
         program = EglUtil.createProgram(vertexShader, fragmentShader);
+       
         vertexBufferName = EglUtil.createBuffer(VERTICES_DATA);
 
         getHandle("aPosition");
         getHandle("aTextureCoord");
-        getHandle("sTexture");
+        getHandle("inputTexture");
+    }
+
+    public void resetVsFsAndSetUp(){
+        vertexShaderSource = DEFAULT_VERTEX_SHADER;
+        fragmentShaderSource = DEFAULT_FRAGMENT_SHADER;
+        setup();
     }
 
     public void setFragmentShaderSource(String fragmentShaderSource) {
@@ -126,7 +133,7 @@ public class GlFilter {
 
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texName);
-        GLES20.glUniform1i(getHandle("sTexture"), 0);
+        GLES20.glUniform1i(getHandle("inputTexture"), 0);
 
         onDraw();
 

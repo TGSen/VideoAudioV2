@@ -13,14 +13,14 @@ public class GlMonochromeFilter extends GlFilter {
             "precision lowp float;" +
 
                     "varying highp vec2 textureCoordinate;" +
-                    "uniform lowp sampler2D sTexture;" +
+                    "uniform lowp sampler2D inputTexture;" +
                     "uniform float intensity;" +
 
                     "const mediump vec3 luminanceWeighting = vec3(0.2125, 0.7154, 0.0721);" +
 
                     "void main() {" +
 
-                    "lowp vec4 textureColor = texture2D(sTexture, textureCoordinate);" +
+                    "lowp vec4 textureColor = texture2D(inputTexture, textureCoordinate);" +
                     "float luminance = dot(textureColor.rgb, luminanceWeighting);" +
 
                     "lowp vec4 desat = vec4(vec3(luminance), 1.0);" +

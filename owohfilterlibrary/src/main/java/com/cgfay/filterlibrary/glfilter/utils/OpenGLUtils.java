@@ -60,10 +60,12 @@ public class OpenGLUtils {
      */
     public static String getShaderFromFile(String filePath) {
         if (TextUtils.isEmpty(filePath)) {
+            Log.e("Harrison", "getShaderFromFile isEmpty");
             return null;
         }
         File file = new File(filePath);
         if (file.isDirectory()) {
+            Log.e("Harrison", "getShaderFromFile isDirectory");
             return null;
         }
         InputStream inputStream = null;
@@ -71,6 +73,8 @@ public class OpenGLUtils {
             inputStream = new FileInputStream(file);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+            Log.e("Harrison", "getShaderFromFile inputStream" + e.getLocalizedMessage());
+
         }
         return getShaderStringFromStream(inputStream);
     }
@@ -91,6 +95,7 @@ public class OpenGLUtils {
         }
         return getShaderStringFromStream(inputStream);
     }
+
 
     /**
      * 从输入流中读取shader字符创
@@ -188,7 +193,7 @@ public class OpenGLUtils {
         if (error != GLES30.GL_NO_ERROR) {
             String msg = op + ": glError 0x" + Integer.toHexString(error);
             Log.e(TAG, msg);
-           // throw new RuntimeException(msg);
+            // throw new RuntimeException(msg);
         }
     }
 

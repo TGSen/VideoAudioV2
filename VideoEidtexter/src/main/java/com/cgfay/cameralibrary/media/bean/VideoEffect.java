@@ -2,6 +2,8 @@ package com.cgfay.cameralibrary.media.bean;
 
 import android.support.annotation.IntDef;
 
+import com.cgfay.filterlibrary.glfilter.color.bean.DynamicColor;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -15,6 +17,16 @@ public class VideoEffect {
     private int endTime;
     //滤镜的索引
     private int dynamicColorId;
+    private DynamicColor dynamicColor;
+
+    public DynamicColor getDynamicColor() {
+        return dynamicColor;
+    }
+
+    public VideoEffect setDynamicColor(DynamicColor dynamicColor) {
+        this.dynamicColor = dynamicColor;
+        return this;
+    }
 
     private String effectName;
     //每种特效代表一种颜色

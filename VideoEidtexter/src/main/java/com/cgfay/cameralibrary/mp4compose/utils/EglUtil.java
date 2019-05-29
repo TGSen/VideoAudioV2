@@ -41,9 +41,10 @@ public class EglUtil {
         GLES20.glCompileShader(iShader);
         GLES20.glGetShaderiv(iShader, GLES20.GL_COMPILE_STATUS, compiled, 0);
         if (compiled[0] == 0) {
-            Log.d("Load Shader Failed", "Compilation\n" + GLES20.glGetShaderInfoLog(iShader));
+            Log.e("Harrison", "Compilation\n" + GLES20.glGetShaderInfoLog(iShader));
             return 0;
         }
+        Log.e("Harrison", "ok shader");
         return iShader;
     }
 
