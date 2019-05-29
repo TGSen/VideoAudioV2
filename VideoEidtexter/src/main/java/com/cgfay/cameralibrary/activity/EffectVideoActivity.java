@@ -534,8 +534,8 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                             Matrix srcMatrix = sticker.getMatrix();
                             //使用在Sticker
                             Matrix matrix = new Matrix();
-                            Log.e("Harrison", "getCurrentScale" + sticker.getBoundPoints() + "sticker.getCurrentScale()" + sticker.getCurrentScale());
-                            matrix.postScale(sticker.getCurrentScale(), sticker.getCurrentScale());
+                            Log.e("Harrison", "sticker.getCurrentScale()" + sticker.getCurrentScale());
+                            matrix.postScale(sticker.getCurrentScale()*scale, sticker.getCurrentScale()*scale);
                             matrix.postRotate(sticker.getCurrentAngle());
                             //  matrix.postTranslate((canvas.getWidth() - sticker.getCurrentWidth()) / 2, (canvas.getHeight() - sticker.getCurrentHeight()) / 2);
                             matrix.postTranslate((canvas.getWidth() - bitmap.getWidth() * sticker.getCurrentScale()) / 2, (canvas.getHeight() - bitmap.getHeight() * sticker.getCurrentScale()) / 2);
