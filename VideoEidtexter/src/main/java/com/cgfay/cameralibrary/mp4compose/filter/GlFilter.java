@@ -50,7 +50,7 @@ public class GlFilter {
     protected static final int VERTICES_DATA_POS_OFFSET = 0 * FLOAT_SIZE_BYTES;
     protected static final int VERTICES_DATA_UV_OFFSET = VERTICES_DATA_POS_OFFSET + VERTICES_DATA_POS_SIZE * FLOAT_SIZE_BYTES;
 
-    private  String vertexShaderSource;
+    private String vertexShaderSource;
     private String fragmentShaderSource;
 
     private int program;
@@ -74,7 +74,8 @@ public class GlFilter {
         this.vertexShaderSource = vertexShaderSource;
         this.fragmentShaderSource = fragmentShaderSource;
     }
-    public GlFilter( final String fragmentShaderSource) {
+
+    public GlFilter(final String fragmentShaderSource) {
         this.fragmentShaderSource = fragmentShaderSource;
     }
 
@@ -85,7 +86,7 @@ public class GlFilter {
         fragmentShader = EglUtil.loadShader(fragmentShaderSource, GLES20.GL_FRAGMENT_SHADER);
 
         program = EglUtil.createProgram(vertexShader, fragmentShader);
-       
+
         vertexBufferName = EglUtil.createBuffer(VERTICES_DATA);
 
         getHandle("aPosition");
@@ -93,7 +94,7 @@ public class GlFilter {
         getHandle("inputTexture");
     }
 
-    public void resetVsFsAndSetUp(){
+    public void resetVsFsAndSetUp() {
         vertexShaderSource = DEFAULT_VERTEX_SHADER;
         fragmentShaderSource = DEFAULT_FRAGMENT_SHADER;
         setup();
@@ -123,6 +124,8 @@ public class GlFilter {
 
     //
     public void draw(final int texName, final GlFramebufferObject fbo) {
+        //修改了这里，毕竟在一些特效合成，得先初始化
+        initOtherSetting();
         useProgram();
 
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vertexBufferName);
@@ -143,6 +146,13 @@ public class GlFilter {
         GLES20.glDisableVertexAttribArray(getHandle("aTextureCoord"));
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
+    }
+
+    /**
+     * 初始化别得设置，比如切换Vs fs 可以使用该函数
+     */
+    protected void initOtherSetting() {
+
     }
 
     protected void onDraw() {

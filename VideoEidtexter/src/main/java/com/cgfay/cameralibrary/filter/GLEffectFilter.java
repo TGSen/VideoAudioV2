@@ -44,8 +44,9 @@ public class GLEffectFilter extends GlFilter {
     }
 
     @Override
-    protected void onDraw() {
-        super.onDraw();
+    protected void initOtherSetting() {
+        super.initOtherSetting();
+
         for (int i = 0; i < mVideoEffects.size(); i++) {
             if ((mVideoEffects.get(i).getStartTime() < mVideoEffects.get(i).getEndTime() &&
                     currentTime >= mVideoEffects.get(i).getStartTime() && currentTime < mVideoEffects.get(i).getEndTime()) ||
@@ -58,25 +59,27 @@ public class GLEffectFilter extends GlFilter {
                 String fs = OpenGLUtils.getShaderFromFile(color.filterList.get(0).getFsPath());
 
                 if (!TextUtils.isEmpty(fs)) {
-                    Log.e("Harrison", "fs**************" + fs);
                     setFragmentShaderSource(fs);
                     setup();
                 } else {
-                    Log.e("Harrison", "************resetVsFsAndSetUp");
                     super.resetVsFsAndSetUp();
                 }
-                Log.e("Harrison", "已改变特效" + currentVideoEffectIndex);
             } else {
                 //判断之前有没使用过特效
                 if (currentVideoEffectIndex != -1) {
                     VideoEffect videoEffectRemove = mVideoEffects.get(currentVideoEffectIndex);
                     super.resetVsFsAndSetUp();
-                    Log.e("Harrison", "clear特效" + currentVideoEffectIndex);
                     currentVideoEffectIndex = -1;
 
                 }
             }
         }
+    }
+
+    @Override
+    protected void onDraw() {
+        super.onDraw();
+
 
 
     }
