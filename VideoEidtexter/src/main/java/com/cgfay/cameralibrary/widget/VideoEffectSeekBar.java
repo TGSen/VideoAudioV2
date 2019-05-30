@@ -94,14 +94,37 @@ public class VideoEffectSeekBar extends AppCompatSeekBar {
             for (int i = 0; i <size; i++) {
                 VideoEffect effect = effects.get(i);
                 ItemRect itemRect = new ItemRect();
-                Rect rect = new Rect();
-                rect.left = effect.getStartTime() * getWidth() / max;
-                rect.right = effect.getEndTime() * getWidth() / max;
-                rect.top = 0;
-                rect.bottom = getHeight();
-                itemRect.setRect(rect);
-                itemRect.setColorId(effect.getResColorId());
-                mRects.add(itemRect);
+                //判断是否需要分成两段
+                if(effect.getEndTime()<effect.getStartTime()&& effect.getEndTime()>0){
+                    Rect rect = new Rect();
+                    rect.left = 0;
+                    rect.right = effect.getEndTime() * getWidth() / max;
+                    rect.top = 0;
+                    rect.bottom = getHeight();
+                    itemRect.setRect(rect);
+                    itemRect.setColorId(effect.getResColorId());
+                    mRects.add(itemRect);
+
+                    ItemRect itemRect1 = new ItemRect();
+                    Rect rect1 = new Rect();
+                    rect1.left = effect.getStartTime() * getWidth() / max;
+                    rect1.right =  getWidth() ;
+                    rect1.top = 0;
+                    rect1.bottom = getHeight();
+                    itemRect1.setRect(rect1);
+                    itemRect1.setColorId(effect.getResColorId());
+                    mRects.add(itemRect1);
+                }else{
+                    Rect rect = new Rect();
+                    rect.left = effect.getStartTime() * getWidth() / max;
+                    rect.right = effect.getEndTime() * getWidth() / max;
+                    rect.top = 0;
+                    rect.bottom = getHeight();
+                    itemRect.setRect(rect);
+                    itemRect.setColorId(effect.getResColorId());
+                    mRects.add(itemRect);
+                }
+
             }
 
             postInvalidate();

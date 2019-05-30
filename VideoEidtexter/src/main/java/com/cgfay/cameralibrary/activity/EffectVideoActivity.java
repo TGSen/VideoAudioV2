@@ -538,7 +538,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                             matrix.postScale(sticker.getCurrentScale()*scale, sticker.getCurrentScale()*scale);
                             matrix.postRotate(sticker.getCurrentAngle());
                             //  matrix.postTranslate((canvas.getWidth() - sticker.getCurrentWidth()) / 2, (canvas.getHeight() - sticker.getCurrentHeight()) / 2);
-                            matrix.postTranslate((canvas.getWidth() - bitmap.getWidth() * sticker.getCurrentScale()) / 2, (canvas.getHeight() - bitmap.getHeight() * sticker.getCurrentScale()) / 2);
+                            matrix.postTranslate((canvas.getWidth() - bitmap.getWidth() * sticker.getCurrentScale()*scale) / 2, (canvas.getHeight() - bitmap.getHeight() * sticker.getCurrentScale()*scale) / 2);
                             canvas.drawBitmap(bitmap, matrix, null);
                         }
                     }
@@ -707,6 +707,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                 if (isStartClick) {
                     //这个条件就作为，再次经过起点
                     if (progress > newVideoEffect.getStartTime() && isVideoPlayCompleted) {
+                        Log.e("Harrison","经过了同一点");
                         isVideoPlayCompleted = false;
                         newVideoEffect.setHasAll(true);
                     }
@@ -728,7 +729,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                         VideoEffect videoEffect = mVideoEffects.get(i);
                         int indexFilterColor = videoEffect.getDynamicColorId();
                         DynamicColor color = mDynamicColorFilter.get(indexFilterColor);
-                        Log.e("Harrison", "已改变特效" + currentVideoEffectIndex);
+                       // Log.e("Harrison", "已改变特效" + currentVideoEffectIndex);
                         mVideoRenderer.changeDynamicColorFilter(color);
                         return;
                     } else {
@@ -744,7 +745,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                     }
                 }
 
-                Log.e("Harrison", "不用修改特效");
+              //  Log.e("Harrison", "不用修改特效");
 
             }
 
@@ -788,6 +789,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                 DynamicColor color = mDynamicColorFilter.get(position);
                 mVideoRenderer.removeDynamic(color);
                 if (newVideoEffect.isHasAll()) {
+                    Log.e("Harrison","设置全部");
                     newVideoEffect.setStartTime(0);
                     newVideoEffect.setEndTime(mSeekBar.getMax());
                 } else {

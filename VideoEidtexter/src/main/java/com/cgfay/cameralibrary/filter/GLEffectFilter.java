@@ -31,7 +31,11 @@ public class GLEffectFilter extends GlFilter {
 
     private List<VideoEffect> mVideoEffects = new ArrayList<>();
 
+    @Override
+    public void setup() {
+        super.setup();
 
+    }
 
 
     public void setFilters(List<VideoEffect> list) {
@@ -52,17 +56,16 @@ public class GLEffectFilter extends GlFilter {
                 VideoEffect videoEffect = mVideoEffects.get(i);
                 DynamicColor color = videoEffect.getDynamicColor();
                 String fs = OpenGLUtils.getShaderFromFile(color.filterList.get(0).getFsPath());
-                Log.e("Harrison","************"+fs);
-                if (!TextUtils.isEmpty(fs)) {
 
+                if (!TextUtils.isEmpty(fs)) {
+                    Log.e("Harrison", "fs**************" + fs);
                     setFragmentShaderSource(fs);
                     setup();
                 } else {
-                    Log.e("Harrison","************resetVsFsAndSetUp");
+                    Log.e("Harrison", "************resetVsFsAndSetUp");
                     super.resetVsFsAndSetUp();
                 }
                 Log.e("Harrison", "已改变特效" + currentVideoEffectIndex);
-                return;
             } else {
                 //判断之前有没使用过特效
                 if (currentVideoEffectIndex != -1) {
@@ -70,11 +73,12 @@ public class GLEffectFilter extends GlFilter {
                     super.resetVsFsAndSetUp();
                     Log.e("Harrison", "clear特效" + currentVideoEffectIndex);
                     currentVideoEffectIndex = -1;
-                    return;
 
                 }
             }
         }
+
+
     }
 
     //    private void addEffect(ItemEffect effect) {
