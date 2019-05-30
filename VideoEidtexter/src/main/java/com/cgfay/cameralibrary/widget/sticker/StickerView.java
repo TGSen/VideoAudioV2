@@ -47,8 +47,6 @@ public class StickerView extends FrameLayout {
     private final boolean bringToFrontCurrentSticker;
 
 
-
-
     @IntDef({
             ActionMode.NONE, ActionMode.DRAG, ActionMode.ZOOM_WITH_TWO_FINGER, ActionMode.ICON,
             ActionMode.CLICK
@@ -194,7 +192,6 @@ public class StickerView extends FrameLayout {
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
         if (changed) {
-
             stickerRect.left = left;
             stickerRect.top = top;
             stickerRect.right = right;
@@ -293,7 +290,6 @@ public class StickerView extends FrameLayout {
             case MotionEvent.ACTION_DOWN:
                 downX = ev.getX();
                 downY = ev.getY();
-
                 return findCurrentIconTouched() != null || findHandlingSticker() != null;
         }
 
@@ -302,13 +298,15 @@ public class StickerView extends FrameLayout {
 
     /**
      * 获取所有的贴纸
+     *
      * @param
      * @return
      */
 
-    public List<Sticker> getStickers(){
+    public List<Sticker> getStickers() {
         return stickers;
     }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (locked) {
@@ -320,7 +318,7 @@ public class StickerView extends FrameLayout {
         switch (action) {
             case MotionEvent.ACTION_DOWN:
                 if (!onTouchDown(event)) {
-                    Log.e("Hariison","onTouchDown*******");
+                    Log.e("Hariison", "onTouchDown*******");
                     return false;
                 }
                 break;
@@ -440,12 +438,16 @@ public class StickerView extends FrameLayout {
                 break;
             case ActionMode.DRAG:
                 if (handlingSticker != null) {
+                    //拖动都计算中心的位置
+                    Log.e("Harrison",handlingSticker.getCenterPoint().x+"***"+handlingSticker.getCenterPoint().y);
                     moveMatrix.set(downMatrix);
                     moveMatrix.postTranslate(event.getX() - downX, event.getY() - downY);
+
                     handlingSticker.setMatrix(moveMatrix);
                     if (constrained) {
                         constrainSticker(handlingSticker);
                     }
+
                 }
                 break;
             case ActionMode.ZOOM_WITH_TWO_FINGER:
@@ -484,6 +486,8 @@ public class StickerView extends FrameLayout {
                     midPoint.y);
             moveMatrix.postRotate(newRotation - oldRotation, midPoint.x, midPoint.y);
             handlingSticker.setMatrix(moveMatrix);
+
+            Log.e("Harrison", "moveMatrix X:" + midPoint.x + "moveMatrix Y:" + midPoint.y);
         }
     }
 
@@ -547,22 +551,27 @@ public class StickerView extends FrameLayout {
 
     @NonNull
     protected PointF calculateMidPoint(@Nullable MotionEvent event) {
+        Log.e("Harrison","calculateMidPoint***1");
         if (event == null || event.getPointerCount() < 2) {
+            Log.e("Harrison", "calculateMidPoint 1111moveMatrix X:");
             midPoint.set(0, 0);
             return midPoint;
         }
         float x = (event.getX(0) + event.getX(1)) / 2;
         float y = (event.getY(0) + event.getY(1)) / 2;
         midPoint.set(x, y);
+        Log.e("Harrison", "calculateMidPoint 1111moveMatrix X:" + midPoint.x + "moveMatrix Y:" + midPoint.y);
         return midPoint;
     }
 
     @NonNull
     protected PointF calculateMidPoint() {
+        Log.e("Harrison","calculateMidPoint***2");
         if (handlingSticker == null) {
             midPoint.set(0, 0);
             return midPoint;
         }
+        Log.e("Harrison", "calculateMidPoint 2222 moveMatrix X:" + midPoint.x + "moveMatrix Y:" + midPoint.y);
         handlingSticker.getMappedCenterPoint(midPoint, point, tmp);
         return midPoint;
     }
@@ -606,7 +615,7 @@ public class StickerView extends FrameLayout {
 
         Log.e("Harrison", "onSizeChanged" + w + "*" + oldW + "*" + h + "*" + oldH);
         if (oldW == 0 || oldH == 0) return;
-        float scaleFactor = (float) h / (float) oldH;
+        float scaleFactor = Math.min((float) h / (float) oldH, (float) w / (float) oldW);
         for (int i = 0; i < stickers.size(); i++) {
             Sticker sticker = stickers.get(i);
             if (sticker != null) {
@@ -755,7 +764,6 @@ public class StickerView extends FrameLayout {
     }
 
 
-
     @NonNull
     public StickerView addSticker(@NonNull Sticker sticker) {
         return addSticker(sticker, Sticker.Position.CENTER);
@@ -793,11 +801,11 @@ public class StickerView extends FrameLayout {
         float scaleFactor, widthScaleFactor, heightScaleFactor;
         widthScaleFactor = (float) getWidth() / sticker.getDrawable().getIntrinsicWidth();
         heightScaleFactor = (float) getHeight() / sticker.getDrawable().getIntrinsicHeight();
-        scaleFactor = widthScaleFactor > heightScaleFactor ? heightScaleFactor : widthScaleFactor;
+        scaleFactor = Math.min(heightScaleFactor, widthScaleFactor);
 
         sticker.getMatrix()
                 .postScale(scaleFactor / 4, scaleFactor / 4, getWidth() / 2, getHeight() / 2);
-        Log.e("Harrison","*******::::"+scaleFactor);
+        Log.e("Harrison", "*******::::" + scaleFactor);
 
         handlingSticker = sticker;
         stickers.add(sticker);
@@ -967,6 +975,7 @@ public class StickerView extends FrameLayout {
         void onStickerFlipped(@NonNull Sticker sticker);
 
         void onStickerDoubleTapped(@NonNull Sticker sticker);
+
         //触摸外边
         void onStickerTouchedOutSide();
     }

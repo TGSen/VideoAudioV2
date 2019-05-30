@@ -40,6 +40,8 @@ public abstract class Sticker {
     private boolean isFlippedHorizontally;
     private boolean isFlippedVertically;
 
+    private PointF midPoint = new PointF();
+
     public Sticker() {
         this.isShow = true;
     }
@@ -51,6 +53,14 @@ public abstract class Sticker {
 
     private float endTime;
     private boolean isShow;
+
+    public PointF getMidPoint() {
+        return midPoint;
+    }
+
+    public void setMidPoint(PointF midPoint) {
+        this.midPoint = midPoint;
+    }
 
     public boolean isShow() {
         return isShow;

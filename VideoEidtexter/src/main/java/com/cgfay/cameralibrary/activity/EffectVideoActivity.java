@@ -522,23 +522,21 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                             }
                             BitmapDrawable bd = (BitmapDrawable) sticker.getDrawable();
                             final Bitmap bitmap = bd.getBitmap();
-                            //计算比例
+                            //计算比例,屏幕的比例等等
                             int widthScreen = DensityUtils.getDisplayWidthPixels(EffectVideoActivity.this);
                             int heightScreen = DensityUtils.getDisplayHeightPixels(EffectVideoActivity.this);
-                            float scale = 1.0f;
-                            if (widthScreen < heightScreen) {
-                                scale = (float) videoWidth / widthScreen;
-                            } else {
-                                scale = (float) videoHeight / heightScreen;
-                            }
+                            float screenScale = Math.min((float) videoWidth / widthScreen, (float) videoHeight / heightScreen);
+                            float stickerScale = sticker.getCurrentScale();
+                            float currentScale =stickerScale*screenScale*bd.getIntrinsicWidth()/bitmap.getWidth();
+                            Log.e("Harrison","currScale"+currentScale);
+//                            float currentScale = Math.max( screenScale * stickerScale, 1.0f);
                             Matrix srcMatrix = sticker.getMatrix();
                             //使用在Sticker
                             Matrix matrix = new Matrix();
-                            Log.e("Harrison", "sticker.getCurrentScale()" + sticker.getCurrentScale());
-                            matrix.postScale(sticker.getCurrentScale()*scale, sticker.getCurrentScale()*scale);
+                            matrix.postScale(currentScale, currentScale);
                             matrix.postRotate(sticker.getCurrentAngle());
                             //  matrix.postTranslate((canvas.getWidth() - sticker.getCurrentWidth()) / 2, (canvas.getHeight() - sticker.getCurrentHeight()) / 2);
-                            matrix.postTranslate((canvas.getWidth() - bitmap.getWidth() * sticker.getCurrentScale()*scale) / 2, (canvas.getHeight() - bitmap.getHeight() * sticker.getCurrentScale()*scale) / 2);
+                            matrix.postTranslate((canvas.getWidth() - bitmap.getWidth() * currentScale) / 2, (canvas.getHeight() - bitmap.getHeight() * currentScale) / 2);
                             canvas.drawBitmap(bitmap, matrix, null);
                         }
                     }
@@ -707,7 +705,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                 if (isStartClick) {
                     //这个条件就作为，再次经过起点
                     if (progress > newVideoEffect.getStartTime() && isVideoPlayCompleted) {
-                        Log.e("Harrison","经过了同一点");
+                        Log.e("Harrison", "经过了同一点");
                         isVideoPlayCompleted = false;
                         newVideoEffect.setHasAll(true);
                     }
@@ -729,7 +727,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                         VideoEffect videoEffect = mVideoEffects.get(i);
                         int indexFilterColor = videoEffect.getDynamicColorId();
                         DynamicColor color = mDynamicColorFilter.get(indexFilterColor);
-                       // Log.e("Harrison", "已改变特效" + currentVideoEffectIndex);
+                        // Log.e("Harrison", "已改变特效" + currentVideoEffectIndex);
                         mVideoRenderer.changeDynamicColorFilter(color);
                         return;
                     } else {
@@ -745,7 +743,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                     }
                 }
 
-              //  Log.e("Harrison", "不用修改特效");
+                //  Log.e("Harrison", "不用修改特效");
 
             }
 
@@ -789,7 +787,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                 DynamicColor color = mDynamicColorFilter.get(position);
                 mVideoRenderer.removeDynamic(color);
                 if (newVideoEffect.isHasAll()) {
-                    Log.e("Harrison","设置全部");
+                    Log.e("Harrison", "设置全部");
                     newVideoEffect.setStartTime(0);
                     newVideoEffect.setEndTime(mSeekBar.getMax());
                 } else {
