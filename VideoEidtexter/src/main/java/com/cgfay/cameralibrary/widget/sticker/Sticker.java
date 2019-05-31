@@ -233,6 +233,10 @@ public abstract class Sticker {
         dst.set(getWidth() * 1f / 2, getHeight() * 1f / 2);
     }
 
+    /**
+     * 获取中心点的位置
+     * @return
+     */
     @NonNull
     public PointF getMappedCenterPoint() {
         PointF pointF = getCenterPoint();

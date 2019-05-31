@@ -527,16 +527,22 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                             int heightScreen = DensityUtils.getDisplayHeightPixels(EffectVideoActivity.this);
                             float screenScale = Math.min((float) videoWidth / widthScreen, (float) videoHeight / heightScreen);
                             float stickerScale = sticker.getCurrentScale();
-                            float currentScale =stickerScale*screenScale*bd.getIntrinsicWidth()/bitmap.getWidth();
-                            Log.e("Harrison","currScale"+currentScale);
-//                            float currentScale = Math.max( screenScale * stickerScale, 1.0f);
-                            Matrix srcMatrix = sticker.getMatrix();
-                            //使用在Sticker
+                            float bitmapScale = (float) bd.getIntrinsicWidth() / (float) bitmap.getWidth();
+                            float currentScale = stickerScale * screenScale * bitmapScale;
+
+
                             Matrix matrix = new Matrix();
+                            float ceshi = (float) Math.sin(sticker.getCurrentAngle());
+                            float ceshi1 = (float) Math.cos(sticker.getCurrentAngle());
+                            float centerX = sticker.getMappedCenterPoint().x / widthScreen * canvas.getWidth();
+                            float centerY = sticker.getMappedCenterPoint().y / heightScreen * canvas.getHeight();
+
+                            //计算按照sticker的中心值，计算百分比宽高
+
                             matrix.postScale(currentScale, currentScale);
-                            matrix.postRotate(sticker.getCurrentAngle());
-                            //  matrix.postTranslate((canvas.getWidth() - sticker.getCurrentWidth()) / 2, (canvas.getHeight() - sticker.getCurrentHeight()) / 2);
-                            matrix.postTranslate((canvas.getWidth() - bitmap.getWidth() * currentScale) / 2, (canvas.getHeight() - bitmap.getHeight() * currentScale) / 2);
+                            matrix.postTranslate(centerX - bitmap.getWidth() * currentScale / 2, centerY - bitmap.getHeight() * currentScale / 2);
+
+                            matrix.postRotate(sticker.getCurrentAngle(), centerX, centerY);
                             canvas.drawBitmap(bitmap, matrix, null);
                         }
                     }

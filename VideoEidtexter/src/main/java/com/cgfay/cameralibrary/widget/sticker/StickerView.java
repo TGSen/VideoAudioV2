@@ -438,8 +438,7 @@ public class StickerView extends FrameLayout {
                 break;
             case ActionMode.DRAG:
                 if (handlingSticker != null) {
-                    //拖动都计算中心的位置
-                    Log.e("Harrison",handlingSticker.getCenterPoint().x+"***"+handlingSticker.getCenterPoint().y);
+                    Log.e("Harrison", "*******" + handlingSticker.getMappedCenterPoint().x + "********" + handlingSticker.getMappedCenterPoint().y);
                     moveMatrix.set(downMatrix);
                     moveMatrix.postTranslate(event.getX() - downX, event.getY() - downY);
 
@@ -551,7 +550,7 @@ public class StickerView extends FrameLayout {
 
     @NonNull
     protected PointF calculateMidPoint(@Nullable MotionEvent event) {
-        Log.e("Harrison","calculateMidPoint***1");
+        Log.e("Harrison", "calculateMidPoint***1");
         if (event == null || event.getPointerCount() < 2) {
             Log.e("Harrison", "calculateMidPoint 1111moveMatrix X:");
             midPoint.set(0, 0);
@@ -566,7 +565,7 @@ public class StickerView extends FrameLayout {
 
     @NonNull
     protected PointF calculateMidPoint() {
-        Log.e("Harrison","calculateMidPoint***2");
+        Log.e("Harrison", "calculateMidPoint***2");
         if (handlingSticker == null) {
             midPoint.set(0, 0);
             return midPoint;
