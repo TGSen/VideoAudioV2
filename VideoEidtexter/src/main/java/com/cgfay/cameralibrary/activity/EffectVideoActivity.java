@@ -532,8 +532,6 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
 
 
                             Matrix matrix = new Matrix();
-                            float ceshi = (float) Math.sin(sticker.getCurrentAngle());
-                            float ceshi1 = (float) Math.cos(sticker.getCurrentAngle());
                             float centerX = sticker.getMappedCenterPoint().x / widthScreen * canvas.getWidth();
                             float centerY = sticker.getMappedCenterPoint().y / heightScreen * canvas.getHeight();
 
@@ -563,9 +561,9 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                             @Override
                             public void onProgress(double progress, double time) {
                                 //time 是纳秒的，需要除以 1000 转化为毫秒 好计算
-                                glStickerFilter.setCurrentTime(time / 1000);
-                                mEffectFilter.setCurrentTime(time / 1000);
-
+                                double times = time / 1000;
+                                glStickerFilter.setCurrentTime(times);
+                                mEffectFilter.setCurrentTime(times);
                             }
 
                             @Override

@@ -9,6 +9,6 @@
     android:id="@+id/thumb"
     android:layout_width="39dp"
     android:layout_height="wrap_content"
-    android:scaleType="centerCrop"/>
+    android:scaleType="fitXY"/>
 
 </LinearLayout>
