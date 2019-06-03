@@ -1,4 +1,4 @@
-package com.cgfay.utilslibrary.fragment;
+package com.cgfay.filterlibrary.fragment;
 
 import android.app.Activity;
 import android.app.AlertDialog;

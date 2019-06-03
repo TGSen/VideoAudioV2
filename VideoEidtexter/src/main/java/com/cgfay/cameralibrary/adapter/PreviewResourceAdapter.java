@@ -17,7 +17,7 @@ import com.cgfay.cameralibrary.R;
 import com.cgfay.cameralibrary.loader.MediaLoader;
 import com.cgfay.cameralibrary.loader.impl.GlideMediaLoader;
 import com.cgfay.filterlibrary.glfilter.resource.bean.ResourceData;
-import com.cgfay.utilslibrary.utils.BitmapUtils;
+import com.cgfay.filterlibrary.utils.BitmapUtils;
 
 import java.util.List;
 

@@ -11,7 +11,7 @@ import com.cgfay.filterlibrary.glfilter.stickers.bean.DynamicStickerData;
 import com.cgfay.filterlibrary.glfilter.stickers.bean.DynamicStickerFrameData;
 import com.cgfay.filterlibrary.glfilter.stickers.bean.DynamicStickerNormalData;
 import com.cgfay.filterlibrary.glfilter.stickers.bean.StaticStickerNormalData;
-import com.cgfay.utilslibrary.utils.FileUtils;
+import com.cgfay.filterlibrary.utils.FileUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;

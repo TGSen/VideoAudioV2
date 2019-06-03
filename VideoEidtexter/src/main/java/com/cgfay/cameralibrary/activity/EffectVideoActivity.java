@@ -8,7 +8,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
 import android.os.Handler;
@@ -79,9 +78,9 @@ import com.cgfay.filterlibrary.glfilter.resource.bean.ResourceData;
 import com.cgfay.filterlibrary.glfilter.resource.bean.ResourceType;
 import com.cgfay.filterlibrary.glfilter.stickers.bean.DynamicSticker;
 import com.cgfay.filterlibrary.glfilter.utils.OpenGLUtils;
-import com.cgfay.utilslibrary.utils.BitmapUtils;
-import com.cgfay.utilslibrary.utils.DensityUtils;
-import com.cgfay.utilslibrary.utils.StringUtils;
+import com.cgfay.filterlibrary.utils.BitmapUtils;
+import com.cgfay.filterlibrary.utils.DensityUtils;
+import com.cgfay.filterlibrary.utils.StringUtils;
 
 
 import java.io.File;

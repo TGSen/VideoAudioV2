@@ -12,7 +12,7 @@ import com.cgfay.filterlibrary.glfilter.effect.bean.DynamicEffectData;
 import com.cgfay.filterlibrary.glfilter.resource.ResourceCodec;
 import com.cgfay.filterlibrary.glfilter.resource.ResourceDataCodec;
 import com.cgfay.filterlibrary.glfilter.utils.OpenGLUtils;
-import com.cgfay.utilslibrary.utils.BitmapUtils;
+import com.cgfay.filterlibrary.utils.BitmapUtils;
 
 import java.io.IOException;
 import java.util.HashMap;

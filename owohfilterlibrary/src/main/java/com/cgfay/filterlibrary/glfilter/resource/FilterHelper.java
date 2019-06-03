@@ -3,11 +3,10 @@ package com.cgfay.filterlibrary.glfilter.resource;
 import android.content.Context;
 import android.os.Environment;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.cgfay.filterlibrary.glfilter.resource.bean.ResourceData;
 import com.cgfay.filterlibrary.glfilter.resource.bean.ResourceType;
-import com.cgfay.utilslibrary.utils.FileUtils;
+import com.cgfay.filterlibrary.utils.FileUtils;
 
 import java.io.File;
 import java.util.ArrayList;

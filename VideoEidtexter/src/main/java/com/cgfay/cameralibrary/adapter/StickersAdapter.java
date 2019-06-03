@@ -2,10 +2,8 @@ package com.cgfay.cameralibrary.adapter;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,8 +14,6 @@ import com.cgfay.cameralibrary.R;
 import com.cgfay.cameralibrary.bean.ItemSticker;
 import com.cgfay.cameralibrary.loader.MediaLoader;
 import com.cgfay.cameralibrary.loader.impl.GlideMediaLoader;
-import com.cgfay.cameralibrary.media.bgmusic.ItemMusic;
-import com.cgfay.utilslibrary.utils.BitmapUtils;
 
 import java.util.List;
 

@@ -17,7 +17,7 @@ import android.view.View;
 import android.view.ViewConfiguration;
 
 import com.cgfay.cameralibrary.R;
-import com.cgfay.utilslibrary.utils.DensityUtils;
+import com.cgfay.filterlibrary.utils.DensityUtils;
 
 import java.text.DecimalFormat;
 

@@ -44,10 +44,10 @@ import com.cgfay.cameralibrary.widget.CainSurfaceView;
 import com.cgfay.cameralibrary.widget.HorizontalIndicatorView;
 import com.cgfay.cameralibrary.widget.ShutterView;
 import com.cgfay.filterlibrary.multimedia.VideoCombiner;
-import com.cgfay.utilslibrary.fragment.PermissionConfirmDialogFragment;
-import com.cgfay.utilslibrary.fragment.PermissionErrorDialogFragment;
-import com.cgfay.utilslibrary.utils.BrightnessUtils;
-import com.cgfay.utilslibrary.utils.PermissionUtils;
+import com.cgfay.filterlibrary.fragment.PermissionConfirmDialogFragment;
+import com.cgfay.filterlibrary.fragment.PermissionErrorDialogFragment;
+import com.cgfay.filterlibrary.utils.BrightnessUtils;
+import com.cgfay.filterlibrary.utils.PermissionUtils;
 
 import java.io.File;
 import java.util.ArrayList;

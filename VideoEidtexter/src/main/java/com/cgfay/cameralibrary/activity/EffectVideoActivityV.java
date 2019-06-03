@@ -44,8 +44,8 @@ import com.cgfay.filterlibrary.glfilter.resource.ResourceJsonCodec;
 import com.cgfay.filterlibrary.glfilter.resource.bean.ResourceData;
 import com.cgfay.filterlibrary.glfilter.resource.bean.ResourceType;
 import com.cgfay.filterlibrary.glfilter.stickers.bean.DynamicSticker;
-import com.cgfay.utilslibrary.utils.BitmapUtils;
-import com.cgfay.utilslibrary.utils.StringUtils;
+import com.cgfay.filterlibrary.utils.BitmapUtils;
+import com.cgfay.filterlibrary.utils.StringUtils;
 
 import java.io.File;
 import java.util.ArrayList;

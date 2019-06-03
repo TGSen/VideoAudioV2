@@ -1,4 +1,4 @@
-package com.cgfay.utilslibrary.fragment;
+package com.cgfay.filterlibrary.fragment;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -10,7 +10,8 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 
-import com.cgfay.utilslibrary.R;
+import com.cgfay.filterlibrary.R;
+
 
 /**
  * 预览页面返回对话框

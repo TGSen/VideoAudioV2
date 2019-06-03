@@ -7,7 +7,6 @@ import android.opengl.GLES30;
 import android.os.HandlerThread;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.WindowManager;
 
@@ -21,7 +20,6 @@ import com.cgfay.filterlibrary.glfilter.color.bean.DynamicColor;
 import com.cgfay.filterlibrary.glfilter.resource.bean.ResourceType;
 import com.cgfay.filterlibrary.glfilter.stickers.bean.DynamicSticker;
 import com.cgfay.filterlibrary.glfilter.utils.OpenGLUtils;
-import com.cgfay.utilslibrary.utils.DensityUtils;
 
 import java.nio.ByteBuffer;
 

@@ -3,7 +3,7 @@ package com.cgfay.cameralibrary.engine.recorder;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.cgfay.utilslibrary.utils.FileUtils;
+import com.cgfay.filterlibrary.utils.FileUtils;
 
 /**
  * 分段录制信息

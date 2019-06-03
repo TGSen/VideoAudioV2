@@ -9,8 +9,8 @@ import com.cgfay.cameralibrary.engine.listener.OnRecordListener;
 import com.cgfay.cameralibrary.engine.render.PreviewRenderer;
 import com.cgfay.filterlibrary.multimedia.MediaEncoder;
 import com.cgfay.filterlibrary.multimedia.VideoCombiner;
-import com.cgfay.utilslibrary.utils.FileUtils;
-import com.cgfay.utilslibrary.utils.StringUtils;
+import com.cgfay.filterlibrary.utils.FileUtils;
+import com.cgfay.filterlibrary.utils.StringUtils;
 
 import java.util.ArrayList;
 import java.util.LinkedList;

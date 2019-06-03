@@ -6,10 +6,9 @@ import android.text.TextUtils;
 
 import com.cgfay.filterlibrary.glfilter.resource.bean.ResourceData;
 import com.cgfay.filterlibrary.glfilter.resource.bean.ResourceType;
-import com.cgfay.utilslibrary.utils.FileUtils;
+import com.cgfay.filterlibrary.utils.FileUtils;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 /**

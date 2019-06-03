@@ -1,4 +1,4 @@
-package com.cgfay.utilslibrary.utils;
+package com.cgfay.filterlibrary.utils;
 
 import android.annotation.TargetApi;
 import android.os.Build;

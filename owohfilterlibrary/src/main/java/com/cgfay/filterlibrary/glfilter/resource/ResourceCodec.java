@@ -4,7 +4,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
 
-import com.cgfay.utilslibrary.utils.FileUtils;
+import com.cgfay.filterlibrary.utils.FileUtils;
 
 import java.io.BufferedInputStream;
 import java.io.Closeable;

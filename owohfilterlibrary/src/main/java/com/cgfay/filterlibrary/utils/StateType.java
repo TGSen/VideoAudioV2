@@ -1,4 +1,4 @@
-package com.cgfay.utilslibrary.utils;
+package com.cgfay.filterlibrary.utils;
 
 /**
  * 播放状态

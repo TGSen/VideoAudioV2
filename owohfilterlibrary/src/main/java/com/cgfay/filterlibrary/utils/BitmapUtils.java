@@ -1,4 +1,4 @@
-package com.cgfay.utilslibrary.utils;
+package com.cgfay.filterlibrary.utils;
 
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
@@ -12,7 +12,6 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.media.ExifInterface;
 import android.media.MediaMetadataRetriever;
@@ -20,7 +19,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.provider.MediaStore;
-import android.support.annotation.DrawableRes;
 import android.util.Log;
 
 import java.io.BufferedOutputStream;

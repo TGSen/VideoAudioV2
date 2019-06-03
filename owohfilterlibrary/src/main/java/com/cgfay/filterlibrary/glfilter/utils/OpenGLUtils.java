@@ -10,7 +10,7 @@ import android.opengl.Matrix;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.cgfay.utilslibrary.utils.BitmapUtils;
+import com.cgfay.filterlibrary.utils.BitmapUtils;
 
 import java.io.BufferedReader;
 import java.io.File;

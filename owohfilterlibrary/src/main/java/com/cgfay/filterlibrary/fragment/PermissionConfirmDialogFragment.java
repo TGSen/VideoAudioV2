@@ -1,4 +1,4 @@
-package com.cgfay.utilslibrary.fragment;
+package com.cgfay.filterlibrary.fragment;
 
 import android.Manifest;
 import android.app.Activity;
@@ -11,7 +11,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 
-import com.cgfay.utilslibrary.utils.PermissionUtils;
+import com.cgfay.filterlibrary.utils.PermissionUtils;
 
 
 /**
