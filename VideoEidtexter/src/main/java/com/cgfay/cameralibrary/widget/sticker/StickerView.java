@@ -948,7 +948,7 @@ public class StickerView extends FrameLayout {
      */
     public float getCurrentStickerMinValue() {
         if (handlingSticker != null)
-            return handlingSticker.getEndTime();
+            return handlingSticker.getStartTime();
         return 0;
     }
 
@@ -959,7 +959,7 @@ public class StickerView extends FrameLayout {
      */
     public float getCurrentStickerMaxValue() {
         if (handlingSticker != null)
-            return handlingSticker.getStartTime();
+            return handlingSticker.getEndTime();
 
         return 0;
     }

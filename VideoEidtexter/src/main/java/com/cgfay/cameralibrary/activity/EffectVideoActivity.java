@@ -280,10 +280,10 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                         layoutParams.height = margin[1];
                         mAspectLayout.setLayoutParams(layoutParams);
                         //改变该触摸的sticker 范围
-                        mRangeSeekBar.setSelectedMaxValue((long) stickerView.getCurrentStickerMaxValue());
-                        mRangeSeekBar.setSelectedMinValue((long) stickerView.getCurrentStickerMinValue());
+                        mRangeSeekBar.setNormalizedMaxValue( stickerView.getCurrentStickerMaxValue());
+                        mRangeSeekBar.setNormalizedMinValue( stickerView.getCurrentStickerMinValue());
 
-                        Log.e("Harrison","(long) stickerView.getCurrentStickerMaxValue()"+(long) stickerView.getCurrentStickerMaxValue()+"(long) stickerView.getCurrentStickerMinValue()"+(long) stickerView.getCurrentStickerMinValue());
+                           Log.e("Harrison","(long) stickerView.getCurrentStickerMaxValue()"+stickerView.getCurrentStickerMaxValue()+"(long) stickerView.getCurrentStickerMinValue()"+ stickerView.getCurrentStickerMinValue());
 
                         if (isVideoRange)
                             return;
