@@ -194,7 +194,8 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
     private boolean isCombine;
     private GLStickerFilter glStickerFilter;
     private GLEffectFilter mEffectFilter;
-    private boolean isHasPicture;
+    //该视频是否有该截图
+    private boolean isVideoRange;
 
 
     @Override
@@ -282,9 +283,13 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                         //改变该触摸的sticker 范围
                         mRangeSeekBar.setSelectedMaxValue((long) stickerView.getCurrentStickerMaxValue());
                         mRangeSeekBar.setSelectedMinValue((long) stickerView.getCurrentStickerMinValue());
+                        if (isVideoRange)
+                            return;
+
                         EXECUTOR.execute(new Runnable() {
                             @Override
                             public void run() {
+                                isVideoRange = true;
                                 //如果存在的 话，那么就不用在截取了
                                 String outPutFileDirPath = getExternalCacheDir().getAbsolutePath() + "/";
                                 int extractW = mMaxWidth / MAX_COUNT_RANGE;

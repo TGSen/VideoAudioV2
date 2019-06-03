@@ -47,8 +47,6 @@ public class StickerView extends FrameLayout {
     private final boolean bringToFrontCurrentSticker;
 
 
-
-
     @IntDef({
             ActionMode.NONE, ActionMode.DRAG, ActionMode.ZOOM_WITH_TWO_FINGER, ActionMode.ICON,
             ActionMode.CLICK
@@ -792,8 +790,11 @@ public class StickerView extends FrameLayout {
      * @param endTime
      */
     public void setStickerTime(long startTime, long endTime) {
-        handlingSticker.setStartTime(startTime);
-        handlingSticker.setEndTime(endTime);
+        if (handlingSticker != null) {
+            handlingSticker.setStartTime(startTime);
+            handlingSticker.setEndTime(endTime);
+        }
+
 
     }
 
@@ -942,32 +943,36 @@ public class StickerView extends FrameLayout {
 
     /**
      * 获取当前的sticker 的最小值
+     *
      * @return
      */
     public float getCurrentStickerMinValue() {
-        if(handlingSticker!=null)
+        if (handlingSticker != null)
             return handlingSticker.getEndTime();
         return 0;
     }
 
     /**
      * 获取当前sticker 的最大值
+     *
      * @return
      */
     public float getCurrentStickerMaxValue() {
-        if(handlingSticker!=null)
+        if (handlingSticker != null)
             return handlingSticker.getStartTime();
 
         return 0;
     }
+
     //记录上次点击的Sticker ,用于记录时间的
     private Sticker currentSticker;
+
     public void setCurrentSticker() {
-        currentSticker  = handlingSticker;
+        currentSticker = handlingSticker;
     }
 
-    public boolean isCurrentSticker(){
-        if(currentSticker==null || handlingSticker==null ||(currentSticker!=handlingSticker)){
+    public boolean isCurrentSticker() {
+        if (currentSticker == null || handlingSticker == null || (currentSticker != handlingSticker)) {
             return false;
         }
         return true;
