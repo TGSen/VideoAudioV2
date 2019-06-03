@@ -81,9 +81,11 @@ import com.cgfay.filterlibrary.glfilter.utils.OpenGLUtils;
 import com.cgfay.filterlibrary.utils.BitmapUtils;
 import com.cgfay.filterlibrary.utils.DensityUtils;
 import com.cgfay.filterlibrary.utils.StringUtils;
+import com.tencent.bugly.crashreport.CrashReport;
 
 
 import java.io.File;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -151,6 +153,8 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                     mStickerSeekBar.setProgress(progress);
                     break;
                 case MSG_VIDEO_PLAY_STATUS_STOP:
+                    //贴纸的暂停不需要显示
+                    if(layoutStickerTool.getVisibility()==View.GONE)
                     mVideoPlayStatus.setVisibility(View.VISIBLE);
                     break;
                 case MSG_VIDEO_PLAY_STATUS_START:
@@ -168,8 +172,8 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
     };
     private ConstraintLayout mRootView;
     private RecyclerView mRecyclerView, mThumbRecyclerView;
-    private TextView tvTotalTime, tvStartTime;
-    private ImageView mVideoPlayStatus;
+    private TextView tvTotalTime, tvStartTime, mStickerTimeTv;
+    private ImageView mVideoPlayStatus,imgVideoSmall;
     private VideoEffectSeekBar mSeekBar;
     private DragSeekBar mStickerSeekBar;
     private List<ResourceData> mResourceData = new ArrayList<>();
@@ -200,6 +204,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        CrashReport.initCrashReport(getApplicationContext(), "c5db1d8f24", false);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -253,6 +258,8 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                     mStickerView.setBorder(false);
                     return;
                 }
+                mStickerTimeTv.setText(String.format(getResources().getString(R.string.sticker_choose_time), String.valueOf(new BigDecimal(stickerView.getRangeTime()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue())));
+
                 mainGroup.setVisibility(View.GONE);
                 effectGroup.setVisibility(View.GONE);
                 layoutStickerTool.setVisibility(View.VISIBLE);
@@ -280,10 +287,9 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                         layoutParams.height = margin[1];
                         mAspectLayout.setLayoutParams(layoutParams);
                         //改变该触摸的sticker 范围
-                        mRangeSeekBar.setNormalizedMaxValue( stickerView.getCurrentStickerMaxValue());
-                        mRangeSeekBar.setNormalizedMinValue( stickerView.getCurrentStickerMinValue());
+                        mRangeSeekBar.setNormalizedMaxValue(stickerView.getCurrentStickerMaxValue());
+                        mRangeSeekBar.setNormalizedMinValue(stickerView.getCurrentStickerMinValue());
 
-                           Log.e("Harrison","(long) stickerView.getCurrentStickerMaxValue()"+stickerView.getCurrentStickerMaxValue()+"(long) stickerView.getCurrentStickerMinValue()"+ stickerView.getCurrentStickerMinValue());
 
                         if (isVideoRange)
                             return;
@@ -625,9 +631,13 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
         tvTotalTime = findViewById(R.id.totalTime);
         tvStartTime = findViewById(R.id.startTime);
         mVideoPlayStatus = findViewById(R.id.imgVideo);
+        imgVideoSmall = findViewById(R.id.imgVideoSmall);
+        imgVideoSmall.setOnClickListener(this);
+
         layoutStickerTool = findViewById(R.id.layoutStickerTool);
         ImageView imgNext = findViewById(R.id.imgNext);
         imgNext.setOnClickListener(this);
+
         TextView sticker = findViewById(R.id.btSticker);
         sticker.setOnClickListener(this);
         mVideoPlayStatus.setVisibility(View.GONE);
@@ -660,6 +670,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
 
         //贴纸得显示时间选择
         mRangeSeekBar = findViewById(R.id.rangeSeekBar);
+        mStickerTimeTv = findViewById(R.id.stickerTime);
         mRangeSeekBar.setSelectedMinValue(0L);
         mRangeSeekBar.setSelectedMaxValue(MAX_CUT_DURATION);
         mRangeSeekBar.setMin_cut_time(MIN_CUT_DURATION);//设置最小裁剪时间
@@ -691,21 +702,25 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
         mStickerSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                synchronized (EffectVideoActivity.class) {
-                    //改变显示的时间
-                    mStickerView.setShowSticker(progress);
+                //改变显示的时间
+                mStickerView.setShowSticker(progress);
+                if (fromUser) {
+                    //改变视频的位置
+                    mVideoRenderer.changeVideoProgress(progress);
                 }
+
             }
 
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-
+                //触摸Seekbar 停止播放
+                mVideoRenderer.stopPlayVideo();
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-
+                mVideoRenderer.startPlayVideo();
             }
         });
 
@@ -894,21 +909,17 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                 case MotionEvent.ACTION_DOWN:
                     leftProgress = minValue + scrollPos;
                     rightProgress = maxValue + scrollPos;
-                    Log.e(TAG, "-----leftProgress----->>>>>>" + leftProgress);
-                    Log.e(TAG, "-----rightProgress----->>>>>>" + rightProgress);
 //                    isSeeking = false;
 //                    videoPause();
                     //暂停视频
                     break;
                 case MotionEvent.ACTION_MOVE:
-                    Log.e(TAG, "-----ACTION_MOVE---->>>>>>" + minValue + "-----" + maxValue);
 //                    isSeeking = true;
 //                    mMediaPlayer.seekTo((int) (pressedThumb == RangeSeekBar.Thumb.MIN ?
 //                            leftProgress : rightProgress));
                     break;
                 case MotionEvent.ACTION_UP:
                     mStickerView.setStickerTime(minValue, maxValue);
-                    Log.e(TAG, "-----ACTION_UP--leftProgress--->>>>>>" + minValue + "-----" + maxValue);
 //                    isSeeking = false;
 //                    //从minValue开始播
 //                    mMediaPlayer.seekTo((int) leftProgress);
@@ -920,6 +931,9 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                 default:
                     break;
             }
+            //设置已选择的时间
+            mStickerTimeTv.setText(String.format(getResources().getString(R.string.sticker_choose_time), String.valueOf(new BigDecimal((maxValue - minValue) / 1000.0f).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue())));
+
         }
     };
 
@@ -1034,10 +1048,11 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
 
     @Override
     protected void onStop() {
-        super.onStop();
         if (mVideoRenderer != null) {
             mVideoRenderer.stopPlayVideo();
         }
+        super.onStop();
+
 
     }
 
@@ -1117,6 +1132,15 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
         switch (id) {
             case R.id.btSave:
                 break;
+            case R.id.imgVideoSmall:
+                if (!mVideoRenderer.isVideoPlay()) {
+                    //如果沒播放的話，好像回到全屏是有问题的
+                    mVideoRenderer.startPlayVideo();
+                }else{
+                    mVideoRenderer.stopPlayVideo();
+                }
+                imgVideoSmall.setSelected(mVideoRenderer.isVideoPlay());
+                break;
             case R.id.btFilters:
                 showFilterView();
                 break;
@@ -1194,7 +1218,6 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                 combineFilterToVideoFile();
                 break;
             case R.id.btSticker:
-                Log.e("Harrison", "sticker");
                 showStickerFragment();
 
                 break;

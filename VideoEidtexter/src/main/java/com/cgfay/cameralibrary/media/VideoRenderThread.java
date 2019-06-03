@@ -374,9 +374,8 @@ public class VideoRenderThread extends HandlerThread implements SurfaceTexture.O
     }
 
     public int getVideoProgress() {
-        if (mMediaPlayer != null) {
+        if (mMediaPlayer != null ) {
             return mMediaPlayer.getCurrentPosition();
-
         }
         return 0;
     }

@@ -26,6 +26,8 @@ import android.view.ViewConfiguration;
 import android.widget.FrameLayout;
 
 import com.cgfay.cameralibrary.R;
+import com.cgfay.cameralibrary.activity.EffectVideoActivity;
+import com.cgfay.filterlibrary.utils.DensityUtils;
 
 import java.io.File;
 import java.lang.annotation.Retention;
@@ -611,19 +613,30 @@ public class StickerView extends FrameLayout {
     @Override
     protected void onSizeChanged(int w, int h, int oldW, int oldH) {
         super.onSizeChanged(w, h, oldW, oldH);
-
-        Log.e("Harrison", "onSizeChanged" + w + "*" + oldW + "*" + h + "*" + oldH);
-        if (oldW == 0 || oldH == 0) return;
-        float scaleFactor = Math.min((float) h / (float) oldH, (float) w / (float) oldW);
+        //适配布局
         for (int i = 0; i < stickers.size(); i++) {
             Sticker sticker = stickers.get(i);
             if (sticker != null) {
-                Log.e("Harrison", "scaleFactor" + scaleFactor);
-                Matrix matrix = sticker.getMatrix();
-                matrix.postScale(scaleFactor, scaleFactor);
+                //计算比例,屏幕的比例等等，但是有个bug,就是缩小后，放大就回不去了
+                float screenScale = Math.min((float) h / (float) oldH, (float) w / (float) oldW);
+                float stickerScale = sticker.getCurrentScale();
+                float currentScale = stickerScale * screenScale;
+                Matrix matrix = new Matrix();
+                float centerX = sticker.getMappedCenterPoint().x / oldW * w;
+                float centerY = sticker.getMappedCenterPoint().y / oldH * h;
+
+                //计算按照sticker的中心值，计算百分比宽高
+
+                matrix.postScale(currentScale, currentScale);
+                matrix.postTranslate(centerX - sticker.getWidth() * currentScale / 2, centerY - sticker.getHeight() * currentScale / 2);
+                matrix.postRotate(sticker.getCurrentAngle(), centerX, centerY);
+                sticker.getMatrix().reset();
+                sticker.setMatrix(matrix);
+
             }
+            invalidate();
         }
-        invalidate();
+
     }
 
     /**
@@ -976,6 +989,13 @@ public class StickerView extends FrameLayout {
             return false;
         }
         return true;
+    }
+
+    public double getRangeTime() {
+        if (currentSticker != null) {
+            return (currentSticker.getEndTime() - currentSticker.getStartTime()) / 1000.0f;
+        }
+        return 0.00;
     }
 
     /**

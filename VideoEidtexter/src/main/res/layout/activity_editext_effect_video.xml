@@ -45,6 +45,7 @@
             app:layout_constraintLeft_toLeftOf="@+id/thumbRecyclerView"
             app:layout_constraintRight_toRightOf="@+id/thumbRecyclerView" />
 
+
         <TextView
             android:id="@+id/stickerTime"
             android:layout_width="0dp"
@@ -54,6 +55,15 @@
             android:textSize="@dimen/sp14"
             app:layout_constraintBottom_toTopOf="@+id/thumbRecyclerView"
             app:layout_constraintLeft_toLeftOf="@+id/thumbRecyclerView"
+            app:layout_constraintRight_toLeftOf="@+id/imgVideoSmall" />
+
+        <ImageView
+            android:id="@+id/imgVideoSmall"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:src="@drawable/ic_seletct_video_small"
+            app:layout_constraintTop_toTopOf="@+id/stickerTime"
+            app:layout_constraintBottom_toBottomOf="@+id/stickerTime"
             app:layout_constraintRight_toRightOf="@+id/thumbRecyclerView" />
 
 
@@ -98,8 +108,6 @@
             app:layout_constraintTop_toTopOf="@+id/thumbRecyclerView" />
 
     </android.support.constraint.ConstraintLayout>
-
-
 
 
     <ImageView

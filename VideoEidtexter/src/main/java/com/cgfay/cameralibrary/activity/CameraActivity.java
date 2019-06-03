@@ -12,6 +12,7 @@ import com.cgfay.cameralibrary.engine.camera.CameraParam;
 import com.cgfay.cameralibrary.engine.model.GalleryType;
 import com.cgfay.cameralibrary.fragment.CameraPreviewFragment;
 import com.cgfay.cameralibrary.listener.OnPageOperationListener;
+import com.tencent.bugly.crashreport.CrashReport;
 
 /**
  * 相机预览页面
@@ -22,6 +23,7 @@ public class CameraActivity extends AppCompatActivity  {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        CrashReport.initCrashReport(getApplicationContext(), "c5db1d8f24", false);
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
