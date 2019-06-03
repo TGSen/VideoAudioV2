@@ -194,6 +194,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
     private boolean isCombine;
     private GLStickerFilter glStickerFilter;
     private GLEffectFilter mEffectFilter;
+    private boolean isHasPicture;
 
 
     @Override
@@ -238,7 +239,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
         flipIcon.setIconEvent(new StickerIconEvent() {
             @Override
             public void onActionDown(StickerView stickerView, MotionEvent event) {
-
+                mStickerView.setCurrentSticker();
             }
 
             @Override
@@ -247,8 +248,8 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
             }
 
             @Override
-            public void onActionUp(StickerView stickerView, MotionEvent event) {
-                if (layoutStickerTool.getVisibility() == View.VISIBLE) {
+            public void onActionUp(final StickerView stickerView, MotionEvent event) {
+                if (layoutStickerTool.getVisibility() == View.VISIBLE && stickerView.isCurrentSticker()) {
                     mStickerView.setBorder(false);
                     return;
                 }
@@ -278,9 +279,13 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                         layoutParams.width = margin[0];
                         layoutParams.height = margin[1];
                         mAspectLayout.setLayoutParams(layoutParams);
+                        //改变该触摸的sticker 范围
+                        mRangeSeekBar.setSelectedMaxValue((long) stickerView.getCurrentStickerMaxValue());
+                        mRangeSeekBar.setSelectedMinValue((long) stickerView.getCurrentStickerMinValue());
                         EXECUTOR.execute(new Runnable() {
                             @Override
                             public void run() {
+                                //如果存在的 话，那么就不用在截取了
                                 String outPutFileDirPath = getExternalCacheDir().getAbsolutePath() + "/";
                                 int extractW = mMaxWidth / MAX_COUNT_RANGE;
                                 int extractH = DensityUtils.dp2px(EffectVideoActivity.this, 62);
