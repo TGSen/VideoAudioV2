@@ -1,4 +1,4 @@
-package com.cgfay.cameralibrary.mp4compose.composer;
+package com.cgfay.filterlibrary.mp4compose.composer;
 
 /**
  * Created by sudamasayuki2 on 2018/02/24.

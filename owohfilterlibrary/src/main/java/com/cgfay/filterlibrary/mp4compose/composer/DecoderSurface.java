@@ -1,4 +1,4 @@
-package com.cgfay.cameralibrary.mp4compose.composer;
+package com.cgfay.filterlibrary.mp4compose.composer;
 
 import android.graphics.SurfaceTexture;
 import android.opengl.EGL14;
@@ -12,14 +12,14 @@ import android.util.Size;
 import android.view.Surface;
 
 
-import com.cgfay.cameralibrary.mp4compose.FillMode;
-import com.cgfay.cameralibrary.mp4compose.FillModeCustomItem;
-import com.cgfay.cameralibrary.mp4compose.Rotation;
-import com.cgfay.cameralibrary.mp4compose.filter.GlFilter;
-import com.cgfay.cameralibrary.mp4compose.gl.GlFramebufferObject;
-import com.cgfay.cameralibrary.mp4compose.gl.GlPreviewFilter;
-import com.cgfay.cameralibrary.mp4compose.gl.GlSurfaceTexture;
-import com.cgfay.cameralibrary.mp4compose.utils.EglUtil;
+import com.cgfay.filterlibrary.mp4compose.FillMode;
+import com.cgfay.filterlibrary.mp4compose.FillModeCustomItem;
+import com.cgfay.filterlibrary.mp4compose.Rotation;
+import com.cgfay.filterlibrary.mp4compose.filter.GlFilter;
+import com.cgfay.filterlibrary.mp4compose.gl.GlFramebufferObject;
+import com.cgfay.filterlibrary.mp4compose.gl.GlPreviewFilter;
+import com.cgfay.filterlibrary.mp4compose.gl.GlSurfaceTexture;
+import com.cgfay.filterlibrary.mp4compose.utils.EglUtil;
 
 import static android.opengl.GLES20.GL_COLOR_BUFFER_BIT;
 import static android.opengl.GLES20.GL_DEPTH_BUFFER_BIT;

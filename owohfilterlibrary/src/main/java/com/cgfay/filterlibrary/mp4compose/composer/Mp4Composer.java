@@ -1,14 +1,14 @@
-package com.cgfay.cameralibrary.mp4compose.composer;
+package com.cgfay.filterlibrary.mp4compose.composer;
 
 import android.media.MediaMetadataRetriever;
 import android.util.Log;
 import android.util.Size;
 
 
-import com.cgfay.cameralibrary.mp4compose.FillMode;
-import com.cgfay.cameralibrary.mp4compose.FillModeCustomItem;
-import com.cgfay.cameralibrary.mp4compose.Rotation;
-import com.cgfay.cameralibrary.mp4compose.filter.GlFilter;
+import com.cgfay.filterlibrary.mp4compose.FillMode;
+import com.cgfay.filterlibrary.mp4compose.FillModeCustomItem;
+import com.cgfay.filterlibrary.mp4compose.Rotation;
+import com.cgfay.filterlibrary.mp4compose.filter.GlFilter;
 
 import java.io.File;
 import java.io.FileInputStream;

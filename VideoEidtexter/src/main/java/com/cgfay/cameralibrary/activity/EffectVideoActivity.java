@@ -51,9 +51,9 @@ import com.cgfay.cameralibrary.media.VideoRenderThread;
 import com.cgfay.cameralibrary.media.VideoRenderer;
 import com.cgfay.cameralibrary.media.bean.VideoEffect;
 import com.cgfay.cameralibrary.media.bean.VideoEffectType;
-import com.cgfay.cameralibrary.mp4compose.FillMode;
-import com.cgfay.cameralibrary.mp4compose.composer.Mp4Composer;
-import com.cgfay.cameralibrary.mp4compose.filter.GlFilterGroup;
+import com.cgfay.filterlibrary.mp4compose.FillMode;
+import com.cgfay.filterlibrary.mp4compose.composer.Mp4Composer;
+import com.cgfay.filterlibrary.mp4compose.filter.GlFilterGroup;
 import com.cgfay.cameralibrary.thumb.video.ExtractFrameWorkThread;
 import com.cgfay.cameralibrary.thumb.video.VideoEditInfo;
 import com.cgfay.cameralibrary.widget.DragSeekBar;
@@ -282,6 +282,9 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                         //改变该触摸的sticker 范围
                         mRangeSeekBar.setSelectedMaxValue((long) stickerView.getCurrentStickerMaxValue());
                         mRangeSeekBar.setSelectedMinValue((long) stickerView.getCurrentStickerMinValue());
+
+                        Log.e("Harrison","(long) stickerView.getCurrentStickerMaxValue()"+(long) stickerView.getCurrentStickerMaxValue()+"(long) stickerView.getCurrentStickerMinValue()"+(long) stickerView.getCurrentStickerMinValue());
+
                         if (isVideoRange)
                             return;
 

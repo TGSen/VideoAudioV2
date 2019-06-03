@@ -1,10 +1,9 @@
 package com.cgfay.cameralibrary.filter;
 
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.cgfay.cameralibrary.media.bean.VideoEffect;
-import com.cgfay.cameralibrary.mp4compose.filter.GlFilter;
+import com.cgfay.filterlibrary.mp4compose.filter.GlFilter;
 import com.cgfay.filterlibrary.glfilter.color.bean.DynamicColor;
 import com.cgfay.filterlibrary.glfilter.utils.OpenGLUtils;
 

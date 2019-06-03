@@ -2,7 +2,7 @@ package com.cgfay.cameralibrary.filter;
 
 import android.util.Log;
 
-import com.cgfay.cameralibrary.mp4compose.filter.GlOverlayFilter;
+import com.cgfay.filterlibrary.mp4compose.filter.GlOverlayFilter;
 
 public abstract class GLStickerFilter extends GlOverlayFilter {
     //当前时间

@@ -1,4 +1,4 @@
-package com.cgfay.cameralibrary.mp4compose.filter;
+package com.cgfay.filterlibrary.mp4compose.filter;
 
 import android.opengl.GLES20;
 

@@ -1,9 +1,9 @@
-package com.cgfay.cameralibrary.mp4compose.gl;
+package com.cgfay.filterlibrary.mp4compose.gl;
 
 import android.opengl.GLES20;
 
 
-import com.cgfay.cameralibrary.mp4compose.utils.EglUtil;
+import com.cgfay.filterlibrary.mp4compose.utils.EglUtil;
 
 import static android.opengl.GLES20.GL_COLOR_ATTACHMENT0;
 import static android.opengl.GLES20.GL_DEPTH_ATTACHMENT;

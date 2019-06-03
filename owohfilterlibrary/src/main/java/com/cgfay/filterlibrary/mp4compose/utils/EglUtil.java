@@ -1,4 +1,4 @@
-package com.cgfay.cameralibrary.mp4compose.utils;
+package com.cgfay.filterlibrary.mp4compose.utils;
 
 import android.graphics.Bitmap;
 import android.opengl.GLES20;

@@ -1,4 +1,4 @@
-package com.cgfay.cameralibrary.mp4compose.composer;
+package com.cgfay.filterlibrary.mp4compose.composer;
 
 import android.opengl.EGL14;
 import android.opengl.EGLConfig;

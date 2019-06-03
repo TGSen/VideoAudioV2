@@ -1,11 +1,11 @@
-package com.cgfay.cameralibrary.mp4compose.filter;
+package com.cgfay.filterlibrary.mp4compose.filter;
 
 import android.opengl.GLES20;
 import android.util.Log;
 import android.util.Pair;
 
 
-import com.cgfay.cameralibrary.mp4compose.gl.GlFramebufferObject;
+import com.cgfay.filterlibrary.mp4compose.gl.GlFramebufferObject;
 
 import java.util.ArrayList;
 

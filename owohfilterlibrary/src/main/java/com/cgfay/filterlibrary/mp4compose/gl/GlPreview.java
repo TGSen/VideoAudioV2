@@ -1,9 +1,9 @@
-package com.cgfay.cameralibrary.mp4compose.gl;
+package com.cgfay.filterlibrary.mp4compose.gl;
 
 import android.opengl.GLES20;
 
 
-import com.cgfay.cameralibrary.mp4compose.filter.GlFilter;
+import com.cgfay.filterlibrary.mp4compose.filter.GlFilter;
 
 import static android.opengl.GLES20.GL_ARRAY_BUFFER;
 import static android.opengl.GLES20.GL_FLOAT;

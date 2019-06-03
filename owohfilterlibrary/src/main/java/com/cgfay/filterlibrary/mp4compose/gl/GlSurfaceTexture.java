@@ -1,4 +1,4 @@
-package com.cgfay.cameralibrary.mp4compose.gl;
+package com.cgfay.filterlibrary.mp4compose.gl;
 
 import android.graphics.SurfaceTexture;
 
