@@ -617,7 +617,7 @@ public class StickerView extends FrameLayout {
         for (int i = 0; i < stickers.size(); i++) {
             Sticker sticker = stickers.get(i);
             if (sticker != null) {
-                //计算比例,屏幕的比例等等，但是有个bug,就是缩小后，放大就回不去了
+                //计算比例,屏幕的比例等等，但是有个bug,就是缩小后，放大就回不去了，有瑕疵
                 float screenScale = Math.min((float) h / (float) oldH, (float) w / (float) oldW);
                 float stickerScale = sticker.getCurrentScale();
                 float currentScale = stickerScale * screenScale;

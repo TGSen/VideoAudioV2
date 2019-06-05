@@ -263,12 +263,14 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                 mainGroup.setVisibility(View.GONE);
                 effectGroup.setVisibility(View.GONE);
                 layoutStickerTool.setVisibility(View.VISIBLE);
+                //关闭贴纸列表
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                hideFragment(transaction);
+                transaction.commit();
                 layoutStickerTool.post(new Runnable() {
                     @Override
                     public void run() {
                         int[] margin = calculation();
-
-
                         ConstraintSet constraintSet = new ConstraintSet();
                         constraintSet.clone(mRootView);
                         constraintSet.clear(R.id.layout_aspect);
@@ -997,7 +999,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
             switch (type) {
                 // 单纯的滤镜
                 case FILTER: {
-                    //
+
                     if (mDynamicColorFilter.get(position) != null) {
                         DynamicColor color = mDynamicColorFilter.get(position);
                         mVideoRenderer.changeDynamicColorFilter(color);

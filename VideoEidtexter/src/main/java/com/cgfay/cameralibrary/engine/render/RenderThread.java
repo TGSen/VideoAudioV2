@@ -421,6 +421,8 @@ public class RenderThread extends HandlerThread implements SurfaceTexture.OnFram
 
     }
 
+
+
     /**
      * 开始预览
      */

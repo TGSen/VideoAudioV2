@@ -12,7 +12,6 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
-
 import com.cgfay.cameralibrary.R;
 
 import java.lang.annotation.Retention;
@@ -23,7 +22,7 @@ import java.lang.annotation.RetentionPolicy;
  * @description:
  * @date :2019/4/29 15:22
  */
-public class ShutterView extends View {
+public class ShutterViewV extends View {
     // 外圆背景颜色
     private int mOuterOvalBgColor;
     //内圆颜色
@@ -52,24 +51,7 @@ public class ShutterView extends View {
     private int mMeasuredWidth;
     private int mMeasuredHeight;
     private OnShutterListener mOnShutterListener;
-    private boolean mEnableEncoder;
-    private int maxTimes = 10 * 1000;
 
-
-    //设置最大的时间
-    public void setMax(int max) {
-        this.maxTimes = max;
-    }
-
-    public void setProgress(float progress) {
-        if (progress >= maxTimes) {
-            mCurrentState = STATE_IDLE;
-            if (mOnShutterListener != null) {
-                mOnShutterListener.onEndRecord();
-            }
-            postInvalidate();
-        }
-    }
 
     @IntDef({MODE_CLICK_SINGLE, MODE_CLICK_LONG})
     @Retention(RetentionPolicy.SOURCE)
@@ -77,9 +59,6 @@ public class ShutterView extends View {
 
     }
 
-    public void setMaxTimes(int time) {
-        this.maxTimes = time;
-    }
 
     //闲置状态
     public static final int STATE_IDLE = 0x001;
@@ -103,15 +82,15 @@ public class ShutterView extends View {
         this.mCurrentMode = mCurrentMode;
     }
 
-    public ShutterView(Context context) {
+    public ShutterViewV(Context context) {
         this(context, null);
     }
 
-    public ShutterView(Context context, AttributeSet attrs) {
+    public ShutterViewV(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public ShutterView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public ShutterViewV(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context, attrs);
     }
@@ -169,9 +148,6 @@ public class ShutterView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (!mEnableEncoder) {
-            return super.onTouchEvent(event);
-        }
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 mTouchStartTime = System.currentTimeMillis();
@@ -195,9 +171,9 @@ public class ShutterView extends View {
             // 松开手时，先复位按钮初始状态，如果开始录制，则放大，否则复位
             case MotionEvent.ACTION_UP:
                 mTouchEndTime = System.currentTimeMillis();
-                if ((mTouchEndTime - mTouchStartTime) < 2000) {
+                if((mTouchEndTime-mTouchStartTime)<2000){
                     if (mOnShutterListener != null)
-                        mOnShutterListener.onShortRecord();
+                        mOnShutterListener.onStartRecord();
                 }
                 if (mCurrentMode == MODE_CLICK_SINGLE) {
                     isStart = true;
@@ -267,7 +243,6 @@ public class ShutterView extends View {
 
     }
 
-
     public void stopAnimation() {
         if (mButtonAnim != null && mButtonAnim.isRunning()) {
             Log.e("Harrison", "mButtonAnim");
@@ -288,21 +263,10 @@ public class ShutterView extends View {
         void onStopRecord();
 
         /**
-         * 短时间录制提醒
+         * 段时间录制提醒
          */
         void onShortRecord();
 
-        void onEndRecord();
-
-    }
-
-    /**
-     * 设置编码器处于可用状态(准备状态和释放状态都不可用)
-     *
-     * @param enable
-     */
-    public void setEnableEncoder(boolean enable) {
-        mEnableEncoder = enable;
     }
 
     /**
@@ -310,7 +274,7 @@ public class ShutterView extends View {
      *
      * @param listener
      */
-    public void setOnShutterListener(ShutterView.OnShutterListener listener) {
+    public void setOnShutterListener(ShutterViewV.OnShutterListener listener) {
         mOnShutterListener = listener;
     }
 }

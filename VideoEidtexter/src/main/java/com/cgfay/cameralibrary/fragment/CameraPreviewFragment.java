@@ -10,6 +10,7 @@ import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.Group;
@@ -43,9 +44,9 @@ import com.cgfay.cameralibrary.widget.AspectFrameLayout;
 import com.cgfay.cameralibrary.widget.CainSurfaceView;
 import com.cgfay.cameralibrary.widget.HorizontalIndicatorView;
 import com.cgfay.cameralibrary.widget.ShutterView;
-import com.cgfay.filterlibrary.multimedia.VideoCombiner;
 import com.cgfay.filterlibrary.fragment.PermissionConfirmDialogFragment;
 import com.cgfay.filterlibrary.fragment.PermissionErrorDialogFragment;
+import com.cgfay.filterlibrary.multimedia.VideoCombiner;
 import com.cgfay.filterlibrary.utils.BrightnessUtils;
 import com.cgfay.filterlibrary.utils.PermissionUtils;
 
@@ -67,6 +68,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
 
     // 对焦大小
     private static final int FocusSize = 80;
+    private static final int MSG_SHUTTER_PROGRESS = 0;
 
     // 相机权限使能标志
     private boolean mCameraEnable = false;
@@ -143,7 +145,21 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
         } else {
             mCameraParam.brightness = BrightnessUtils.getSystemBrightness(mActivity);
         }
-        mMainHandler = new Handler(context.getMainLooper());
+        mMainHandler = new Handler(context.getMainLooper()){
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+                switch (msg.what){
+                    case MSG_SHUTTER_PROGRESS:
+//                        if(PreviewRecorder.getInstance().isLastSecondStop()){
+//                            mBtnShutter.setProgress();
+//                        }
+
+
+                        break;
+                }
+            }
+        };
         mCameraEnable = PermissionUtils.permissionChecking(mActivity, Manifest.permission.CAMERA);
         mStorageWriteEnable = PermissionUtils.permissionChecking(mActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
         mCameraParam.audioPermitted = PermissionUtils.permissionChecking(mActivity, Manifest.permission.RECORD_AUDIO);
@@ -632,6 +648,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
 
         @Override
         public void onCameraOpened() {
+            mBtnShutter.setEnableEncoder(true);
             requestRender();
         }
 
@@ -707,6 +724,11 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
             Toast.makeText(mActivity,"录制的时间太短了",Toast.LENGTH_SHORT).show();
         }
 
+        @Override
+        public void onEndRecord() {
+
+        }
+
 
     };
 
@@ -741,12 +763,17 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
 
         @Override
         public void onRecordProgressChanged(final long duration) {
-
+            Log.e("Harrison","*******"+duration);
+            Message msg = mMainHandler.obtainMessage();
+            msg.what = MSG_SHUTTER_PROGRESS;
+            msg.obj = duration;
+            msg.sendToTarget();
         }
 
         @Override
         public void onRecordFinish() {
             Log.e("Harrison", "*****onRecordFinish");
+           mBtnShutter.setEnableEncoder(true);
             mMainHandler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -807,12 +834,15 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
      */
     private void stopRecordOrPreviewVideo() {
         if (PreviewRecorder.getInstance().isRecording()) {
+            Log.e("Harrison","stopRecordOrPreviewVideo");
             mNeedToWaitStop = true;
             PreviewRecorder.getInstance().stopRecord(false);
         } else {
+            Log.e("Harrison","stopRecordOrPreviewVideo0");
             mNeedToWaitStop = false;
             // 销毁录制线程
-            PreviewRecorder.getInstance().destroyRecorder();
+            PreviewRecorder.getInstance().stopRecord(false);
+          //  PreviewRecorder.getInstance().destroyRecorder();
             combinePath = PathConstraints.getVideoCachePath(mActivity);
             PreviewRecorder.getInstance().combineVideo(combinePath, mCombineListener);
         }
