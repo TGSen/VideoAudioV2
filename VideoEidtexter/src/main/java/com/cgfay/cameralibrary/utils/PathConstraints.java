@@ -26,7 +26,7 @@ public class PathConstraints {
         } else { // 使用内部存储缓存目录
             directoryPath = context.getCacheDir().getAbsolutePath();
         }
-        String path = directoryPath + File.separator + "CainCamera_" + System.currentTimeMillis() + ".jpeg";
+        String path = directoryPath + File.separator + System.currentTimeMillis() + ".jpeg";
         File file = new File(path);
         if (!file.getParentFile().exists()) {
             file.getParentFile().mkdirs();
@@ -47,7 +47,7 @@ public class PathConstraints {
         } else { // 使用内部存储缓存目录
             directoryPath = context.getCacheDir().getAbsolutePath();
         }
-        String path = directoryPath + File.separator + "CainCamera_" + System.currentTimeMillis() + ".mp4";
+        String path = directoryPath + File.separator + System.currentTimeMillis() + ".mp4";
         File file = new File(path);
         if (!file.getParentFile().exists()) {
             file.getParentFile().mkdirs();

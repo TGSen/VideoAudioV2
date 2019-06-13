@@ -36,6 +36,10 @@ import com.cgfay.cameralibrary.engine.listener.OnRecordListener;
 import com.cgfay.cameralibrary.engine.model.GalleryType;
 import com.cgfay.cameralibrary.engine.recorder.PreviewRecorder;
 import com.cgfay.cameralibrary.engine.render.PreviewRenderer;
+import com.cgfay.cameralibrary.fragment.CombineVideoDialogFragment;
+import com.cgfay.cameralibrary.fragment.MusicFragment;
+import com.cgfay.cameralibrary.fragment.PreviewFiltersFragment;
+
 import com.cgfay.cameralibrary.media.bgmusic.MusicManager;
 import com.cgfay.cameralibrary.media.bgmusic.MusicService;
 import com.cgfay.cameralibrary.media.combine.VideoAudioCombine;
@@ -773,7 +777,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
         @Override
         public void onRecordFinish() {
             Log.e("Harrison", "*****onRecordFinish");
-           mBtnShutter.setEnableEncoder(true);
+            mBtnShutter.setEnableEncoder(true);
             mMainHandler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -842,7 +846,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
             mNeedToWaitStop = false;
             // 销毁录制线程
             PreviewRecorder.getInstance().stopRecord(false);
-          //  PreviewRecorder.getInstance().destroyRecorder();
+            //  PreviewRecorder.getInstance().destroyRecorder();
             combinePath = PathConstraints.getVideoCachePath(mActivity);
             PreviewRecorder.getInstance().combineVideo(combinePath, mCombineListener);
         }
