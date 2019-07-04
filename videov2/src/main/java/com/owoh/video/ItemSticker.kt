@@ -18,17 +18,17 @@ class ItemSticker {
                 val list = ArrayList<ItemSticker>()
                 val itemSticker = ItemSticker()
                 itemSticker.name = "sticker"
-                itemSticker.path = path + "test.jpg"
+                itemSticker.path = path + "test1.jpg"
                 list.add(itemSticker)
 
                 val itemSticker1 = ItemSticker()
                 itemSticker1.name = "sticker1"
-                itemSticker1.path = path + "test.jpg"
+                itemSticker1.path = path + "test1.jpg"
                 list.add(itemSticker1)
 
                 val itemSticker2 = ItemSticker()
                 itemSticker2.name = "sticker2"
-                itemSticker2.path = path + "test.jpg"
+                itemSticker2.path = path + "test1.jpg"
                 list.add(itemSticker2)
 
                 val itemSticker3 = ItemSticker()
@@ -39,7 +39,7 @@ class ItemSticker {
 
                 val itemSticker4 = ItemSticker()
                 itemSticker4.name = "sticker4"
-                itemSticker4.path = path + "coffe.gif"
+                itemSticker4.path = path + "test3.gif"
                 itemSticker4.type = itemSticker4.TYPE_GIF
                 list.add(itemSticker4)
                 return list

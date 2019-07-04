@@ -6,10 +6,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.ImageDecoder;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.drawable.AnimatedImageDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.MediaMetadataRetriever;
@@ -95,6 +93,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
+import pl.droidsonroids.gif.GifDrawable;
 
 import static com.owoh.video.media.bean.VideoEffectTypeKt.EFFECT_TYPE_SINGLE;
 import static com.owoh.video.media.bean.VideoEffectTypeKt.RENDER_TYPE_AT_TIME;
@@ -963,27 +963,27 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                 public void addSticker(ItemSticker item) {
 
                     if (!TextUtils.isEmpty(item.getPath()) && new File(item.getPath()).exists()) {
-                        Drawable drawable = null;
                         if (item.getType() == item.getTYPE_GIF()) {
-                            try {
-                                drawable = ImageDecoder.decodeDrawable(
-                                        ImageDecoder.createSource(new File(item.getPath())));
-                                if (drawable instanceof AnimatedImageDrawable) {
-                                    ((AnimatedImageDrawable) drawable).start();
-                                }
-                                Log.e("Harrison", "*****gif");
-                                mStickerView.addSticker(new GifSticker(drawable).setEndTime(mSeekBar.getMax()));
-                            } catch (IOException e) {
+                            //android P 以上版本
+//                                drawable = ImageDecoder.decodeDrawable(
+//                                        ImageDecoder.createSource(new File(item.getPath())));
+//                                if (drawable instanceof AnimatedImageDrawable) {
+//                                    ((AnimatedImageDrawable) drawable).start();
+//                                }
 
+                            GifDrawable gifDrawable = null;
+                            try {
+                                gifDrawable = new GifDrawable(item.getPath());
+                                gifDrawable.start();
+                                mStickerView.addSticker(new GifSticker(gifDrawable).setEndTime(mSeekBar.getMax()));
+                            } catch (IOException e) {
+                                e.printStackTrace();
                             }
                         } else {
-                            Log.e("Harrison", "*****Png");
                             Bitmap bitmap = BitmapFactory.decodeFile(item.getPath());
-                            drawable = new BitmapDrawable(bitmap);
+                            Drawable drawable = new BitmapDrawable(bitmap);
                             mStickerView.addSticker(new DrawableSticker(drawable).setEndTime(mSeekBar.getMax()));
                         }
-
-
                     }
 
                 }
