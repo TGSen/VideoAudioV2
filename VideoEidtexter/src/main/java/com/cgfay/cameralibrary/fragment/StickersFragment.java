@@ -12,6 +12,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.widget.ImageView;
+
+
 import com.cgfay.cameralibrary.R;
 import com.cgfay.cameralibrary.adapter.StickersAdapter;
 import com.cgfay.cameralibrary.bean.ItemSticker;
@@ -31,7 +34,7 @@ public class StickersFragment extends Fragment {
     private List<ItemSticker> mResourceData = new ArrayList<>();
 
     private VideoRenderer mVideoRenderer;
-    private OnStickerAddListener onStickerAddListener;
+    private OnStickerPanlListener onStickerAddListener;
 
     public void setVideoRenderer(VideoRenderer mVideoRenderer) {
         this.mVideoRenderer = mVideoRenderer;
@@ -84,7 +87,15 @@ public class StickersFragment extends Fragment {
 
     private void initView(View view) {
         mResourceView = view.findViewById(R.id.preview_resource_list);
-
+        ImageView imageView = view.findViewById(R.id.imageClose);
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (onStickerAddListener != null) {
+                    onStickerAddListener.onClosePanl();
+                }
+            }
+        });
         GridLayoutManager manager = new GridLayoutManager(mActivity, 5);
         mResourceView.setLayoutManager(manager);
         mResourceData.addAll(ItemSticker.getStickerList());
@@ -94,7 +105,7 @@ public class StickersFragment extends Fragment {
             @Override
             public void onClick(int position) {
                 if (onStickerAddListener != null) {
-                    onStickerAddListener.addSticker(mResourceData.get(position).getPath());
+                    onStickerAddListener.addSticker(mResourceData.get(position));
                 }
             }
         });
@@ -119,14 +130,16 @@ public class StickersFragment extends Fragment {
         super.onDestroy();
     }
 
-    public void setOnStickerAddListener(OnStickerAddListener listener) {
+    public void setOnStickerAddListener(OnStickerPanlListener listener) {
         this.onStickerAddListener = listener;
     }
 
     /**
      * music 切换监听
      */
-    public interface OnStickerAddListener {
-        void addSticker(String url);
+    public interface OnStickerPanlListener {
+        void addSticker(ItemSticker url);
+
+        void onClosePanl();
     }
 }

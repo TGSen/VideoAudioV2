@@ -3,6 +3,7 @@ package com.cgfay.filterlibrary.mp4compose.filter;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import android.util.Size;
@@ -23,6 +24,7 @@ public abstract class GlOverlayFilter extends GlFilter {
     public GlOverlayFilter() {
         super(DEFAULT_VERTEX_SHADER, FRAGMENT_SHADER);
     }
+    private Paint mPaint;
 
     private final static String FRAGMENT_SHADER =
             "precision mediump float;\n" +
@@ -54,6 +56,8 @@ public abstract class GlOverlayFilter extends GlFilter {
     @Override
     public void setup() {
         super.setup();// 1
+        mPaint = new Paint();
+        mPaint.setAntiAlias(true);
         GLES20.glGenTextures(1, textures, 0);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textures[0]);
 
@@ -77,7 +81,7 @@ public abstract class GlOverlayFilter extends GlFilter {
         bitmap.eraseColor(Color.argb(0, 0, 0, 0));
         Canvas bitmapCanvas = new Canvas(bitmap);
         bitmapCanvas.scale(1, -1, bitmapCanvas.getWidth() / 2, bitmapCanvas.getHeight() / 2);
-        drawCanvas(bitmapCanvas);
+        drawCanvas(bitmapCanvas,mPaint);
 
         int offsetDepthMapTextureUniform = getHandle("oTexture");// 3
 
@@ -91,7 +95,7 @@ public abstract class GlOverlayFilter extends GlFilter {
         GLES20.glUniform1i(offsetDepthMapTextureUniform, 3);
     }
 
-    protected abstract void drawCanvas(Canvas canvas);
+    protected abstract void drawCanvas(Canvas canvas,Paint mPaint);
 
     public static void releaseBitmap(Bitmap bitmap) {
         if (bitmap != null && !bitmap.isRecycled()) {

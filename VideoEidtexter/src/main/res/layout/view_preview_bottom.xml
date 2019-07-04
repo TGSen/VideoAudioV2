@@ -52,6 +52,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
 
+
     <!-- 快门 -->
     <com.cgfay.cameralibrary.widget.ShutterView
         android:id="@+id/btShutter"
@@ -60,14 +61,14 @@
         android:layout_centerInParent="true"
         android:layout_gravity="center"
         android:layout_marginTop="@dimen/bottom_layout_margin"
+        android:layout_marginBottom="@dimen/bottom_layout_margin"
         app:iner_oval_color="@color/shutter_blue"
         app:iner_oval_radius="20dp"
-        app:outer_oval_color="@color/shutter_blue_alpha"
-        app:outer_oval_radius="40dp"
-        android:layout_marginBottom="@dimen/bottom_layout_margin"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:outer_oval_color="@color/shutter_blue_alpha"
+        app:outer_oval_radius="40dp" />
 
     <!-- 删除 -->
     <Button
@@ -95,14 +96,14 @@
     <com.cgfay.cameralibrary.widget.HorizontalIndicatorView
         android:id="@+id/bottom_indicator"
         android:layout_width="0dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btUpload"
         android:layout_height="@dimen/bottom_indicator_height"
         app:SeeSize="5"
         app:SelectedTextColor="@color/colorWhilte"
         app:SelectedTextSize="40"
         app:TextColor="@android:color/darker_gray"
-        app:TextSize="40" />
+        app:TextSize="40"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btUpload" />
 
 </android.support.constraint.ConstraintLayout>

@@ -1,0 +1,6 @@
+package com.owoh.video.filter;
+
+import com.cgfay.filterlibrary.mp4compose.filter.GlFilter;
+
+public class GLColorFilter extends GlFilter {
+}

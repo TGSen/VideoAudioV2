@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rootLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <TextView
+        android:id="@+id/btVoiceAdjust"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="48dp"
+        android:layout_marginRight="@dimen/dp11"
+        android:drawableTop="@mipmap/ic_adjust_voice"
+        android:gravity="center"
+        android:padding="@dimen/dp4"
+        android:text="@string/adjust_voice"
+        android:textColor="@color/colorWhilte"
+        android:textSize="@dimen/sp12"
+        app:layout_constraintRight_toLeftOf="@+id/btAdjustBGM"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/btAdjustBGM"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="48dp"
+        android:layout_marginRight="@dimen/dp11"
+        android:drawableTop="@mipmap/ic_adjust_bgm"
+        android:gravity="center"
+        android:padding="@dimen/dp4"
+        android:text="@string/adjust_bgm"
+        android:textColor="@color/colorWhilte"
+        android:textSize="12sp"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/btFilters"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="27dp"
+        android:layout_marginRight="@dimen/dp11"
+        android:layout_marginBottom="78dp"
+        android:drawableTop="@mipmap/ic_filter"
+        android:gravity="center"
+        android:padding="@dimen/dp4"
+        android:text="@string/camera_filter"
+        android:textColor="@color/colorWhilte"
+        android:textSize="@dimen/sp12"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent" />
+
+    <TextView
+        android:id="@+id/btEffect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dp12"
+        android:layout_marginRight="@dimen/dp11"
+        android:drawableTop="@mipmap/ic_effects"
+        android:gravity="center"
+        android:padding="@dimen/dp4"
+        android:text="@string/video_effect"
+        android:textColor="@color/colorWhilte"
+        android:textSize="@dimen/sp12"
+        app:layout_constraintBaseline_toBaselineOf="@+id/btFilters"
+        app:layout_constraintLeft_toRightOf="@+id/btFilters" />
+
+    <TextView
+        android:id="@+id/btSticker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dp12"
+        android:layout_marginRight="@dimen/dp11"
+        android:drawableTop="@mipmap/ic_sticker"
+        android:gravity="center"
+        android:padding="@dimen/dp4"
+        android:text="@string/video_sticker"
+        android:textColor="@color/colorWhilte"
+        android:textSize="@dimen/sp12"
+        app:layout_constraintBaseline_toBaselineOf="@+id/btFilters"
+        app:layout_constraintLeft_toRightOf="@+id/btEffect" />
+
+    <ImageView
+        android:id="@+id/imgNext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="@dimen/dp16"
+        android:src="@mipmap/ic_next_step"
+        app:layout_constraintBottom_toBottomOf="@+id/btFilters"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/btFilters" />
+
+    <!-- ic_filter/贴纸等页面 -->
+    <FrameLayout
+        android:id="@+id/fragment_container"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHeight_percent="0.33"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <!-- ic_filter/贴纸等页面 -->
+    <FrameLayout
+        android:id="@+id/fragment_sticker"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <android.support.constraint.Group
+        android:id="@+id/mainGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="btVoiceAdjust,btAdjustBGM,btSticker,imgNext,btEffect,btFilters,btSticker" />
+
+
+
+</android.support.constraint.ConstraintLayout>

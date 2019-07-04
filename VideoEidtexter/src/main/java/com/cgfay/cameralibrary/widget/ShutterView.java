@@ -195,10 +195,7 @@ public class ShutterView extends View {
             // 松开手时，先复位按钮初始状态，如果开始录制，则放大，否则复位
             case MotionEvent.ACTION_UP:
                 mTouchEndTime = System.currentTimeMillis();
-                if ((mTouchEndTime - mTouchStartTime) < 2000) {
-                    if (mOnShutterListener != null)
-                        mOnShutterListener.onShortRecord();
-                }
+
                 if (mCurrentMode == MODE_CLICK_SINGLE) {
                     isStart = true;
                     mCurrentState = STATE_START;
@@ -207,6 +204,10 @@ public class ShutterView extends View {
                     if (mOnShutterListener != null)
                         mOnShutterListener.onStartRecord();
                 } else {
+                    if ((mTouchEndTime - mTouchStartTime) < 2000) {
+                        if (mOnShutterListener != null)
+                            mOnShutterListener.onShortRecord();
+                    }
                     mCurrentState = STATE_IDLE;
                     stopAnimation();
                     if (mOnShutterListener != null)

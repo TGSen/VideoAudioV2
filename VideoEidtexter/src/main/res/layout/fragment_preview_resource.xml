@@ -2,7 +2,33 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent" android:background="#cc000000"
+    >
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/topLayout"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+
+        >
+
+
+        <ImageView
+            android:id="@+id/imageClose"
+            android:layout_width="40dp" android:layout_height="40dp"
+            app:layout_constraintRight_toRightOf="parent"
+            android:padding="8dp"
+            android:layout_marginTop="8dp"
+            app:srcCompat="@drawable/ic_sticker_thumb"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginRight="8dp"
+            />
+
+    </android.support.constraint.ConstraintLayout>
 
 
     <android.support.v7.widget.RecyclerView
@@ -10,12 +36,11 @@
         android:paddingTop="48dp"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="@color/effectEditBackground"
-        android:orientation="horizontal"
-        app:layout_constraintTop_toTopOf="parent"
+
+        app:layout_constraintTop_toBottomOf="@+id/topLayout"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent" />
+        app:layout_constraintRight_toRightOf="parent"/>
 
 
 </android.support.constraint.ConstraintLayout>

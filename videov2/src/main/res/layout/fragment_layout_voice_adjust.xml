@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#cc000000">
+
+    <TextView
+        android:id="@+id/tvOrigiVoice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="31dp"
+        android:layout_marginTop="52dp"
+        android:text="@string/original_voice"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp14"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tvOrigiBGM"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="22dp"
+        android:text="@string/adjust_bgm"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp14"
+        app:layout_constraintLeft_toLeftOf="@+id/tvOrigiVoice"
+        app:layout_constraintTop_toBottomOf="@+id/tvOrigiVoice" />
+
+    <SeekBar
+        android:id="@+id/seekBarVoice"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="31dp"
+        android:background="@null"
+        android:maxHeight="@dimen/dp8"
+        android:minHeight="@dimen/dp8"
+        android:progressDrawable="@drawable/ic_bg_seek"
+        android:splitTrack="false"
+        android:thumb="@drawable/ic_thumb"
+        android:thumbOffset="0dp"
+        app:layout_constraintBottom_toBottomOf="@+id/tvOrigiVoice"
+        app:layout_constraintLeft_toRightOf="@+id/tvOrigiVoice"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/tvOrigiVoice" />
+
+    <SeekBar
+        android:id="@+id/seekBarBGM"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@null"
+        android:maxHeight="@dimen/dp8"
+        android:minHeight="@dimen/dp8"
+        android:progressDrawable="@drawable/ic_bg_seek"
+        android:splitTrack="false"
+        android:thumb="@drawable/ic_thumb"
+        android:thumbOffset="0dp"
+        app:layout_constraintBottom_toBottomOf="@+id/tvOrigiBGM"
+        app:layout_constraintLeft_toLeftOf="@+id/seekBarVoice"
+        app:layout_constraintLeft_toRightOf="@+id/tvOrigiVoice"
+        app:layout_constraintRight_toRightOf="@+id/seekBarVoice"
+        app:layout_constraintTop_toTopOf="@+id/tvOrigiBGM" />
+
+
+</android.support.constraint.ConstraintLayout>

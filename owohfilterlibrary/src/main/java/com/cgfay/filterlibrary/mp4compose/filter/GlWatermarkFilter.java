@@ -2,6 +2,7 @@ package com.cgfay.filterlibrary.mp4compose.filter;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Paint;
 
 
 /**
@@ -24,20 +25,20 @@ public class GlWatermarkFilter extends GlOverlayFilter {
     }
 
     @Override
-    protected void drawCanvas(Canvas canvas) {
+    protected void drawCanvas(Canvas canvas, Paint mPaint) {
         if (bitmap != null && !bitmap.isRecycled()) {
             switch (position) {
                 case LEFT_TOP:
-                    canvas.drawBitmap(bitmap, 0, 0, null);
+                    canvas.drawBitmap(bitmap, 0, 0, mPaint);
                     break;
                 case LEFT_BOTTOM:
-                    canvas.drawBitmap(bitmap, 0, canvas.getHeight() - bitmap.getHeight(), null);
+                    canvas.drawBitmap(bitmap, 0, canvas.getHeight() - bitmap.getHeight(), mPaint);
                     break;
                 case RIGHT_TOP:
-                    canvas.drawBitmap(bitmap, canvas.getWidth() - bitmap.getWidth(), 0, null);
+                    canvas.drawBitmap(bitmap, canvas.getWidth() - bitmap.getWidth(), 0, mPaint);
                     break;
                 case RIGHT_BOTTOM:
-                    canvas.drawBitmap(bitmap, canvas.getWidth() - bitmap.getWidth(), canvas.getHeight() - bitmap.getHeight(), null);
+                    canvas.drawBitmap(bitmap, canvas.getWidth() - bitmap.getWidth(), canvas.getHeight() - bitmap.getHeight(), mPaint);
                     break;
             }
         }

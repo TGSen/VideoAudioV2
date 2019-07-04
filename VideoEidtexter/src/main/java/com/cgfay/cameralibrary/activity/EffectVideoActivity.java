@@ -2,12 +2,11 @@ package com.cgfay.cameralibrary.activity;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Matrix;
+import android.graphics.*;
+import android.graphics.drawable.AnimatedImageDrawable;
+import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
 import android.os.Handler;
@@ -41,6 +40,7 @@ import android.widget.TextView;
 import com.cgfay.cameralibrary.R;
 import com.cgfay.cameralibrary.adapter.EffectResourceAdapter;
 import com.cgfay.cameralibrary.adapter.ThumbVideoAdapter;
+import com.cgfay.cameralibrary.bean.ItemSticker;
 import com.cgfay.cameralibrary.filter.GLColorFilter;
 import com.cgfay.cameralibrary.filter.GLEffectFilter;
 import com.cgfay.cameralibrary.filter.GLStickerFilter;
@@ -51,25 +51,20 @@ import com.cgfay.cameralibrary.media.VideoRenderThread;
 import com.cgfay.cameralibrary.media.VideoRenderer;
 import com.cgfay.cameralibrary.media.bean.VideoEffect;
 import com.cgfay.cameralibrary.media.bean.VideoEffectType;
-import com.cgfay.filterlibrary.mp4compose.FillMode;
-import com.cgfay.filterlibrary.mp4compose.composer.Mp4Composer;
-import com.cgfay.filterlibrary.mp4compose.filter.GlFilterGroup;
 import com.cgfay.cameralibrary.thumb.video.ExtractFrameWorkThread;
 import com.cgfay.cameralibrary.thumb.video.VideoEditInfo;
 import com.cgfay.cameralibrary.widget.DragSeekBar;
 import com.cgfay.cameralibrary.widget.RangeSeekBar;
+import com.cgfay.cameralibrary.widget.SpaceItemDecoration;
+import com.cgfay.cameralibrary.widget.VideoEffectSeekBar;
+import com.cgfay.cameralibrary.widget.VideoPreviewView;
 import com.cgfay.cameralibrary.widget.sticker.BitmapStickerIcon;
 import com.cgfay.cameralibrary.widget.sticker.DeleteIconEvent;
 import com.cgfay.cameralibrary.widget.sticker.DrawableSticker;
 import com.cgfay.cameralibrary.widget.sticker.Sticker;
 import com.cgfay.cameralibrary.widget.sticker.StickerIconEvent;
 import com.cgfay.cameralibrary.widget.sticker.StickerView;
-import com.cgfay.cameralibrary.widget.sticker.TextSticker;
 import com.cgfay.cameralibrary.widget.sticker.ZoomIconEvent;
-import com.cgfay.cameralibrary.utils.ImageBlur;
-import com.cgfay.cameralibrary.widget.SpaceItemDecoration;
-import com.cgfay.cameralibrary.widget.VideoEffectSeekBar;
-import com.cgfay.cameralibrary.widget.VideoPreviewView;
 import com.cgfay.filterlibrary.glfilter.color.bean.DynamicColor;
 import com.cgfay.filterlibrary.glfilter.color.bean.DynamicColorData;
 import com.cgfay.filterlibrary.glfilter.resource.ResourceHelper;
@@ -78,19 +73,24 @@ import com.cgfay.filterlibrary.glfilter.resource.bean.ResourceData;
 import com.cgfay.filterlibrary.glfilter.resource.bean.ResourceType;
 import com.cgfay.filterlibrary.glfilter.stickers.bean.DynamicSticker;
 import com.cgfay.filterlibrary.glfilter.utils.OpenGLUtils;
+import com.cgfay.filterlibrary.mp4compose.FillMode;
+import com.cgfay.filterlibrary.mp4compose.composer.Mp4Composer;
+import com.cgfay.filterlibrary.mp4compose.filter.GlFilterGroup;
 import com.cgfay.filterlibrary.utils.BitmapUtils;
 import com.cgfay.filterlibrary.utils.DensityUtils;
 import com.cgfay.filterlibrary.utils.StringUtils;
+
 import com.tencent.bugly.crashreport.CrashReport;
 
-
 import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 
 /**
  * @author Harrison 唐广森
@@ -154,15 +154,14 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                     break;
                 case MSG_VIDEO_PLAY_STATUS_STOP:
                     //贴纸的暂停不需要显示
-                    if(layoutStickerTool.getVisibility()==View.GONE)
-                    mVideoPlayStatus.setVisibility(View.VISIBLE);
+                    if (layoutStickerTool.getVisibility() == View.GONE)
+                        mVideoPlayStatus.setVisibility(View.VISIBLE);
                     break;
                 case MSG_VIDEO_PLAY_STATUS_START:
                     mVideoPlayStatus.setVisibility(View.GONE);
                     break;
                 case ExtractFrameWorkThread.MSG_SAVE_SUCCESS:
                     VideoEditInfo info = (VideoEditInfo) msg.obj;
-                    Log.e("Harrison", "info:" + info.path);
                     mVideoEditAdapter.addItemVideoInfo(info);
                     mVideoEditAdapter.notifyDataSetChanged();
                     break;
@@ -173,7 +172,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
     private ConstraintLayout mRootView;
     private RecyclerView mRecyclerView, mThumbRecyclerView;
     private TextView tvTotalTime, tvStartTime, mStickerTimeTv;
-    private ImageView mVideoPlayStatus,imgVideoSmall;
+    private ImageView mVideoPlayStatus/*,imgVideoSmall*/;
     private VideoEffectSeekBar mSeekBar;
     private DragSeekBar mStickerSeekBar;
     private List<ResourceData> mResourceData = new ArrayList<>();
@@ -334,11 +333,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
             @Override
             public void onStickerClicked(@NonNull Sticker sticker) {
                 //stickerView.removeAllSticker();
-                if (sticker instanceof TextSticker) {
-                    ((TextSticker) sticker).setTextColor(Color.RED);
-                    mStickerView.replace(sticker);
-                    mStickerView.invalidate();
-                }
+
                 Log.e(TAG, "onStickerClicked");
             }
 
@@ -440,7 +435,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                 ResourceHelper.initEffectFilterResource(EffectVideoActivity.this, mResourceData);
 
                 final Bitmap bitmap = BitmapUtils.createVideoThumbnail(videoPath);
-                ImageBlur.blurBitmap(bitmap, 10);
+//                ImageBlur.blurBitmap(bitmap, 10);
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -540,14 +535,25 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                             if (sticker.getStartTime() > glStickerFilter.getCurrentTime() || sticker.getEndTime() < glStickerFilter.getCurrentTime()) {
                                 break;
                             }
-                            BitmapDrawable bd = (BitmapDrawable) sticker.getDrawable();
-                            final Bitmap bitmap = bd.getBitmap();
+                            Drawable drawable = sticker.getDrawable();
+                            Bitmap bitmap = null;
+                            int drawableWith = 0;
+                            if (drawable instanceof BitmapDrawable) {
+                                BitmapDrawable bd = (BitmapDrawable) drawable;
+                                drawableWith = bd.getIntrinsicWidth();
+                                bitmap = bd.getBitmap();
+                            } else if (drawable instanceof AnimatedImageDrawable) {
+
+                            }
+                            if (bitmap == null)
+                                break;
+
                             //计算比例,屏幕的比例等等
                             int widthScreen = DensityUtils.getDisplayWidthPixels(EffectVideoActivity.this);
                             int heightScreen = DensityUtils.getDisplayHeightPixels(EffectVideoActivity.this);
                             float screenScale = Math.min((float) videoWidth / widthScreen, (float) videoHeight / heightScreen);
                             float stickerScale = sticker.getCurrentScale();
-                            float bitmapScale = (float) bd.getIntrinsicWidth() / (float) bitmap.getWidth();
+                            float bitmapScale = (float) drawableWith / (float) bitmap.getWidth();
                             float currentScale = stickerScale * screenScale * bitmapScale;
 
 
@@ -633,8 +639,8 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
         tvTotalTime = findViewById(R.id.totalTime);
         tvStartTime = findViewById(R.id.startTime);
         mVideoPlayStatus = findViewById(R.id.imgVideo);
-        imgVideoSmall = findViewById(R.id.imgVideoSmall);
-        imgVideoSmall.setOnClickListener(this);
+//        imgVideoSmall = findViewById(R.id.imgVideoSmall);
+//        imgVideoSmall.setOnClickListener(this);
 
         layoutStickerTool = findViewById(R.id.layoutStickerTool);
         ImageView imgNext = findViewById(R.id.imgNext);
@@ -949,16 +955,41 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
         if (mStickerFragment == null) {
             mStickerFragment = StickersFragment.getInstance();
             ft.add(R.id.fragment_container, mStickerFragment);
-            mStickerFragment.setOnStickerAddListener(new StickersFragment.OnStickerAddListener() {
+            mStickerFragment.setOnStickerAddListener(new StickersFragment.OnStickerPanlListener() {
                 @Override
-                public void addSticker(String url) {
+                public void addSticker(ItemSticker item) {
 
-                    if (!TextUtils.isEmpty(url) && new File(url).exists()) {
-                        Bitmap bitmap = BitmapFactory.decodeFile(url);
-                        BitmapDrawable drawable = new BitmapDrawable(bitmap);
-                        mStickerView.addSticker(new DrawableSticker(drawable).setEndTime(mSeekBar.getMax()));
+                    if (!TextUtils.isEmpty(item.getPath()) && new File(item.getPath()).exists()) {
+                        Drawable drawable = null;
+                        if (item.getType() == item.TYPE_GIF) {
+
+                            try {
+                                drawable = ImageDecoder.decodeDrawable(
+                                        ImageDecoder.createSource(new File(item.getPath())));
+                                if (drawable instanceof AnimatedImageDrawable) {
+                                    ((AnimatedImageDrawable) drawable).start();
+                                }
+
+                            } catch (IOException e) {
+
+                            }
+                        } else {
+                            Bitmap bitmap = BitmapFactory.decodeFile(item.getPath());
+                            drawable = new BitmapDrawable(bitmap);
+                        }
+                        if (drawable != null) {
+                            mStickerView.addSticker(new DrawableSticker(drawable).setEndTime(mSeekBar.getMax()));
+                        }
+
                     }
 
+                }
+
+                @Override
+                public void onClosePanl() {
+                    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                    hideFragment(ft);
+                    ft.commit();
                 }
             });
 
@@ -1134,15 +1165,15 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
         switch (id) {
             case R.id.btSave:
                 break;
-            case R.id.imgVideoSmall:
-                if (!mVideoRenderer.isVideoPlay()) {
-                    //如果沒播放的話，好像回到全屏是有问题的
-                    mVideoRenderer.startPlayVideo();
-                }else{
-                    mVideoRenderer.stopPlayVideo();
-                }
-                imgVideoSmall.setSelected(mVideoRenderer.isVideoPlay());
-                break;
+//            case R.id.imgVideoSmall:
+//                if (!mVideoRenderer.isVideoPlay()) {
+//                    //如果沒播放的話，好像回到全屏是有问题的
+//                    mVideoRenderer.startPlayVideo();
+//                }else{
+//                    mVideoRenderer.stopPlayVideo();
+//                }
+//                imgVideoSmall.setSelected(mVideoRenderer.isVideoPlay());
+//                break;
             case R.id.btFilters:
                 showFilterView();
                 break;
@@ -1165,7 +1196,6 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                         mainGroup.setVisibility(View.GONE);
                         layoutStickerTool.setVisibility(View.GONE);
                         effectGroup.setVisibility(View.VISIBLE);
-
                     }
 
                     @Override

@@ -81,7 +81,18 @@ public class CameraEngine {
         if (focusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO))
             parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
 
+//        if (focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO)) {
+//            parameters.setFlashMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
+//        }
 
+//        mCamera.autoFocus(new Camera.AutoFocusCallback() {
+//            @Override
+//            public void onAutoFocus(boolean success, Camera camera) {
+//                Camera.Parameters params = camera.getParameters();
+//                params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+//                camera.setParameters(params);
+//            }
+//        });
         mCamera.setParameters(parameters);
         Camera.Size size = setPreviewSize(mCamera, expectWidth, expectHeight);
         setPictureSize(mCamera, picWidth, picHeight);

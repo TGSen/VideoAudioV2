@@ -36,9 +36,6 @@ import com.cgfay.cameralibrary.engine.listener.OnRecordListener;
 import com.cgfay.cameralibrary.engine.model.GalleryType;
 import com.cgfay.cameralibrary.engine.recorder.PreviewRecorder;
 import com.cgfay.cameralibrary.engine.render.PreviewRenderer;
-import com.cgfay.cameralibrary.fragment.CombineVideoDialogFragment;
-import com.cgfay.cameralibrary.fragment.MusicFragment;
-import com.cgfay.cameralibrary.fragment.PreviewFiltersFragment;
 
 import com.cgfay.cameralibrary.media.bgmusic.MusicManager;
 import com.cgfay.cameralibrary.media.bgmusic.MusicService;
@@ -149,17 +146,13 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
         } else {
             mCameraParam.brightness = BrightnessUtils.getSystemBrightness(mActivity);
         }
-        mMainHandler = new Handler(context.getMainLooper()){
+        mMainHandler = new Handler(context.getMainLooper()) {
             @Override
             public void handleMessage(Message msg) {
                 super.handleMessage(msg);
-                switch (msg.what){
+                switch (msg.what) {
                     case MSG_SHUTTER_PROGRESS:
-//                        if(PreviewRecorder.getInstance().isLastSecondStop()){
-//                            mBtnShutter.setProgress();
-//                        }
-
-
+                        mBtnShutter.setProgress((long) msg.obj);
                         break;
                 }
             }
@@ -715,8 +708,8 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
         @Override
         public void onStopRecord() {
             Log.e("Harrison", "***onStopRecord");
-
-            stopRecordOrPreviewVideo();
+            PreviewRecorder.getInstance().stopRecord(false);
+//            stopRecordOrPreviewVideo();
             //同时判断是否开启背景音乐
             if (VideoAudioCombine.getInstance().isBgMusicEnable()) {
                 MusicManager.getInstance().stop();
@@ -725,12 +718,14 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
 
         @Override
         public void onShortRecord() {
-            Toast.makeText(mActivity,"录制的时间太短了",Toast.LENGTH_SHORT).show();
+            Toast.makeText(mActivity, "录制的时间太短了", Toast.LENGTH_SHORT).show();
         }
 
         @Override
         public void onEndRecord() {
-
+            Log.e("Harrison", "***onEndRecord");
+            combinePath = PathConstraints.getVideoCachePath(mActivity);
+            PreviewRecorder.getInstance().combineVideo(combinePath, mCombineListener);
         }
 
 
@@ -767,7 +762,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
 
         @Override
         public void onRecordProgressChanged(final long duration) {
-            Log.e("Harrison","*******"+duration);
+//            Log.e("Harrison","*******"+duration);
             Message msg = mMainHandler.obtainMessage();
             msg.what = MSG_SHUTTER_PROGRESS;
             msg.obj = duration;
@@ -783,10 +778,9 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
                 public void run() {
                     // 编码器已经完全释放，则快门按钮可用
                     showAllToolView(true);
-                    mBtnShutter.stopAnimation();
                     // 处于录制状态点击了预览按钮，则需要等待完成再跳转， 或者是处于录制GIF状态
                     // 开始预览
-                    stopRecordOrPreviewVideo();
+                    //  stopRecordOrPreviewVideo();
                     // 显示删除按钮
 //                    if (mCameraParam.mGalleryType == GalleryType.VIDEO) {
 //                        mBtnRecordPreview.setVisibility(View.VISIBLE);
@@ -838,11 +832,11 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
      */
     private void stopRecordOrPreviewVideo() {
         if (PreviewRecorder.getInstance().isRecording()) {
-            Log.e("Harrison","stopRecordOrPreviewVideo");
+            Log.e("Harrison", "stopRecordOrPreviewVideo");
             mNeedToWaitStop = true;
             PreviewRecorder.getInstance().stopRecord(false);
         } else {
-            Log.e("Harrison","stopRecordOrPreviewVideo0");
+            Log.e("Harrison", "stopRecordOrPreviewVideo0");
             mNeedToWaitStop = false;
             // 销毁录制线程
             PreviewRecorder.getInstance().stopRecord(false);
