@@ -533,8 +533,13 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                 mEffectFilter = new GLEffectFilter();
                 mEffectFilter.setFilters(mVideoEffects);
 
+                //计算比例
+                final float screenScale = Math.min((float) videoWidth / widthScreen, (float) videoHeight / heightScreen);
+                final Canvas gifCanvas = new Canvas();
 
                 glStickerFilter = new GLStickerFilter() {
+                    Bitmap bitmap = null;
+                    Matrix matrix = new Matrix();
 
                     @Override
                     protected void drawCanvas(Canvas canvas, Paint mPaint) {
@@ -546,29 +551,38 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                             if (sticker.getStartTime() > glStickerFilter.getCurrentTime() || sticker.getEndTime() < glStickerFilter.getCurrentTime()) {
                                 continue;
                             }
-
+                            float stickerScale = sticker.getCurrentScale();
                             Drawable drawable = sticker.getDrawable();
-                            Bitmap bitmap = null;
-                            int drawableWith = 0;
+                            int drawableWith = drawable.getIntrinsicWidth();
+                            float centerX = sticker.getMappedCenterPoint().x / widthScreen * canvas.getWidth();
+                            float centerY = sticker.getMappedCenterPoint().y / heightScreen * canvas.getHeight();
+                            matrix.reset();
+
                             if (sticker instanceof GifSticker) {
-                                //判断之前有没给drawable 设置canvas
-                                drawable.draw(canvas);
+                                //判断之前有没给drawable 设置
+                                GifDrawable gifDrawable = (GifDrawable) drawable;
+                                float currentScale = stickerScale * screenScale;
+                                bitmap = Bitmap.createBitmap(drawable.getMinimumWidth(), drawable.getMinimumHeight(), Bitmap.Config.ARGB_8888);
+                                gifCanvas.setBitmap(bitmap);
+
+                                matrix.postTranslate(centerX - bitmap.getWidth() * currentScale / 2, centerY - bitmap.getHeight() * currentScale / 2);
+                                matrix.postRotate(sticker.getCurrentAngle(), centerX, centerY);
+                                matrix.postScale(currentScale, currentScale);
+                                gifDrawable.draw(gifCanvas);
+                                canvas.drawBitmap(bitmap, matrix, mPaint);
                             } else if (sticker instanceof DrawableSticker) {
                                 BitmapDrawable bd = (BitmapDrawable) drawable;
-                                drawableWith = bd.getIntrinsicWidth();
                                 bitmap = bd.getBitmap();
                                 //计算比例,屏幕的比例等等
-                                float screenScale = Math.min((float) videoWidth / widthScreen, (float) videoHeight / heightScreen);
-                                float stickerScale = sticker.getCurrentScale();
                                 float bitmapScale = (float) drawableWith / (float) bitmap.getWidth();
                                 float currentScale = stickerScale * screenScale * bitmapScale;
-                                Matrix matrix = new Matrix();
-                                float centerX = sticker.getMappedCenterPoint().x / widthScreen * canvas.getWidth();
-                                float centerY = sticker.getMappedCenterPoint().y / heightScreen * canvas.getHeight();
                                 //计算按照sticker的中心值，计算百分比宽高
                                 matrix.postScale(currentScale, currentScale);
                                 matrix.postTranslate(centerX - bitmap.getWidth() * currentScale / 2, centerY - bitmap.getHeight() * currentScale / 2);
                                 matrix.postRotate(sticker.getCurrentAngle(), centerX, centerY);
+
+                            }
+                            if(bitmap!=null){
                                 canvas.drawBitmap(bitmap, matrix, mPaint);
                             }
                         }
