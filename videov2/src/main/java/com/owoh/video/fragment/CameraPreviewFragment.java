@@ -17,7 +17,6 @@ import android.support.constraint.Group;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.LinearSnapHelper;
 import android.support.v7.widget.PagerSnapHelper;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -25,7 +24,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -79,8 +77,6 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
     private boolean mCameraEnable = false;
     // 存储权限使能标志
     private boolean mStorageWriteEnable = false;
-    // 是否需要等待录制完成再跳转
-    private boolean mNeedToWaitStop = false;
 
 
     // 预览参数
@@ -108,9 +104,9 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
     // 滤镜按钮
     private TextView mBtnEffect;
     // 视频删除按钮
-    private Button mBtnRecordDelete;
+    private ImageView mBtnRecordDelete;
     // 视频预览按钮
-    private Button mBtnRecordPreview;
+    private ImageView mBtnRecordPreview;
     // 相机类型指示器
     private RecyclerView mBottomIndicator;
     // 相机类型指示文字
@@ -131,9 +127,9 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
     // 滤镜页面
     private PreviewFiltersFragment mColorFilterFragment;
     private Group mGroupViewTop;
-    private Group mGroupViewBottom;
-    private SensorControler mSensorControler;
+    private View mGroupViewBottom;
     private View layoutPreViewTop;
+    private Group layoutGroupDeleted;
 
 
     public CameraPreviewFragment() {
@@ -251,7 +247,6 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
             @Override
             public void onItemClick(View v, int position) {
 
-
                 mBottomIndicator.smoothScrollToPosition(position);
                 setRecordMode(position);
             }
@@ -261,14 +256,15 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
         mBtnShutter = view.findViewById(R.id.btShutter);
         mBtnShutter.setOnShutterListener(mShutterListener);
         mBtnShutter.setOnClickListener(this);
-
-        mBtnRecordDelete = (Button) view.findViewById(R.id.btn_record_delete);
+        layoutGroupDeleted = view.findViewById(R.id.layoutGroupDeleted);
+        layoutGroupDeleted.setVisibility(View.GONE);
+        mBtnRecordDelete = view.findViewById(R.id.btn_record_delete);
         mBtnRecordDelete.setOnClickListener(this);
-        mBtnRecordPreview = (Button) view.findViewById(R.id.btn_record_preview);
+        mBtnRecordPreview = view.findViewById(R.id.btn_record_preview);
         mBtnRecordPreview.setOnClickListener(this);
 
         mGroupViewTop = view.findViewById(R.id.mGroupViewTop);
-        mGroupViewBottom = view.findViewById(R.id.mGroupViewBottom);
+        mGroupViewBottom = view.findViewById(R.id.layout_bottom);
 
     }
 
@@ -366,7 +362,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
                 deleteRecordedVideo(false);
                 break;
             case R.id.btn_record_preview:
-                stopRecordOrPreviewVideo();
+
                 break;
 
             case R.id.tvSeletedBgm:
@@ -700,13 +696,8 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
         @Override
         public void onStartRecord() {
             Log.e("Harrison", "***onStartRecord");
+            layoutGroupDeleted.setVisibility(View.GONE);
             showAllToolView(false);
-            // 隐藏删除按钮
-            if (mCameraParam.mGalleryType == GalleryType.VIDEO) {
-                mBtnRecordPreview.setVisibility(View.GONE);
-                mBtnRecordDelete.setVisibility(View.GONE);
-            }
-
             // 是否允许录制音频
             boolean enableAudio = mCameraParam.audioPermitted && mCameraParam.recordAudio
                     && mCameraParam.mGalleryType == GalleryType.VIDEO && !VideoAudioCombine.getInstance().isBgMusicEnable();
@@ -736,11 +727,17 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
         @Override
         public void onStopRecord() {
             Log.e("Harrison", "***onStopRecord");
+            showAllToolView(true);
+            layoutGroupDeleted.setVisibility(View.VISIBLE);
+            mBtUpload.setVisibility(View.INVISIBLE);
             //同时判断是否开启背景音乐
             if (VideoAudioCombine.getInstance().isBgMusicEnable()) {
                 MusicManager.getInstance().stop();
             }
+
             PreviewRecorder.getInstance().stopRecord();
+
+
         }
 
         @Override
@@ -764,7 +761,6 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
             layoutPreViewTop.setVisibility(View.VISIBLE);
             mBottomIndicator.setVisibility(View.VISIBLE);
             mBtnTools.setVisibility(View.VISIBLE);
-            mBtUpload.setVisibility(View.VISIBLE);
         } else {
             layoutPreViewTop.setVisibility(View.INVISIBLE);
             mBottomIndicator.setVisibility(View.INVISIBLE);
@@ -801,20 +797,9 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
         public void onRecordFinish() {
             Log.e("Harrison", "*****onRecordFinish");
             mBtnShutter.setEnableEncoder(true);
-            mMainHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    // 编码器已经完全释放，则快门按钮可用
-                    showAllToolView(true);
-                    //判断是否最后录制完毕
-                    mBtnShutter.isOnRecordFinish();
-                    // 显示删除按钮
-//                    if (mCameraParam.mGalleryType == GalleryType.VIDEO) {
-//                        mBtnRecordPreview.setVisibility(View.VISIBLE);
-//                        mBtnRecordDelete.setVisibility(View.VISIBLE);
-//                    }
-                }
-            });
+            //判断是否最后录制完毕
+            mBtnShutter.isOnRecordFinish();
+
         }
     };
 
@@ -854,24 +839,6 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
 //        }
     }
 
-    /**
-     * 停止录制或者预览视频
-     */
-    private void stopRecordOrPreviewVideo() {
-        if (PreviewRecorder.getInstance().isRecording()) {
-            Log.e("Harrison", "stopRecordOrPreviewVideo");
-            mNeedToWaitStop = true;
-            PreviewRecorder.getInstance().stopRecord(false);
-        } else {
-            Log.e("Harrison", "stopRecordOrPreviewVideo0");
-            mNeedToWaitStop = false;
-            // 销毁录制线程
-            PreviewRecorder.getInstance().stopRecord(false);
-            //  PreviewRecorder.getInstance().destroyRecorder();
-            combinePath = PathConstraints.getVideoCachePath(mActivity);
-            PreviewRecorder.getInstance().combineVideo(combinePath, mCombineListener);
-        }
-    }
 
     // -------------------------------------- 短视频合成监听器 ---------------------------------
 // 合成输出路径

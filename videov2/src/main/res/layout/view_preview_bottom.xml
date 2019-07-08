@@ -8,11 +8,6 @@
     app:layout_constraintBottom_toBottomOf="parent">
 
 
-    <android.support.constraint.Group
-        android:id="@+id/mGroupViewBottom"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:constraint_referenced_ids="btnTools,btUpload,btShutter,bottom_indicator" />
 
     <!-- 道具 -->
     <TextView
@@ -29,9 +24,9 @@
         android:text="@string/filter_tools"
         android:textColor="@color/colorWhilte"
         android:textSize="12sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/btShutter"
         app:layout_constraintRight_toLeftOf="@+id/btShutter"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@+id/btShutter" />
 
     <TextView
         android:id="@+id/btUpload"
@@ -43,13 +38,14 @@
         android:layout_marginLeft="46dp"
         android:drawableTop="@mipmap/ic_upload"
         android:drawablePadding="6dp"
+
         android:gravity="center"
         android:text="@string/upload_file"
         android:textColor="@color/colorWhilte"
         android:textSize="12sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/btShutter"
         app:layout_constraintLeft_toRightOf="@+id/btShutter"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@+id/btShutter" />
 
 
     <!-- 快门 -->
@@ -69,36 +65,50 @@
         app:outer_oval_color="#223394EC"
         app:outer_oval_radius="40dp" />
 
+    <android.support.constraint.Group
+        android:id="@+id/layoutGroupDeleted"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids="btn_record_delete,btn_record_preview" />
+
     <!-- 删除 -->
-    <Button
+
+    <ImageView
         android:id="@+id/btn_record_delete"
-        android:layout_width="35dp"
-        android:layout_height="35dp"
-        android:layout_centerVertical="true"
-        android:layout_marginEnd="35dp"
-        android:layout_toStartOf="@+id/btShutter"
-        android:background="@drawable/ic_camera_record_delete_dark"
-        android:visibility="gone" />
+        android:layout_width="38dp"
+        android:layout_height="38dp"
+        android:layout_marginRight="8dp"
+        android:layout_toEndOf="@+id/btShutter"
+        android:padding="4dp"
+        android:src="@drawable/ic_camera_record_delete_dark"
+        app:layout_constraintBottom_toBottomOf="@+id/btShutter"
+        app:layout_constraintRight_toLeftOf="@+id/btn_record_preview"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/btShutter" />
+
 
     <!-- 预览 -->
-    <Button
+    <ImageView
         android:id="@+id/btn_record_preview"
-        android:layout_width="35dp"
-        android:layout_height="35dp"
-        android:layout_centerVertical="true"
-        android:layout_marginStart="35dp"
+        android:layout_width="38dp"
+        android:layout_height="38dp"
+        android:layout_marginRight="16dp"
         android:layout_toEndOf="@+id/btShutter"
-        android:background="@drawable/ic_camera_record_done_dark"
-        android:visibility="gone" />
+        android:padding="4dp"
+        android:src="@drawable/ic_camera_record_done_dark"
+        app:layout_constraintBottom_toBottomOf="@+id/btShutter"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/btShutter" />
 
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/bottom_indicator"
         android:layout_width="0dp"
         android:layout_height="40dp"
+        android:layout_marginTop="16dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginTop="16dp"
         app:layout_constraintTop_toBottomOf="@+id/btUpload" />
 
 </android.support.constraint.ConstraintLayout>
