@@ -188,6 +188,14 @@ public class ShutterView extends View {
             public void onLongPress(MotionEvent e) {
                 //长按
                 isLongClick = true;
+                if(mCurrentMode ==MODE_CLICK_LONG){
+                    isStart = true;
+                    mCurrentState = STATE_START;
+                    startZoomAnim(4,20);
+                    if(mOnShutterListener!=null){
+                        mOnShutterListener.onStartRecord();
+                    }
+                }
                 postInvalidate();
 //                if (listener != null) {
 //                    listener.onLongClick(ShutterView.this);
@@ -239,10 +247,12 @@ public class ShutterView extends View {
             case MotionEvent.ACTION_CANCEL:
                 if (isLongClick) {
                     isLongClick = false;
+                    isStart = false;
+                    stopAnimation();
                     postInvalidate();
-//                    if (this.listener != null) {
-//                        this.listener.onLongClickUp(this);
-//                    }
+                    if(mOnShutterListener!=null){
+                        mOnShutterListener.onStopRecord();
+                    }
                 }
                 break;
         }
