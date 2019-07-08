@@ -361,7 +361,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
                 deleteRecordedVideo();
                 break;
             case R.id.btn_record_preview:
-
+                gotoCombinePath();
                 break;
 
             case R.id.tvSeletedBgm:
@@ -748,8 +748,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
         @Override
         public void onEndRecord() {
             Log.e("Harrison", "***onEndRecord" + PreviewRecorder.getInstance().getNumberOfSubVideo());
-            combinePath = PathConstraints.getVideoCachePath(mActivity);
-            PreviewRecorder.getInstance().combineVideo(combinePath, mCombineListener);
+            gotoCombinePath();
         }
 
 
@@ -767,6 +766,12 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
             mBtUpload.setVisibility(View.INVISIBLE);
         }
 
+    }
+
+    private void gotoCombinePath(){
+        combinePath = PathConstraints.getVideoCachePath(mActivity);
+        mBtnShutter.reset();
+        PreviewRecorder.getInstance().combineVideo(combinePath, mCombineListener);
     }
 
 
