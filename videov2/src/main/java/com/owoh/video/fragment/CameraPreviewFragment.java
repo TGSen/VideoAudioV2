@@ -16,6 +16,10 @@ import android.support.annotation.Nullable;
 import android.support.constraint.Group;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.LinearSnapHelper;
+import android.support.v7.widget.PagerSnapHelper;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -47,8 +51,10 @@ import com.owoh.video.media.combine.VideoAudioCombine;
 import com.owoh.video.utils.PathConstraints;
 import com.owoh.video.widget.AspectFrameLayout;
 import com.owoh.video.widget.CainSurfaceView;
-import com.owoh.video.widget.HorizontalIndicatorView;
 import com.owoh.video.widget.ShutterView;
+import com.owoh.video.widget.recycleview.CenterLayoutManager;
+import com.owoh.video.widget.recycleview.GalleryItemDecoration;
+import com.owoh.video.widget.recycleview.RvAdapter;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -58,8 +64,7 @@ import java.util.List;
 /**
  * 相机预览页面
  */
-public class CameraPreviewFragment extends Fragment implements View.OnClickListener,
-        HorizontalIndicatorView.OnIndicatorListener {
+public class CameraPreviewFragment extends Fragment implements View.OnClickListener {
 
     private static final String TAG = "CameraPreviewFragment1";
     private static final boolean VERBOSE = true;
@@ -107,7 +112,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
     // 视频预览按钮
     private Button mBtnRecordPreview;
     // 相机类型指示器
-    private HorizontalIndicatorView mBottomIndicator;
+    private RecyclerView mBottomIndicator;
     // 相机类型指示文字
     private List<String> mIndicatorText = new ArrayList<String>();
     // 合并对话框
@@ -223,10 +228,35 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
         mBtnEffect = view.findViewById(R.id.btFilters);
         mBtnEffect.setOnClickListener(this);
         mBottomIndicator = view.findViewById(R.id.bottom_indicator);
+        //底部指示器的
         String[] galleryIndicator = getResources().getStringArray(R.array.gallery_indicator);
         mIndicatorText.addAll(Arrays.asList(galleryIndicator));
-        mBottomIndicator.setIndicators(mIndicatorText);
-        mBottomIndicator.addIndicatorListener(this);
+        mBottomIndicator.addItemDecoration(new GalleryItemDecoration());
+        CenterLayoutManager mCenterLayoutManager = new CenterLayoutManager(mActivity, LinearLayoutManager.HORIZONTAL, false);
+        mBottomIndicator.setLayoutManager(mCenterLayoutManager);
+        PagerSnapHelper pagerSnapHelper = new PagerSnapHelper() {
+            @Override
+            public int findTargetSnapPosition(RecyclerView.LayoutManager layoutManager, int velocityX, int velocityY) {
+                // TODO 找到对应的Index
+                int mFindTargetSnapPosition = super.findTargetSnapPosition(layoutManager, velocityX, velocityY);
+                setRecordMode(mFindTargetSnapPosition);
+                return mFindTargetSnapPosition;
+            }
+        };
+
+        pagerSnapHelper.attachToRecyclerView(mBottomIndicator);
+        RvAdapter adapter = new RvAdapter(mActivity, mIndicatorText);
+        mBottomIndicator.setAdapter(adapter);
+        adapter.setOnItemClickLisitenter(new RvAdapter.onItemClickLisitenter() {
+            @Override
+            public void onItemClick(View v, int position) {
+
+
+                mBottomIndicator.smoothScrollToPosition(position);
+                setRecordMode(position);
+            }
+        });
+
 
         mBtnShutter = view.findViewById(R.id.btShutter);
         mBtnShutter.setOnShutterListener(mShutterListener);
@@ -242,6 +272,17 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
 
     }
 
+    public void setRecordMode(int position) {
+        mCameraParam.mGalleryType = GalleryType.VIDEO;
+        if (position == 0) {
+            //长按模式还是点击模式
+            // 录制视频状态
+            mBtnShutter.setCurrentMode(ShutterView.MODE_CLICK_SINGLE);
+        } else if (position == 1) {
+            mBtnShutter.setCurrentMode(ShutterView.MODE_CLICK_LONG);
+        }
+
+    }
 
     @Override
     public void onResume() {
@@ -383,19 +424,6 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
             ft.hide(musicFragment);
             //隐藏它时候需要关闭音乐
             MusicManager.getInstance().stop();
-        }
-
-    }
-
-    @Override
-    public void onIndicatorChanged(int currentIndex) {
-        mCameraParam.mGalleryType = GalleryType.VIDEO;
-        if (currentIndex == 0) {
-            //长按模式还是点击模式
-            // 录制视频状态
-            mBtnShutter.setCurrentMode(ShutterView.MODE_CLICK_SINGLE);
-        } else if (currentIndex == 1) {
-            mBtnShutter.setCurrentMode(ShutterView.MODE_CLICK_LONG);
         }
 
     }
