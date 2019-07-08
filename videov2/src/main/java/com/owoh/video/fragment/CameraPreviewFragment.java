@@ -40,7 +40,6 @@ import com.owoh.video.engine.OnCameraCallback;
 import com.owoh.video.engine.OnRecordListener;
 import com.owoh.video.engine.camera.CameraEngine;
 import com.owoh.video.engine.camera.CameraParam;
-import com.owoh.video.engine.camera.SensorControler;
 import com.owoh.video.engine.recorder.PreviewRecorder;
 import com.owoh.video.engine.render.PreviewRenderer;
 import com.owoh.video.media.bgmusic.MusicManager;
@@ -359,7 +358,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
 
                 break;
             case R.id.btn_record_delete:
-                deleteRecordedVideo(false);
+                deleteRecordedVideo();
                 break;
             case R.id.btn_record_preview:
 
@@ -806,9 +805,16 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
     /**
      * 删除已录制的视频
      *
-     * @param clearAll
+     * @param
      */
-    private void deleteRecordedVideo(boolean clearAll) {
+    private void deleteRecordedVideo() {
+        PreviewRecorder.getInstance().removeLastSubVideo();
+        if (PreviewRecorder.getInstance().getNumberOfSubVideo() <= 0) {
+            layoutGroupDeleted.setVisibility(View.GONE);
+            mBtUpload.setVisibility(View.VISIBLE);
+            mBtnShutter.reset();
+
+        }
 //        // 处于删除模式，则删除文件
 //        if (mBtnShutter.isDeleteMode()) {
 //            // 删除视频，判断是否清除所有

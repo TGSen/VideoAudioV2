@@ -92,6 +92,11 @@ public class ShutterView extends View {
         }
     }
 
+    public void reset() {
+        mCurrentProgress = 0;
+        mEnableEncoder = true;
+    }
+
     @IntDef({MODE_CLICK_SINGLE, MODE_CLICK_LONG})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ShutterViewMode {
@@ -188,11 +193,11 @@ public class ShutterView extends View {
             public void onLongPress(MotionEvent e) {
                 //长按
                 isLongClick = true;
-                if(mCurrentMode ==MODE_CLICK_LONG){
+                if (mCurrentMode == MODE_CLICK_LONG) {
                     isStart = true;
                     mCurrentState = STATE_START;
-                    startZoomAnim(4,20);
-                    if(mOnShutterListener!=null){
+                    startZoomAnim(4, 20);
+                    if (mOnShutterListener != null) {
                         mOnShutterListener.onStartRecord();
                     }
                 }
@@ -226,7 +231,6 @@ public class ShutterView extends View {
     private boolean isStart;
 
 
-
     private GestureDetectorCompat mDetector;//手势识别
 
     @Override
@@ -243,7 +247,7 @@ public class ShutterView extends View {
                     isStart = false;
                     stopAnimation();
                     postInvalidate();
-                    if(mOnShutterListener!=null){
+                    if (mOnShutterListener != null) {
                         mOnShutterListener.onStopRecord();
                     }
                 }
@@ -251,7 +255,6 @@ public class ShutterView extends View {
         }
         return true;
     }
-
 
 
     /**
