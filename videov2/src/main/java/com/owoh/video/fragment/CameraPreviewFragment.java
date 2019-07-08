@@ -723,9 +723,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
 
         @Override
         public void onEndRecord() {
-            Log.e("Harrison", "***onEndRecord"+PreviewRecorder.getInstance().getNumberOfSubVideo());
-            PreviewRecorder.getInstance().stopRecord();
-
+            Log.e("Harrison", "***onEndRecord" + PreviewRecorder.getInstance().getNumberOfSubVideo());
             combinePath = PathConstraints.getVideoCachePath(mActivity);
             PreviewRecorder.getInstance().combineVideo(combinePath, mCombineListener);
         }
@@ -780,6 +778,8 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
                 public void run() {
                     // 编码器已经完全释放，则快门按钮可用
                     showAllToolView(true);
+                    //判断是否最后录制完毕
+                    mBtnShutter.isOnRecordFinish();
                     // 显示删除按钮
 //                    if (mCameraParam.mGalleryType == GalleryType.VIDEO) {
 //                        mBtnRecordPreview.setVisibility(View.VISIBLE);

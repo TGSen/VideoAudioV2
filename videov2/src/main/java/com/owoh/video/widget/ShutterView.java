@@ -56,6 +56,7 @@ public class ShutterView extends View {
     private boolean mEnableEncoder;
     private int maxTimes = 10 * 1000;
     private boolean isLongClick;
+    private float mCurrentProgress;
 
 
     //设置最大的时间
@@ -64,17 +65,31 @@ public class ShutterView extends View {
     }
 
     public void setProgress(float progress) {
-        if (progress >= maxTimes) {
-            mCurrentState = STATE_IDLE;
+        this.mCurrentProgress = progress;
+        if (mCurrentProgress >= maxTimes) {
             if (mOnShutterListener != null) {
-                mOnShutterListener.onEndRecord();
+                mCurrentState = STATE_IDLE;
+                stopAnimation();
+                mOnShutterListener.onStopRecord();
+                postInvalidate();
             }
-            postInvalidate();
         }
+
     }
 
     public void onRecordStop() {
         stopAnimation();
+    }
+
+    public void isOnRecordFinish() {
+        Log.e("Harrison", "isOnRecordFinish");
+        if (mCurrentProgress >= maxTimes) {
+            Log.e("Harrison", "isOnRecordFinish onEndRecord");
+            if (mOnShutterListener != null) {
+                mOnShutterListener.onEndRecord();
+            }
+            mCurrentProgress = 0;
+        }
     }
 
     @IntDef({MODE_CLICK_SINGLE, MODE_CLICK_LONG})
