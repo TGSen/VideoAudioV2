@@ -26,14 +26,19 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.cgfay.filterlibrary.fragment.PermissionConfirmDialogFragment;
+import com.cgfay.filterlibrary.fragment.PermissionErrorDialogFragment;
+import com.cgfay.filterlibrary.multimedia.VideoCombiner;
+import com.cgfay.filterlibrary.utils.BrightnessUtils;
+import com.cgfay.filterlibrary.utils.PermissionUtils;
 import com.owoh.R;
 import com.owoh.video.activity.EffectVideoActivity;
+import com.owoh.video.engine.GalleryType;
+import com.owoh.video.engine.OnCameraCallback;
+import com.owoh.video.engine.OnRecordListener;
 import com.owoh.video.engine.camera.CameraEngine;
 import com.owoh.video.engine.camera.CameraParam;
 import com.owoh.video.engine.camera.SensorControler;
-import com.owoh.video.engine.OnCameraCallback;
-import com.owoh.video.engine.OnRecordListener;
-import com.owoh.video.engine.GalleryType;
 import com.owoh.video.engine.recorder.PreviewRecorder;
 import com.owoh.video.engine.render.PreviewRenderer;
 import com.owoh.video.media.bgmusic.MusicManager;
@@ -44,11 +49,6 @@ import com.owoh.video.widget.AspectFrameLayout;
 import com.owoh.video.widget.CainSurfaceView;
 import com.owoh.video.widget.HorizontalIndicatorView;
 import com.owoh.video.widget.ShutterView;
-import com.cgfay.filterlibrary.fragment.PermissionConfirmDialogFragment;
-import com.cgfay.filterlibrary.fragment.PermissionErrorDialogFragment;
-import com.cgfay.filterlibrary.multimedia.VideoCombiner;
-import com.cgfay.filterlibrary.utils.BrightnessUtils;
-import com.cgfay.filterlibrary.utils.PermissionUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -145,16 +145,13 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
         } else {
             mCameraParam.brightness = BrightnessUtils.getSystemBrightness(mActivity);
         }
-        mMainHandler = new Handler(context.getMainLooper()){
+        mMainHandler = new Handler(context.getMainLooper()) {
             @Override
             public void handleMessage(Message msg) {
                 super.handleMessage(msg);
-                switch (msg.what){
+                switch (msg.what) {
                     case MSG_SHUTTER_PROGRESS:
-//                        if(PreviewRecorder.getInstance().isLastSecondStop()){
-//                            mBtnShutter.setProgress();
-//                        }
-
+                        mBtnShutter.setProgress((long) msg.obj);
 
                         break;
                 }
@@ -711,23 +708,26 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
         @Override
         public void onStopRecord() {
             Log.e("Harrison", "***onStopRecord");
-
-            stopRecordOrPreviewVideo();
             //同时判断是否开启背景音乐
             if (VideoAudioCombine.getInstance().isBgMusicEnable()) {
                 MusicManager.getInstance().stop();
             }
+            PreviewRecorder.getInstance().stopRecord();
         }
 
         @Override
         public void onShortRecord() {
-            PreviewRecorder.getInstance().stopRecord(false);
-            Toast.makeText(mActivity,"录制的时间太短了",Toast.LENGTH_SHORT).show();
+            PreviewRecorder.getInstance().stopRecord();
+            Toast.makeText(mActivity, "录制的时间太短了", Toast.LENGTH_SHORT).show();
         }
 
         @Override
         public void onEndRecord() {
+            Log.e("Harrison", "***onEndRecord"+PreviewRecorder.getInstance().getNumberOfSubVideo());
+            PreviewRecorder.getInstance().stopRecord();
 
+            combinePath = PathConstraints.getVideoCachePath(mActivity);
+            PreviewRecorder.getInstance().combineVideo(combinePath, mCombineListener);
         }
 
 
@@ -764,7 +764,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
 
         @Override
         public void onRecordProgressChanged(final long duration) {
-            Log.e("Harrison","*******"+duration);
+            Log.e("Harrison", "*******" + duration);
             Message msg = mMainHandler.obtainMessage();
             msg.what = MSG_SHUTTER_PROGRESS;
             msg.obj = duration;
@@ -774,16 +774,12 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
         @Override
         public void onRecordFinish() {
             Log.e("Harrison", "*****onRecordFinish");
-           mBtnShutter.setEnableEncoder(true);
+            mBtnShutter.setEnableEncoder(true);
             mMainHandler.post(new Runnable() {
                 @Override
                 public void run() {
                     // 编码器已经完全释放，则快门按钮可用
                     showAllToolView(true);
-                    mBtnShutter.stopAnimation();
-                    // 处于录制状态点击了预览按钮，则需要等待完成再跳转， 或者是处于录制GIF状态
-                    // 开始预览
-                    stopRecordOrPreviewVideo();
                     // 显示删除按钮
 //                    if (mCameraParam.mGalleryType == GalleryType.VIDEO) {
 //                        mBtnRecordPreview.setVisibility(View.VISIBLE);
@@ -835,15 +831,15 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
      */
     private void stopRecordOrPreviewVideo() {
         if (PreviewRecorder.getInstance().isRecording()) {
-            Log.e("Harrison","stopRecordOrPreviewVideo");
+            Log.e("Harrison", "stopRecordOrPreviewVideo");
             mNeedToWaitStop = true;
             PreviewRecorder.getInstance().stopRecord(false);
         } else {
-            Log.e("Harrison","stopRecordOrPreviewVideo0");
+            Log.e("Harrison", "stopRecordOrPreviewVideo0");
             mNeedToWaitStop = false;
             // 销毁录制线程
             PreviewRecorder.getInstance().stopRecord(false);
-          //  PreviewRecorder.getInstance().destroyRecorder();
+            //  PreviewRecorder.getInstance().destroyRecorder();
             combinePath = PathConstraints.getVideoCachePath(mActivity);
             PreviewRecorder.getInstance().combineVideo(combinePath, mCombineListener);
         }
@@ -1012,7 +1008,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
                         // 暂停录制
                         PreviewRecorder.getInstance().stopRecord();
                         // 停止录制
-                        mBtnShutter.stopAnimation();
+                        mBtnShutter.onRecordStop();
 
                     }
                 }

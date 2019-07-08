@@ -1,1 +1,1 @@
-include ':app', ':VideoEidtexter', ':gdxlibrary', ':owohfilterlibrary',  ':reslibrary', ':videov2',"sticker","stickertest"
+include ':app', ':VideoEidtexter', ':gdxlibrary', ':owohfilterlibrary', ':reslibrary', ':videov2', "sticker", "stickertest", ':takephotoview', ':takePhotoViewDemo'

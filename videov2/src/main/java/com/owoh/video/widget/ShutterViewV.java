@@ -7,11 +7,8 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.support.annotation.IntDef;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.GestureDetectorCompat;
-import android.support.v4.view.MotionEventCompat;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -25,7 +22,7 @@ import java.lang.annotation.RetentionPolicy;
  * @description:
  * @date :2019/4/29 15:22
  */
-public class ShutterView extends View {
+public class ShutterViewV extends View {
     // 外圆背景颜色
     private int mOuterOvalBgColor;
     //内圆颜色
@@ -34,6 +31,7 @@ public class ShutterView extends View {
     private int mInerOvalRadius;
     //外圆半径
     private int mOuterOvalRadius;
+    //当是录制状态的时候，这个是外边圆的圆圈
     private int mOuterOvalWidth;
 
     private int mCurrentOvalWidth;
@@ -55,7 +53,6 @@ public class ShutterView extends View {
     private OnShutterListener mOnShutterListener;
     private boolean mEnableEncoder;
     private int maxTimes = 10 * 1000;
-    private boolean isLongClick;
 
 
     //设置最大的时间
@@ -71,10 +68,6 @@ public class ShutterView extends View {
             }
             postInvalidate();
         }
-    }
-
-    public void onRecordStop() {
-        stopAnimation();
     }
 
     @IntDef({MODE_CLICK_SINGLE, MODE_CLICK_LONG})
@@ -109,15 +102,15 @@ public class ShutterView extends View {
         this.mCurrentMode = mCurrentMode;
     }
 
-    public ShutterView(Context context) {
+    public ShutterViewV(Context context) {
         this(context, null);
     }
 
-    public ShutterView(Context context, AttributeSet attrs) {
+    public ShutterViewV(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public ShutterView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public ShutterViewV(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context, attrs);
     }
@@ -145,45 +138,7 @@ public class ShutterView extends View {
         mStrokePaint.setStyle(Paint.Style.STROKE);
         mStrokePaint.setColor(mInerOvalBgColor);
 
-        mDetector = new GestureDetectorCompat(context, new GestureDetector.SimpleOnGestureListener() {
-            @Override
-            public boolean onSingleTapConfirmed(MotionEvent e) {
-                //单击
-                isLongClick = false;
-                if (mCurrentMode == MODE_CLICK_SINGLE) {
-                    if (isStart) {
-                        Log.e("Harrison", "准备暂停");
-                        stopAnimation();
-                        mCurrentState = STATE_IDLE;
-                        if (mOnShutterListener != null)
-                            mOnShutterListener.onStopRecord();
-                    } else {
-                        Log.e("Harrison", "准备开始");
-                        mCurrentState = STATE_START;
-                        startZoomAnim(4, 20);
-                        if (mOnShutterListener != null)
-                            mOnShutterListener.onStartRecord();
-                    }
-                    isStart = !isStart;
-                }
-                return super.onSingleTapConfirmed(e);
-            }
-
-            @Override
-            public void onLongPress(MotionEvent e) {
-                //长按
-                isLongClick = true;
-                postInvalidate();
-//                if (listener != null) {
-//                    listener.onLongClick(ShutterView.this);
-//                }
-            }
-        });
-        mDetector.setIsLongpressEnabled(true);
-
-
     }
-
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
@@ -211,82 +166,58 @@ public class ShutterView extends View {
     private long mTouchStartTime;
     private long mTouchEndTime;
 
-    private GestureDetectorCompat mDetector;//手势识别
-
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        mDetector.onTouchEvent(event);
-        switch (MotionEventCompat.getActionMasked(event)) {
+        if (!mEnableEncoder) {
+            return super.onTouchEvent(event);
+        }
+        switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                isLongClick = false;
-                break;
-            case MotionEvent.ACTION_UP:
-            case MotionEvent.ACTION_CANCEL:
-                if (isLongClick) {
-                    isLongClick = false;
-                    postInvalidate();
-//                    if (this.listener != null) {
-//                        this.listener.onLongClickUp(this);
-//                    }
+                mTouchStartTime = System.currentTimeMillis();
+                if (isStart) {
+                    mCurrentState = STATE_IDLE;
+                    stopAnimation();
+                    isStart = false;
+                    if (mOnShutterListener != null)
+                        mOnShutterListener.onStopRecord();
+                    return true;
                 }
+                if (mCurrentMode == MODE_CLICK_LONG) {
+                    mTouchEndTime = System.currentTimeMillis();
+                    mCurrentState = STATE_START;
+                    isStart = true;
+                    startZoomAnim(4, 20);
+                    if (mOnShutterListener != null)
+                        mOnShutterListener.onStartRecord();
+                }
+                break;
+            // 松开手时，先复位按钮初始状态，如果开始录制，则放大，否则复位
+            case MotionEvent.ACTION_UP:
+                mTouchEndTime = System.currentTimeMillis();
+
+                if (mCurrentMode == MODE_CLICK_SINGLE) {
+                    isStart = true;
+                    mCurrentState = STATE_START;
+                    //那么开启单击模式
+                    startZoomAnim(4, 20);
+                    if (mOnShutterListener != null)
+                        mOnShutterListener.onStartRecord();
+                } else {
+                    if ((mTouchEndTime - mTouchStartTime) < 2000) {
+                        if (mOnShutterListener != null)
+                            mOnShutterListener.onShortRecord();
+                    }
+                    mCurrentState = STATE_IDLE;
+                    stopAnimation();
+                    if (mOnShutterListener != null)
+                        mOnShutterListener.onStopRecord();
+
+                }
+            case MotionEvent.ACTION_CANCEL:
                 break;
         }
         return true;
     }
-
-//    @Override
-//    public boolean onTouchEvent(MotionEvent event) {
-//        if (!mEnableEncoder) {
-//            return super.onTouchEvent(event);
-//        }
-//        switch (event.getAction()) {
-//            case MotionEvent.ACTION_DOWN:
-//                mTouchStartTime = System.currentTimeMillis();
-//                if (isStart) {
-//                    Log.e("Harrison","已经开始了");
-//                    mCurrentState = STATE_IDLE;
-//                    stopAnimation();
-//                    isStart = false;
-//                    if (mOnShutterListener != null)
-//                        mOnShutterListener.onStopRecord();
-//                    return true;
-//                }
-//                if (mCurrentMode == MODE_CLICK_LONG) {
-//                    mTouchEndTime = System.currentTimeMillis();
-//                    mCurrentState = STATE_START;
-//                    isStart = true;
-//                    startZoomAnim(4, 20);
-//                    if (mOnShutterListener != null)
-//                        mOnShutterListener.onStartRecord();
-//                }
-//                break;
-//            // 松开手时，先复位按钮初始状态，如果开始录制，则放大，否则复位
-//            case MotionEvent.ACTION_UP:
-//                mTouchEndTime = System.currentTimeMillis();
-//                //松手分单击和长按
-//                if (mCurrentMode == MODE_CLICK_SINGLE ) {
-//                    isStart = true;
-//                    mCurrentState = STATE_START;
-//                    //那么开启单击模式
-//                    startZoomAnim(4, 20);
-//                    if (mOnShutterListener != null)
-//                        mOnShutterListener.onStartRecord();
-//                } else {
-//                    if ((mTouchEndTime - mTouchStartTime) < 2000) {
-//                        if (mOnShutterListener != null)
-//                            mOnShutterListener.onShortRecord();
-//                    }
-//                    mCurrentState = STATE_IDLE;
-//                    stopAnimation();
-//                    if (mOnShutterListener != null)
-//                        mOnShutterListener.onStopRecord();
-//
-//                }
-//            case MotionEvent.ACTION_CANCEL:
-//                break;
-//        }
-//        return true;
-//    }
 
     /**
      * 开始缩放动画
@@ -337,7 +268,7 @@ public class ShutterView extends View {
     }
 
 
-    private void stopAnimation() {
+    public void stopAnimation() {
         if (mButtonAnim != null && mButtonAnim.isRunning()) {
             Log.e("Harrison", "mButtonAnim");
             mButtonAnim.cancel();
@@ -382,6 +313,4 @@ public class ShutterView extends View {
     public void setOnShutterListener(OnShutterListener listener) {
         mOnShutterListener = listener;
     }
-
-
 }
