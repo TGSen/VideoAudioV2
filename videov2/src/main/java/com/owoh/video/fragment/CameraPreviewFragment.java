@@ -25,6 +25,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -129,6 +130,8 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
     private View mGroupViewBottom;
     private View layoutPreViewTop;
     private Group layoutGroupDeleted;
+    private ProgressBar mRecordProgBar;
+    private View mPointView;
 
 
     public CameraPreviewFragment() {
@@ -152,7 +155,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
                 switch (msg.what) {
                     case MSG_SHUTTER_PROGRESS:
                         mBtnShutter.setProgress((long) msg.obj);
-
+                        mRecordProgBar.setProgress((int) (long) msg.obj);
                         break;
                 }
             }
@@ -198,6 +201,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
     private void initView(View view) {
         mAspectLayout = view.findViewById(R.id.layout_aspect);
         layoutPreViewTop = view.findViewById(R.id.layoutPreViewTop);
+        mRecordProgBar = view.findViewById(R.id.mRecordProgBar);
         //   mAspectLayout.setAspectRatio(mCameraParam.currentRatio);
         mCameraSurfaceView = new CainSurfaceView(mActivity);
         mCameraSurfaceView.addOnTouchScroller(mTouchScroller);
@@ -216,6 +220,8 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
 
 
         mBtnTools = view.findViewById(R.id.btnTools);
+        mPointView = view.findViewById(R.id.pointView);
+        mPointView.setVisibility(View.VISIBLE);
         mBtUpload = view.findViewById(R.id.btUpload);
         btFlash = view.findViewById(R.id.btFlash);
         btFlash.setOnClickListener(this);
@@ -696,6 +702,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
         public void onStartRecord() {
             Log.e("Harrison", "***onStartRecord");
             layoutGroupDeleted.setVisibility(View.GONE);
+            mRecordProgBar.setVisibility(View.VISIBLE);
             showAllToolView(false);
             // 是否允许录制音频
             boolean enableAudio = mCameraParam.audioPermitted && mCameraParam.recordAudio
@@ -721,6 +728,8 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
                     .setOnRecordListener(mRecordListener)
                     .setMilliSeconds(PreviewRecorder.CountDownType.TenSecond)
                     .startRecord();
+            mRecordProgBar.setMax((int) PreviewRecorder.getInstance().getMaxMilliSeconds());
+            mBtnShutter.setMax((int) PreviewRecorder.getInstance().getMaxMilliSeconds());
         }
 
         @Override
@@ -728,6 +737,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
             Log.e("Harrison", "***onStopRecord");
             showAllToolView(true);
             layoutGroupDeleted.setVisibility(View.VISIBLE);
+
             mBtUpload.setVisibility(View.INVISIBLE);
             //同时判断是否开启背景音乐
             if (VideoAudioCombine.getInstance().isBgMusicEnable()) {
@@ -747,7 +757,6 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
 
         @Override
         public void onEndRecord() {
-            Log.e("Harrison", "***onEndRecord" + PreviewRecorder.getInstance().getNumberOfSubVideo());
             gotoCombinePath();
         }
 
@@ -759,16 +768,18 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
             layoutPreViewTop.setVisibility(View.VISIBLE);
             mBottomIndicator.setVisibility(View.VISIBLE);
             mBtnTools.setVisibility(View.VISIBLE);
+            mPointView.setVisibility(View.VISIBLE);
         } else {
             layoutPreViewTop.setVisibility(View.INVISIBLE);
             mBottomIndicator.setVisibility(View.INVISIBLE);
             mBtnTools.setVisibility(View.INVISIBLE);
             mBtUpload.setVisibility(View.INVISIBLE);
+            mPointView.setVisibility(View.GONE);
         }
 
     }
 
-    private void gotoCombinePath(){
+    private void gotoCombinePath() {
         combinePath = PathConstraints.getVideoCachePath(mActivity);
         mBtnShutter.reset();
         PreviewRecorder.getInstance().combineVideo(combinePath, mCombineListener);
@@ -814,40 +825,15 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
      */
     private void deleteRecordedVideo() {
         PreviewRecorder.getInstance().removeLastSubVideo();
+        mRecordProgBar.setProgress((int) PreviewRecorder.getInstance().getVisibleDuration());
         if (PreviewRecorder.getInstance().getNumberOfSubVideo() <= 0) {
             layoutGroupDeleted.setVisibility(View.GONE);
             mBtUpload.setVisibility(View.VISIBLE);
+
             mBtnShutter.reset();
 
         }
-//        // 处于删除模式，则删除文件
-//        if (mBtnShutter.isDeleteMode()) {
-//            // 删除视频，判断是否清除所有
-//            if (clearAll) {
-//                // 清除所有分割线
-//                mBtnShutter.cleanSplitView();
-//                PreviewRecorder.getInstance().removeAllSubVideo();
-//            } else {
-//                // 删除分割线
-//                mBtnShutter.deleteSplitView();
-//                PreviewRecorder.getInstance().removeLastSubVideo();
-//            }
-//
-//            // 删除一段已记录的时间
-//            PreviewRecorder.getInstance().deleteRecordDuration();
-//
-//            // 更新进度
-//            mBtnShutter.setProgress(PreviewRecorder.getInstance().getVisibleDuration());
-//            // 更新时间
-//            // 如果此时没有了视频，则恢复初始状态
-//            if (PreviewRecorder.getInstance().getNumberOfSubVideo() <= 0) {
-//                mBtnRecordDelete.setVisibility(View.GONE);
-//                mBtnRecordPreview.setVisibility(View.GONE);
-//                mNeedToWaitStop = false;
-//            }
-//        } else { // 没有进入删除模式则进入删除模式
-//            mBtnShutter.setDeleteMode(true);
-//        }
+
     }
 
 

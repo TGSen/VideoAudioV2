@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:background="@android:color/black">
 
+
     <!-- 预览视图 -->
     <com.owoh.video.widget.AspectFrameLayout
         android:id="@+id/layout_aspect"
@@ -34,7 +35,17 @@
     <include layout="@layout/view_preview_bottom" />
 
 
-
+    <ProgressBar
+        android:id="@+id/mRecordProgBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="0dp"
+        android:layout_height="8dp"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        android:progressDrawable="@drawable/bg_record_progressbar"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 
 
