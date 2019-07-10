@@ -105,7 +105,7 @@ import static com.owoh.video.media.bean.VideoEffectTypeKt.RENDER_TYPE_AT_TIME;
  * 带有时间的特效，重叠的时候，有添加和后加的重叠的区别
  * @date :2019/4/1 14:29
  */
-public class EffectVideoActivity extends AppCompatActivity implements View.OnClickListener {
+public class EffectVideoActivityV extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "Harrison";
     // 显示滤镜页面
     private boolean isShowingFilters = false;
@@ -316,7 +316,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                                 //如果存在的 话，那么就不用在截取了
                                 String outPutFileDirPath = getExternalCacheDir().getAbsolutePath() + "/";
                                 int extractW = mMaxWidth / MAX_COUNT_RANGE;
-                                int extractH = DensityUtils.dp2px(EffectVideoActivity.this, 62);
+                                int extractH = DensityUtils.dp2px(EffectVideoActivityV.this, 62);
                                 mExtractFrameWorkThread = new ExtractFrameWorkThread(extractW, extractH, mHandler, videoPath,
                                         outPutFileDirPath, 0, mSeekBar.getMax(), MAX_COUNT_RANGE);
                                 thumbnailsCount = (int) (mSeekBar.getMax() * 1.0f / (MAX_CUT_DURATION * 1.0f) * MAX_COUNT_RANGE);
@@ -408,8 +408,8 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
         int minLeft = 40;
         int minBottom = 40;
         //计算一个我认为最佳的比例
-        int width = DensityUtils.getDisplayWidthPixels(EffectVideoActivity.this);
-        int height = DensityUtils.getDisplayHeightPixels(EffectVideoActivity.this);
+        int width = DensityUtils.getDisplayWidthPixels(EffectVideoActivityV.this);
+        int height = DensityUtils.getDisplayHeightPixels(EffectVideoActivityV.this);
         int[] position = new int[2];
         btCloseImag.getLocationOnScreen(position);
         Log.e("Harrison", layoutStickerTool.getHeight() + "*" + "height*" + height + "width" + width);
@@ -446,7 +446,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
             @Override
             public void run() {
                 //获取第一帧图片并模糊
-                ResourceHelper.initEffectFilterResource(EffectVideoActivity.this, mResourceData);
+                ResourceHelper.initEffectFilterResource(EffectVideoActivityV.this, mResourceData);
 
                 final Bitmap bitmap = BitmapUtils.createVideoThumbnail(videoPath);
 //                ImageBlur.blurBitmap(bitmap, 10);
@@ -520,8 +520,8 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                 final int videoWidth = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
                 final int videoHeight = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
                 retriever.release();
-                final int widthScreen = DensityUtils.getDisplayWidthPixels(EffectVideoActivity.this);
-                final int heightScreen = DensityUtils.getDisplayHeightPixels(EffectVideoActivity.this);
+                final int widthScreen = DensityUtils.getDisplayWidthPixels(EffectVideoActivityV.this);
+                final int heightScreen = DensityUtils.getDisplayHeightPixels(EffectVideoActivityV.this);
                 final GlFilterGroup filterGroup = new GlFilterGroup();
 
                 //这个是颜色的滤镜
@@ -639,7 +639,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
     }
 
     public static void gotoThis(Context context, String path) {
-        Intent intent = new Intent(context, EffectVideoActivity.class);
+        Intent intent = new Intent(context, EffectVideoActivityV.class);
         Bundle bundle = new Bundle();
         bundle.putString(KEY_VIDEO_PATH, path);
         intent.putExtra(BUNDLE_VIDEO_PATH, bundle);
@@ -1058,7 +1058,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                         DynamicColor color = mDynamicColorFilter.get(position);
                         mVideoRenderer.changeDynamicColorFilter(color);
                     } else {
-                        String folderPath = ResourceHelper.getResourceDirectory(EffectVideoActivity.this) + File.separator + unzipFolder;
+                        String folderPath = ResourceHelper.getResourceDirectory(EffectVideoActivityV.this) + File.separator + unzipFolder;
                         DynamicColor color = ResourceJsonCodec.decodeFilterData(folderPath);
                         color.setColorType(ResourceType.FILTER.getIndex());
                         DynamicColorData colorData = color.filterList.get(0);
@@ -1072,7 +1072,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
                     break;
                 }   // 贴纸
                 case STICKER: {
-                    String folderPath = ResourceHelper.getResourceDirectory(EffectVideoActivity.this) + File.separator + unzipFolder;
+                    String folderPath = ResourceHelper.getResourceDirectory(EffectVideoActivityV.this) + File.separator + unzipFolder;
                     DynamicSticker sticker = ResourceJsonCodec.decodeStickerData(folderPath);
                     mVideoRenderer.changeDynamicResource(sticker);
                     break;

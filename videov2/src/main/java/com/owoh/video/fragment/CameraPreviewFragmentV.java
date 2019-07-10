@@ -36,6 +36,7 @@ import com.cgfay.filterlibrary.utils.BrightnessUtils;
 import com.cgfay.filterlibrary.utils.PermissionUtils;
 import com.owoh.R;
 import com.owoh.video.activity.EffectVideoActivity;
+import com.owoh.video.activity.EffectVideoActivityV;
 import com.owoh.video.engine.GalleryType;
 import com.owoh.video.engine.OnCameraCallback;
 import com.owoh.video.engine.OnRecordListener;
@@ -62,7 +63,7 @@ import java.util.List;
 /**
  * 相机预览页面
  */
-public class CameraPreviewFragment extends Fragment implements View.OnClickListener {
+public class CameraPreviewFragmentV extends Fragment implements View.OnClickListener {
 
     private static final String TAG = "CameraPreviewFragment1";
     private static final boolean VERBOSE = true;
@@ -134,7 +135,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
     private View mPointView;
 
 
-    public CameraPreviewFragment() {
+    public CameraPreviewFragmentV() {
         mCameraParam = CameraParam.getInstance();
     }
 
@@ -200,7 +201,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
      */
     private void initView(View view) {
         mAspectLayout = view.findViewById(R.id.layout_aspect);
-        layoutPreViewTop = view.findViewById(R.id.layoutPreViewTop);
+//        layoutPreViewTop = view.findViewById(R.id.layoutPreViewTop);
         mRecordProgBar = view.findViewById(R.id.mRecordProgBar);
         //   mAspectLayout.setAspectRatio(mCameraParam.currentRatio);
         mCameraSurfaceView = new CainSurfaceView(mActivity);
@@ -530,7 +531,7 @@ public class CameraPreviewFragment extends Fragment implements View.OnClickListe
                     mCombineDialog.dismiss();
                     mCombineDialog = null;
 
-                    EffectVideoActivity.gotoThis(mActivity, combimePath);
+                    EffectVideoActivityV.gotoThis(mActivity, combimePath);
 
                 }
             }

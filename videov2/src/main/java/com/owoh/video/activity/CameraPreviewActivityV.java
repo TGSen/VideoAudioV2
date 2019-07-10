@@ -6,13 +6,13 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import com.owoh.R;
-import com.owoh.video.fragment.CameraPreviewFragment;
+import com.owoh.video.fragment.CameraPreviewFragmentV;
 import com.tencent.bugly.crashreport.CrashReport;
 
 /**
  * 相机预览页面
  */
-public class CameraPreviewActivity extends AppCompatActivity  {
+public class CameraPreviewActivityV extends AppCompatActivity  {
 
     private static final String FRAGMENT_CAMERA = "fragment_camera";
 
@@ -25,7 +25,7 @@ public class CameraPreviewActivity extends AppCompatActivity  {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_camera);
         if (null == savedInstanceState) {
-            CameraPreviewFragment fragment = new CameraPreviewFragment();
+            CameraPreviewFragmentV fragment = new CameraPreviewFragmentV();
             getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.container, fragment, FRAGMENT_CAMERA)
@@ -50,7 +50,7 @@ public class CameraPreviewActivity extends AppCompatActivity  {
         if (backStackEntryCount > 1) {
             getSupportFragmentManager().popBackStack();
         } else if (backStackEntryCount == 1) {
-            CameraPreviewFragment fragment = (CameraPreviewFragment) getSupportFragmentManager()
+            CameraPreviewFragmentV fragment = (CameraPreviewFragmentV) getSupportFragmentManager()
                     .findFragmentByTag(FRAGMENT_CAMERA);
             if (fragment != null) {
                 if (!fragment.onBackPressed()) {
