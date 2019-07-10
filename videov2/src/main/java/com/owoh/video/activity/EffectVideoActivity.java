@@ -150,14 +150,20 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
             super.handleMessage(msg);
             switch (msg.what) {
                 case MSG_VIDEO_PLAY_PROGRESS:
-                    int progress = mVideoRenderer.getVideoProgress();
-                    String time = StringUtils.generateTime(progress);
-                    tvStartTime.setText(TextUtils.isEmpty(time) ? "00:00" : time);
-                    mSeekBar.setProgress(progress);
-                    mHandler.sendEmptyMessage(MSG_VIDEO_PLAY_PROGRESS);
+                    try{
+                        int progress = mVideoRenderer.getVideoProgress();
+                        String time = StringUtils.generateTime(progress);
+                        tvStartTime.setText(TextUtils.isEmpty(time) ? "00:00" : time);
+                        mSeekBar.setProgress(progress);
+                        mHandler.sendEmptyMessage(MSG_VIDEO_PLAY_PROGRESS);
 
-                    //改变贴纸的显示时间
-                    mStickerSeekBar.setProgress(progress);
+                        //改变贴纸的显示时间
+                        mStickerSeekBar.setProgress(progress);
+                    }catch (Exception e){
+                        Log.e("Harrison","****"+e.getLocalizedMessage());
+                    }
+
+
                     break;
                 case MSG_VIDEO_PLAY_STATUS_STOP:
                     //贴纸的暂停不需要显示
@@ -1124,6 +1130,7 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        mHandler.removeCallbacksAndMessages(null);
         if (mVideoRenderer != null) {
             mVideoRenderer.destroyRenderer();
         }
@@ -1274,6 +1281,8 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
 
         }
     }
+
+
 
     /**
      * 显示声音的调节
