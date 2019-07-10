@@ -20,6 +20,7 @@
         android:drawableTop="@mipmap/ic_tools"
         android:drawablePadding="6dp"
         android:gravity="center"
+
         android:text="@string/filter_tools"
         android:textColor="@color/colorWhilte"
         android:textSize="12sp"
