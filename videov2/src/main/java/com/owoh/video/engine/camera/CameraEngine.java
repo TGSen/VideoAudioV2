@@ -78,11 +78,11 @@ public class CameraEngine {
         parameters.setRecordingHint(true);
         //设置对焦模式
         List<String> focusModes = parameters.getSupportedFocusModes();
-//        if (focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
-//            parameters.setFlashMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
-//        }
-        if (focusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO))
-            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+        if (focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO)) {
+            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
+        }
+//        if (focusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO))
+//            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
 
 
         mCamera.setParameters(parameters);

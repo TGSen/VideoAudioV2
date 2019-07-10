@@ -17,7 +17,6 @@ import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.RecyclerView.*
 import android.text.TextUtils
 import android.transition.Transition
 import android.transition.TransitionManager
@@ -173,7 +172,15 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
             super.onScrollStateChanged(recyclerView, newState)
             Log.e(TAG, "-------newState:>>>>>$newState")
-            isSeeking = newState != SCROLL_STATE_IDLE
+            if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                isSeeking = false
+                //                videoStart();
+            } else {
+                isSeeking = true
+                //                if (isOverScaledTouchSlop) {
+                //                   // videoPause();
+                //                }
+            }
         }
 
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
@@ -615,7 +622,7 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
                                     Bitmap.Config.ARGB_8888
                             )
                             gifCanvas.setBitmap(bitmap)
-                            matrix.postScale(currentScale, currentScale)
+
                             matrix.postTranslate(
                                     centerX - bitmap!!.width * currentScale / 2,
                                     centerY - bitmap!!.height * currentScale / 2
@@ -669,19 +676,19 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
 
                         override fun onCompleted() {
                             //                                Log.e(TAG, "onCompleted()");
-                          //  dismissDialog()
+//                            dismissDialog()
                             isCombine = false
                         }
 
                         override fun onCanceled() {
                             //                                Log.e(TAG, "onCanceled");
-                         //   dismissDialog()
+//                            dismissDialog()
                             isCombine = false
                         }
 
                         override fun onFailed(exception: Exception) {
                             //                                Log.e(TAG, "onFailed()", exception);
-                         //   dismissDialog()
+//                            dismissDialog()
                             isCombine = false
                         }
                     })
