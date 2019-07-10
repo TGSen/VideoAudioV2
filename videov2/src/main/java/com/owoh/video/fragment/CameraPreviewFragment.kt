@@ -128,33 +128,6 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
     }
 
 
-    /**
-     * SurfaceView 滑动、点击回调
-     */
-
-    private val mTouchScroller = object : CainSurfaceView.OnTouchScroller {
-
-        override fun swipeBack() {
-
-        }
-
-        override fun swipeFrontal() {
-
-        }
-
-        override fun swipeUpper(startInLeft: Boolean, distance: Float) {
-            if (VERBOSE) {
-                Log.d(TAG, "swipeUpper, startInLeft ? $startInLeft, distance = $distance")
-            }
-        }
-
-        override fun swipeDown(startInLeft: Boolean, distance: Float) {
-            if (VERBOSE) {
-                Log.d(TAG, "swipeDown, startInLeft ? $startInLeft, distance = $distance")
-            }
-        }
-
-    }
 
 
     /**
@@ -425,7 +398,6 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
         binding.apply {
             //   mAspectLayout.setAspectRatio(mCameraParam.currentRatio);
             mCameraSurfaceView = CainSurfaceView(mActivity)
-            mCameraSurfaceView!!.addOnTouchScroller(mTouchScroller)
             mCameraSurfaceView!!.addMultiClickListener(mMultiClickListener)
             layoutAspect?.addView(mCameraSurfaceView)
             layoutAspect?.requestLayout()
@@ -496,21 +468,9 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
     override fun onResume() {
         super.onResume()
         registerHomeReceiver()
-        enhancementBrightness()
-        //        mBtnShutter.setEnableOpened(false);
     }
 
-    /**
-     * 增强光照
-     */
-    private fun enhancementBrightness() {
-        BrightnessUtils.setWindowBrightness(
-                mActivity!!, if (mCameraParam.luminousEnhancement)
-            BrightnessUtils.MAX_BRIGHTNESS
-        else
-            mCameraParam.brightness
-        )
-    }
+
 
     override fun onPause() {
         super.onPause()

@@ -17,6 +17,7 @@ import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.support.v7.widget.RecyclerView.*
 import android.text.TextUtils
 import android.transition.Transition
 import android.transition.TransitionManager
@@ -172,15 +173,7 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
             super.onScrollStateChanged(recyclerView, newState)
             Log.e(TAG, "-------newState:>>>>>$newState")
-            if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                isSeeking = false
-                //                videoStart();
-            } else {
-                isSeeking = true
-                //                if (isOverScaledTouchSlop) {
-                //                   // videoPause();
-                //                }
-            }
+            isSeeking = newState != SCROLL_STATE_IDLE
         }
 
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
