@@ -55,7 +55,6 @@ public class VideoEffectSeekBar extends AppCompatSeekBar {
             setSplitTrack(false);
         }
         mRect = new Rect();
-        mRulerPaint.setColor(ContextCompat.getColor(getContext(), colors[0]));
     }
 
     List<ItemRect> mRects = new ArrayList<>();
@@ -81,7 +80,6 @@ public class VideoEffectSeekBar extends AppCompatSeekBar {
         }
     }
 
-    boolean isDrawing = false;
 
     //设置分段的颜色
     public void setPathList(List<VideoEffect> effects, int max) {
@@ -130,17 +128,10 @@ public class VideoEffectSeekBar extends AppCompatSeekBar {
         }
     }
 
-    /**
-     * 重写onDraw方法绘制刻度线
-     *
-     * @param canvas
-     */
-    int[] colors = {android.R.color.holo_green_dark, android.R.color.darker_gray};
+
 
     @Override
     protected  void onDraw(Canvas canvas) {
-        synchronized (VideoEffectSeekBar.class) {
-            isDrawing = true;
             super.onDraw(canvas);
             if (mRects == null || mRects.size() <= 0) return;
             int size = mRects.size();
@@ -153,12 +144,6 @@ public class VideoEffectSeekBar extends AppCompatSeekBar {
                     canvas.drawRect(itemRect.getRect(), mRulerPaint);
                 }
             }
-//        mRect.top = 0;
-//        mRect.bottom = getHeight();
-//        mRect.left = 0;
-//        mRect.right = getWidth();
-//        canvas.drawRect(mRect, mRulerPaint);
-            isDrawing = false;
-        }
+
     }
 }
