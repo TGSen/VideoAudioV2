@@ -12,8 +12,6 @@ import android.hardware.Camera
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
-import android.support.v4.app.ActivityCompat.requestPermissions
-import android.support.v4.app.ActivityCompat.shouldShowRequestPermissionRationale
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentTransaction
 import android.support.v7.widget.LinearLayoutManager
@@ -33,6 +31,7 @@ import com.cgfay.filterlibrary.utils.PermissionUtils
 import com.owoh.R
 import com.owoh.databinding.FragmentCameraPreviewBinding
 import com.owoh.video.activity.EffectVideoActivity
+import com.owoh.video.activity.EffectVideoActivityV
 import com.owoh.video.engine.GalleryType
 import com.owoh.video.engine.OnCameraCallback
 import com.owoh.video.engine.OnRecordListener
@@ -52,9 +51,7 @@ import com.owoh.video.widget.recycleview.RvAdapter
 import kotlinx.android.synthetic.main.fragment_camera_preview.*
 import kotlinx.android.synthetic.main.view_preview_bottom.*
 import kotlinx.android.synthetic.main.view_preview_bottom.view.*
-import kotlinx.android.synthetic.main.view_preview_top.*
 import kotlinx.android.synthetic.main.view_preview_top.view.*
-
 import java.io.File
 import java.util.*
 
@@ -177,13 +174,13 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
             // 判断是否支持对焦模式
             if (CameraEngine.getInstance().camera != null) {
                 val focusModes = CameraEngine.getInstance().camera
-                    .parameters.supportedFocusModes
+                        .parameters.supportedFocusModes
                 if (focusModes != null && focusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
                     CameraEngine.getInstance().setFocusArea(
-                        CameraEngine.getFocusArea(
-                            x.toInt().toFloat(), y.toInt().toFloat(),
-                            mCameraSurfaceView!!.width, mCameraSurfaceView!!.height, FocusSize
-                        )
+                            CameraEngine.getFocusArea(
+                                    x.toInt().toFloat(), y.toInt().toFloat(),
+                                    mCameraSurfaceView!!.width, mCameraSurfaceView!!.height, FocusSize
+                            )
                     )
                     mMainHandler!!.post { mCameraSurfaceView!!.showFocusAnimation() }
                 }
@@ -237,13 +234,13 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
             }
             // 开始录制
             PreviewRecorder.getInstance()
-                .setRecordType(PreviewRecorder.RecordType.Video)
-                .setOutputPath(PathConstraints.getVideoCachePath(mActivity))
-                .enableAudio(enableAudio)
-                .setRecordSize(width, height)
-                .setOnRecordListener(mRecordListener)
-                .setMilliSeconds(PreviewRecorder.CountDownType.TenSecond)
-                .startRecord()
+                    .setRecordType(PreviewRecorder.RecordType.Video)
+                    .setOutputPath(PathConstraints.getVideoCachePath(mActivity))
+                    .enableAudio(enableAudio)
+                    .setRecordSize(width, height)
+                    .setOnRecordListener(mRecordListener)
+                    .setMilliSeconds(PreviewRecorder.CountDownType.TenSecond)
+                    .startRecord()
             binding.mRecordProgBar.max = PreviewRecorder.getInstance().maxMilliSeconds.toInt()
             binding.layoutBottom.btShutter?.setMax(PreviewRecorder.getInstance().maxMilliSeconds.toInt())
         }
@@ -317,7 +314,7 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
                 Log.d(TAG, "开始合并")
             }
             mMainHandler!!.post {
-               // showProgressDialog(getString(R.string.combine_video_message), false)
+                // showProgressDialog(getString(R.string.combine_video_message), false)
             }
         }
 
@@ -403,8 +400,8 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
         super.onCreate(savedInstanceState)
         // 初始化相机渲染引擎
         PreviewRenderer.getInstance()
-            .setCameraCallback(mCameraCallback)
-            .initRenderer(mActivity)
+                .setCameraCallback(mCameraCallback)
+                .initRenderer(mActivity)
 
     }
 
@@ -431,10 +428,9 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
             mCameraSurfaceView!!.addOnTouchScroller(mTouchScroller)
             mCameraSurfaceView!!.addMultiClickListener(mMultiClickListener)
             layoutAspect?.addView(mCameraSurfaceView)
-            layoutAspect?. requestLayout ()
+            layoutAspect?.requestLayout()
             // 绑定需要渲染的SurfaceView
             PreviewRenderer.getInstance().setSurfaceView(mCameraSurfaceView)
-
 
 
         }
@@ -443,6 +439,7 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
             btSwitchCamera.setOnClickListener(this@CameraPreviewFragment)
             tvSeletedBgm.setOnClickListener(this@CameraPreviewFragment)
             btFlash.setOnClickListener(this@CameraPreviewFragment)
+            btFilters.setOnClickListener(this@CameraPreviewFragment)
         }
 
         binding.layoutBottom.apply {
@@ -456,9 +453,9 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
             bottom_indicator.layoutManager = mCenterLayoutManager
             val pagerSnapHelper = object : PagerSnapHelper() {
                 override fun findTargetSnapPosition(
-                    layoutManager: RecyclerView.LayoutManager,
-                    velocityX: Int,
-                    velocityY: Int
+                        layoutManager: RecyclerView.LayoutManager,
+                        velocityX: Int,
+                        velocityY: Int
                 ): Int {
                     // TODO 找到对应的Index
                     val mFindTargetSnapPosition = super.findTargetSnapPosition(layoutManager, velocityX, velocityY)
@@ -480,7 +477,7 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
             btShutter.setOnClickListener(this@CameraPreviewFragment)
             layoutGroupDeleted.visibility = View.GONE
             btn_record_preview.setOnClickListener(this@CameraPreviewFragment)
-            btn_record_preview.setOnClickListener(this@CameraPreviewFragment)
+            btn_record_delete.setOnClickListener(this@CameraPreviewFragment)
         }
     }
 
@@ -508,10 +505,10 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
      */
     private fun enhancementBrightness() {
         BrightnessUtils.setWindowBrightness(
-            mActivity!!, if (mCameraParam.luminousEnhancement)
-                BrightnessUtils.MAX_BRIGHTNESS
-            else
-                mCameraParam.brightness
+                mActivity!!, if (mCameraParam.luminousEnhancement)
+            BrightnessUtils.MAX_BRIGHTNESS
+        else
+            mCameraParam.brightness
         )
     }
 
@@ -642,8 +639,8 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
         hideFragment(ft)
         if (mCameraFilterFragment == null) {
             mCameraFilterFragment = PreviewFiltersFragment.getInstance(
-                PreviewFiltersFragment.TYPE_CAMERA_FILTER,
-                PreviewFiltersFragment.TYPE_VIDEO_SHOT
+                    PreviewFiltersFragment.TYPE_CAMERA_FILTER,
+                    PreviewFiltersFragment.TYPE_VIDEO_SHOT
             )
             ft.add(R.id.fragment_container, mCameraFilterFragment!!)
         } else {
@@ -661,8 +658,8 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
         hideFragment(ft)
         if (mColorFilterFragment == null) {
             mColorFilterFragment = PreviewFiltersFragment.getInstance(
-                PreviewFiltersFragment.TYPE_COLOR_FILTER,
-                PreviewFiltersFragment.TYPE_VIDEO_SHOT
+                    PreviewFiltersFragment.TYPE_COLOR_FILTER,
+                    PreviewFiltersFragment.TYPE_VIDEO_SHOT
             )
             ft.add(R.id.fragment_container, mColorFilterFragment!!)
         } else {
@@ -722,7 +719,7 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
     private fun gotoEffectVideo(combimePath: String) {
         //视频合并后就开始合并音频
         mMainHandler!!.post {
-           // dismissDialog()
+            // dismissDialog()
             EffectVideoActivity.gotoThis(mActivity!!, combimePath)
         }
     }
@@ -730,7 +727,7 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
     private fun combineAudioVideoFail() {
         //视频合并后就开始合并音频
         mMainHandler!!.post {
-           // dismissDialog()
+            // dismissDialog()
         }
     }
 
@@ -744,7 +741,7 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
     private fun showAllToolView(isShow: Boolean) {
         binding.layoutBottom.apply {
             if (isShow) {
-               binding.layoutTop.visibility = View.VISIBLE
+                binding.layoutTop.visibility = View.VISIBLE
                 bottom_indicator.visibility = View.VISIBLE
                 binding.layoutBottom.btnTools.visibility = View.VISIBLE
                 pointView.visibility = View.VISIBLE
@@ -791,15 +788,15 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
     private fun requestCameraPermission() {
         if (shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) {
             PermissionConfirmDialogFragment.newInstance(
-                getString(R.string.request_camera_permission),
-                PermissionUtils.REQUEST_CAMERA_PERMISSION,
-                true
+                    getString(R.string.request_camera_permission),
+                    PermissionUtils.REQUEST_CAMERA_PERMISSION,
+                    true
             )
-                .show(childFragmentManager, FRAGMENT_DIALOG)
+                    .show(childFragmentManager, FRAGMENT_DIALOG)
         } else {
             requestPermissions(
-                arrayOf(Manifest.permission.CAMERA),
-                PermissionUtils.REQUEST_CAMERA_PERMISSION
+                    arrayOf(Manifest.permission.CAMERA),
+                    PermissionUtils.REQUEST_CAMERA_PERMISSION
             )
         }
     }
@@ -810,14 +807,14 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
     private fun requestStoragePermission() {
         if (shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
             PermissionConfirmDialogFragment.newInstance(
-                getString(R.string.request_storage_permission),
-                PermissionUtils.REQUEST_STORAGE_PERMISSION
+                    getString(R.string.request_storage_permission),
+                    PermissionUtils.REQUEST_STORAGE_PERMISSION
             )
-                .show(childFragmentManager, FRAGMENT_DIALOG)
+                    .show(childFragmentManager, FRAGMENT_DIALOG)
         } else {
             requestPermissions(
-                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-                PermissionUtils.REQUEST_STORAGE_PERMISSION
+                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                    PermissionUtils.REQUEST_STORAGE_PERMISSION
             )
         }
     }
@@ -828,30 +825,30 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
     private fun requestRecordSoundPermission() {
         if (shouldShowRequestPermissionRationale(Manifest.permission.RECORD_AUDIO)) {
             PermissionConfirmDialogFragment.newInstance(
-                getString(R.string.request_sound_permission),
-                PermissionUtils.REQUEST_SOUND_PERMISSION
+                    getString(R.string.request_sound_permission),
+                    PermissionUtils.REQUEST_SOUND_PERMISSION
             )
-                .show(childFragmentManager, FRAGMENT_DIALOG)
+                    .show(childFragmentManager, FRAGMENT_DIALOG)
         } else {
             requestPermissions(
-                arrayOf(Manifest.permission.RECORD_AUDIO),
-                PermissionUtils.REQUEST_SOUND_PERMISSION
+                    arrayOf(Manifest.permission.RECORD_AUDIO),
+                    PermissionUtils.REQUEST_SOUND_PERMISSION
             )
         }
     }
 
     override fun onRequestPermissionsResult(
-        requestCode: Int, permissions: Array<String>,
-        grantResults: IntArray
+            requestCode: Int, permissions: Array<String>,
+            grantResults: IntArray
     ) {
         if (requestCode == PermissionUtils.REQUEST_CAMERA_PERMISSION) {
             if (grantResults.size != 1 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                 PermissionErrorDialogFragment.newInstance(
-                    getString(R.string.request_camera_permission),
-                    PermissionUtils.REQUEST_CAMERA_PERMISSION,
-                    true
+                        getString(R.string.request_camera_permission),
+                        PermissionUtils.REQUEST_CAMERA_PERMISSION,
+                        true
                 )
-                    .show(childFragmentManager, FRAGMENT_DIALOG)
+                        .show(childFragmentManager, FRAGMENT_DIALOG)
             } else {
                 mCameraEnable = true
                 initView()
@@ -859,20 +856,20 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
         } else if (requestCode == PermissionUtils.REQUEST_STORAGE_PERMISSION) {
             if (grantResults.size != 1 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                 PermissionErrorDialogFragment.newInstance(
-                    getString(R.string.request_storage_permission),
-                    PermissionUtils.REQUEST_STORAGE_PERMISSION
+                        getString(R.string.request_storage_permission),
+                        PermissionUtils.REQUEST_STORAGE_PERMISSION
                 )
-                    .show(childFragmentManager, FRAGMENT_DIALOG)
+                        .show(childFragmentManager, FRAGMENT_DIALOG)
             } else {
                 mStorageWriteEnable = true
             }
         } else if (requestCode == PermissionUtils.REQUEST_SOUND_PERMISSION) {
             if (grantResults.size != 1 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                 PermissionErrorDialogFragment.newInstance(
-                    getString(R.string.request_sound_permission),
-                    PermissionUtils.REQUEST_SOUND_PERMISSION
+                        getString(R.string.request_sound_permission),
+                        PermissionUtils.REQUEST_SOUND_PERMISSION
                 )
-                    .show(childFragmentManager, FRAGMENT_DIALOG)
+                        .show(childFragmentManager, FRAGMENT_DIALOG)
             } else {
                 mCameraParam.audioPermitted = true
             }

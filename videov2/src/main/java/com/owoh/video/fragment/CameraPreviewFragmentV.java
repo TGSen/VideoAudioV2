@@ -36,7 +36,6 @@ import com.cgfay.filterlibrary.utils.BrightnessUtils;
 import com.cgfay.filterlibrary.utils.PermissionUtils;
 import com.owoh.R;
 import com.owoh.video.activity.EffectVideoActivity;
-import com.owoh.video.activity.EffectVideoActivityV;
 import com.owoh.video.engine.GalleryType;
 import com.owoh.video.engine.OnCameraCallback;
 import com.owoh.video.engine.OnRecordListener;
@@ -531,7 +530,7 @@ public class CameraPreviewFragmentV extends Fragment implements View.OnClickList
                     mCombineDialog.dismiss();
                     mCombineDialog = null;
 
-                    EffectVideoActivityV.gotoThis(mActivity, combimePath);
+//                    EffectVideoActivityV.gotoThis(mActivity, combimePath);
 
                 }
             }

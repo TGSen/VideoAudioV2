@@ -570,10 +570,9 @@ public class EffectVideoActivityV extends AppCompatActivity implements View.OnCl
                                 float currentScale = stickerScale * screenScale;
                                 bitmap = Bitmap.createBitmap(drawable.getMinimumWidth(), drawable.getMinimumHeight(), Bitmap.Config.ARGB_8888);
                                 gifCanvas.setBitmap(bitmap);
-
+                                matrix.postScale(currentScale, currentScale);
                                 matrix.postTranslate(centerX - bitmap.getWidth() * currentScale / 2, centerY - bitmap.getHeight() * currentScale / 2);
                                 matrix.postRotate(sticker.getCurrentAngle(), centerX, centerY);
-                                matrix.postScale(currentScale, currentScale);
                                 gifDrawable.draw(gifCanvas);
                                 canvas.drawBitmap(bitmap, matrix, mPaint);
                             } else if (sticker instanceof DrawableSticker) {
@@ -653,11 +652,11 @@ public class EffectVideoActivityV extends AppCompatActivity implements View.OnCl
      */
     private void initView() {
         mAspectLayout = findViewById(R.id.layout_aspect);
-        mRecyclerView = findViewById(R.id.recyclerView);
+        mRecyclerView = findViewById(R.id.effectRecyclerView);
         mThumbRecyclerView = findViewById(R.id.thumbRecyclerView);
 
         mRootView = findViewById(R.id.rootView);
-        mSeekBar = findViewById(R.id.seekBar);
+        mSeekBar = findViewById(R.id.videoEffectBar);
         mStickerSeekBar = findViewById(R.id.mStickerSeekBar);
         tvTotalTime = findViewById(R.id.totalTime);
         tvStartTime = findViewById(R.id.startTime);
