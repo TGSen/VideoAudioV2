@@ -1,5 +1,6 @@
 package com.owoh.video.activity
 
+
 import android.content.Context
 import android.content.Intent
 import android.databinding.DataBindingUtil
@@ -17,7 +18,7 @@ import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.RecyclerView.*
+import android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE
 import android.text.TextUtils
 import android.transition.Transition
 import android.transition.TransitionManager
@@ -29,7 +30,6 @@ import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import android.widget.SeekBar
-import android.widget.TextView
 import com.cgfay.filterlibrary.glfilter.color.bean.DynamicColor
 import com.cgfay.filterlibrary.glfilter.resource.ResourceHelper
 import com.cgfay.filterlibrary.glfilter.resource.ResourceJsonCodec
@@ -64,13 +64,9 @@ import com.owoh.video.widget.RangeSeekBar
 import com.owoh.video.widget.SpaceItemDecoration
 import com.owoh.video.widget.VideoPreviewView
 import com.owoh.video.widget.sticker.*
-import com.tencent.bugly.Bugly.applicationContext
-import com.tencent.bugly.crashreport.CrashReport
 import kotlinx.android.synthetic.main.activity_editext_effect_video.*
 import kotlinx.android.synthetic.main.layout_editext_video.*
 import kotlinx.android.synthetic.main.layout_editext_video.view.*
-
-
 import pl.droidsonroids.gif.GifDrawable
 import java.io.File
 import java.io.IOException
@@ -232,18 +228,7 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
                     MotionEvent.ACTION_UP -> binding.stickerView.setStickerTime(minValue, maxValue)
                     else -> {
                     }
-                }//                    isSeeking = false;
-                //                    videoPause();
-                //暂停视频
-                //                    isSeeking = true;
-                //                    mMediaPlayer.seekTo((int) (pressedThumb == RangeSeekBar.Thumb.MIN ?
-                //                            leftProgress : rightProgress));
-                //                    isSeeking = false;
-                //                    //从minValue开始播
-                //                    mMediaPlayer.seekTo((int) leftProgress);
-                ////                    videoStart();
-                //                    mTvShootTip
-                //                            .setText(String.format("裁剪 %d s", (rightProgress - leftProgress) / 1000));
+                }
                 //设置已选择的时间
                 binding.stickerTime?.text = String.format(
                         resources.getString(R.string.sticker_choose_time),
@@ -262,7 +247,6 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN
         )
         super.onCreate(savedInstanceState)
-        CrashReport.initCrashReport(applicationContext, "c5db1d8f24", false)
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_editext_effect_video)
         mVideoRenderer = VideoRenderer()
@@ -551,7 +535,7 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
 
     //特效，贴纸，合成Mp4
     private fun combineFilterToVideoFile() {
-       // showProgressDialog(getString(R.string.combine_video_message), false)
+        // showProgressDialog(getString(R.string.combine_video_message), false)
         isCombine = true
         EXECUTOR.execute {
             val outputPath = externalCacheDir?.absolutePath + File.separator + System.currentTimeMillis() + ".mp4"
@@ -710,6 +694,7 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
 
             btSave.setOnClickListener(this@EffectVideoActivity)
             btCloseImag.setOnClickListener(this@EffectVideoActivity)
+            btDeleteEffect.setOnClickListener(this@EffectVideoActivity)
 
             effectGroup.visibility = View.GONE
             layoutStickerTool.visibility = View.GONE
@@ -798,8 +783,12 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
 
                     for (i in size - 1 downTo 0) {
 
-                        if (mVideoEffects[i].getStartTime() < mVideoEffects[i].getEndTime() &&
-                                progress >= mVideoEffects[i].getStartTime() && progress < mVideoEffects[i].getEndTime() || mVideoEffects[i].getStartTime() > mVideoEffects[i].getEndTime() && (progress >= mVideoEffects[i].getStartTime() || progress < mVideoEffects[i].getEndTime())
+                        if (mVideoEffects[i].getStartTime() < mVideoEffects[i].getEndTime()
+                                && progress >= mVideoEffects[i].getStartTime()
+                                && progress < mVideoEffects[i].getEndTime()
+                                || (mVideoEffects[i].getStartTime() > mVideoEffects[i].getEndTime()
+                                        && (progress >= mVideoEffects[i].getStartTime()
+                                        || progress < mVideoEffects[i].getEndTime()))
                         ) {
                             //在添加
                             currentVideoEffectIndex = i
@@ -964,9 +953,10 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
                 // 单纯的滤镜
                 ResourceType.FILTER -> {
 
-                    if (mDynamicColorFilter.get(position) != null) {
+                    if (mDynamicColorFilter.size() > 0 && mDynamicColorFilter.get(position) != null) {
                         val color = mDynamicColorFilter.get(position)
                         mVideoRenderer?.changeDynamicColorFilter(color)
+                        Log.e("Harrison", "***position" + position);
                     } else {
                         val folderPath =
                                 ResourceHelper.getResourceDirectory(this@EffectVideoActivity) + File.separator + unzipFolder
@@ -976,6 +966,7 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
                         colorData.vsPath = folderPath + colorData.vertexShader
                         colorData.fsPath = folderPath + File.separator + colorData.fragmentShader
                         mVideoRenderer?.changeDynamicColorFilter(color)
+                        Log.e("Harrison", "position" + position);
                         mDynamicColorFilter.put(position, color)
                     }
                 }   // 贴纸
@@ -987,7 +978,7 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
                 }
                 // 所有数据均为空
                 ResourceType.NONE -> {
-                    if (mDynamicColorFilter.get(position) != null) {
+                    if (mDynamicColorFilter.size() > 0 && mDynamicColorFilter.get(position) != null) {
                         val color = mDynamicColorFilter.get(position)
                         mVideoRenderer?.changeDynamicColorFilter(color)
                         //    color.addItemTimes(new DynamicColor.ItemTime().setStartTime(mVideoRenderer.getVideoProgress()));
@@ -995,8 +986,8 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
                         val color = DynamicColor().setColorType(ResourceType.FILTER.index)
                         mVideoRenderer?.changeDynamicColorFilter(color)
                         //  color.addItemTimes(new DynamicColor.ItemTime().setStartTime(mVideoRenderer.getVideoProgress()));
-                        val colorData = color.filterList[0]
-                        colorData.fsPath = ""
+                        //val colorData = color.filterList[0]
+                        // colorData.fsPath = ""
                         mDynamicColorFilter.put(position, color)
                     }
                 }
@@ -1004,7 +995,6 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
                 }
             }
         } catch (e: Exception) {
-
         }
 
     }
@@ -1098,6 +1088,11 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
         val id = v.id
         when (id) {
             R.id.btSave -> {
+                var size = mVideoEffects.size;
+                for (i in size - 1 downTo 0) {
+                    Log.e("Harrison", "*******" + mVideoEffects.get(i).getStartTime() + "****" + mVideoEffects.get(i).getEndTime())
+                }
+
             }
             //            case R.id.imgVideoSmall:
             //                if (!mVideoRenderer.isVideoPlay()) {
@@ -1185,9 +1180,21 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
                 combineFilterToVideoFile()
             }
             R.id.btSticker -> showStickerFragment()
+            R.id.btDeleteEffect->deletedEffect()
         }
     }
 
+    /**
+     * 删除特效
+     */
+    private fun deletedEffect(){
+        mVideoEffects?.let {
+            if(mVideoEffects.size >0){
+                mVideoEffects.removeAt(mVideoEffects.size - 1)
+                binding.videoEffectBar.setPathList(mVideoEffects,binding.videoEffectBar.max)
+            }
+        }
+    }
 
     /**
      * 显示声音的调节

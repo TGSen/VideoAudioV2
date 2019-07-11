@@ -79,7 +79,7 @@ public final class ResourceHelper extends ResourceBaseHelper {
         FileUtils.createNoMediaFile(getResourceDirectory(context.getApplicationContext()));
         // 清空之前的数据
         mColorFilter.clear();
-        mColorFilter.add(new ResourceData("cartoon", "assets://filters/cartoon.zip", ResourceType.FILTER, "cartoon", "assets://thumbs/camera/camera_style_5.png"));
+        mColorFilter.add(new ResourceData("none", "assets://resource/none.zip", ResourceType.NONE, "none", "assets://thumbs/camera/camera_style_5.png"));
         mColorFilter.add(new ResourceData("flash_green", "assets://effects/flash_green.zip", ResourceType.FILTER, "flash_green", "assets://thumbs/camera/camera_style_5.png"));
      //   mColorFilter.add(new ResourceData("flash_green_dynamic", "assets://effects/flash_green_dynamic.zip", ResourceType.STICKER, "flash_green_dynamic", "assets://thumbs/camera/camera_style_5.png"));
         mColorFilter.add(new ResourceData("radial_blur_v2", "assets://effects/radial_blur_v2.zip", ResourceType.FILTER, "radial_blur_v2", "assets://thumbs/camera/camera_style_5.png"));

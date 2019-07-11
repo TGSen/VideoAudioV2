@@ -85,6 +85,7 @@ public class VideoEffectSeekBar extends AppCompatSeekBar {
     public void setPathList(List<VideoEffect> effects, int max) {
         synchronized (VideoEffectSeekBar.class) {
             if (effects == null) return;
+            mRects.clear();
             int size = effects.size();
             for (int i = 0; i <size; i++) {
                 VideoEffect effect = effects.get(i);
@@ -122,10 +123,11 @@ public class VideoEffectSeekBar extends AppCompatSeekBar {
 
             }
 
-            postInvalidate();
+
 
 
         }
+        postInvalidate();
     }
 
 
