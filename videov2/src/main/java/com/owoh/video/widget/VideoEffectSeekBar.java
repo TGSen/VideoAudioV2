@@ -80,6 +80,10 @@ public class VideoEffectSeekBar extends AppCompatSeekBar {
         }
     }
 
+    public void reset(){
+        mRects.clear();
+        postInvalidate();
+    }
 
     //设置分段的颜色
     public void setPathList(List<VideoEffect> effects, int max) {

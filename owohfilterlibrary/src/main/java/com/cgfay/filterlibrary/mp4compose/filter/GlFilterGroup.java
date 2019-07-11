@@ -22,6 +22,10 @@ public class GlFilterGroup extends GlFilter {
         filters = new ArrayList<>();
     }
 
+    public int getGroupSize(){
+        return filters.size();
+    }
+
     public GlFilter getFilterByIndex(int index){
         if(filters==null ) return null;
         if(index<0|| index>=filters.size()) return null;

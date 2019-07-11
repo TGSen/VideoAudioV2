@@ -3,13 +3,13 @@
     <!--  设置背景色  -->
     <item
         android:id="@android:id/background"
-        android:drawable="@color/colorBlackV2"></item>
+        android:drawable="@color/effect_item_color"></item>
 
     <!--  设置进度条颜色  -->
     <item android:id="@android:id/progress">
         <clip>
             <shape>
-                <solid android:color="@color/colorBlackV2"></solid>
+                <solid android:color="@color/effect_item_color"></solid>
                 <size android:height="8dp"></size>
             </shape>
         </clip>

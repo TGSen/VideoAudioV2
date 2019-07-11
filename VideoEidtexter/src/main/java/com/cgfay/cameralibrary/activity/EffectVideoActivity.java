@@ -526,8 +526,10 @@ public class EffectVideoActivity extends AppCompatActivity implements View.OnCli
 
 
                 glStickerFilter = new GLStickerFilter() {
+
+
                     @Override
-                    protected void drawCanvas(Canvas canvas) {
+                    protected void drawCanvas(Canvas canvas, Paint mPaint) {
 
                         List<Sticker> stickers = mStickerView.getStickers();
                         for (int i = 0; i < mStickerView.getStickerCount(); i++) {

@@ -103,7 +103,11 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
     /**
      * 记录 video 的特效时间
      */
+    private var isEditextEffect: Boolean = false
+    //这个是临时的，编辑状态下的
     private val mVideoEffects = ArrayList<VideoEffect>()
+    //这个是真正运行的
+    private val mVideoRuntimeEffects = ArrayList<VideoEffect>()
 
     private val mHandler = object : Handler(Looper.myLooper()) {
         override fun handleMessage(msg: Message) {
@@ -119,7 +123,6 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
                     //改变贴纸的显示时间
                     mStickerSeekBar?.progress = progress
                 } catch (e: Exception) {
-                    Log.e("Harrison", "****" + e.localizedMessage)
                 }
 
                 MSG_VIDEO_PLAY_STATUS_STOP ->
@@ -208,7 +211,7 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
      */
     private val scrollXDistance: Int
         get() {
-            val layoutManager = binding.effectRecyclerView.layoutManager as LinearLayoutManager?
+            val layoutManager = binding.thumbRecyclerView.layoutManager as LinearLayoutManager?
             val position = layoutManager?.findFirstVisibleItemPosition()
             val firstVisibleChildView = layoutManager?.findViewByPosition(position!!)
             val itemWidth = firstVisibleChildView?.width
@@ -552,19 +555,15 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
             val filterGroup = GlFilterGroup()
 
             //这个是颜色的滤镜
-            if (mColorFilterFragment != null) {
-                val colorData = mColorFilterFragment?.currentColorFilter
-                if (colorData != null) {
-                    val colorFilter = GLColorFilter()
-                    colorFilter.setFragmentShaderSource(OpenGLUtils.getShaderFromFile(colorData.fsPath))
-                    Log.e("Harrison", OpenGLUtils.getShaderFromFile(colorData.fsPath))
-                    filterGroup.addFilterItem(colorFilter)
-                }
+
+            mColorFilterFragment?.currentColorFilter?.fsPath?.let {
+
+                val colorFilter = GLColorFilter()
+                colorFilter.setFragmentShaderSource(OpenGLUtils.getShaderFromFile(it))
+                filterGroup.addFilterItem(colorFilter)
+
             }
 
-            //这个是特效的滤镜切换
-            mEffectFilter = GLEffectFilter()
-            mEffectFilter?.setFilters(mVideoEffects)
 
             //计算比例
             val screenScale = Math.min(videoWidth.toFloat() / widthScreen, videoHeight.toFloat() / heightScreen)
@@ -635,14 +634,20 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
 
             }
             //滤镜的先后有一定的影响
-            filterGroup.addFilterItem(mEffectFilter)
-            filterGroup.addFilterItem(glStickerFilter)
+            //这个是特效的滤镜切换
+            if (mVideoRuntimeEffects.size > 0) {
+                mEffectFilter = GLEffectFilter()
+                mEffectFilter?.setFilters(mVideoRuntimeEffects)
+                filterGroup.addFilterItem(mEffectFilter)
+            }
+            if (binding.stickerView.stickerCount > 0) {
+                filterGroup.addFilterItem(glStickerFilter)
+            }
 
-
-            Mp4Composer(videoPath, outputPath)
+            var composer = Mp4Composer(videoPath, outputPath)
                     .size(videoWidth, videoHeight)
                     .fillMode(FillMode.PRESERVE_ASPECT_FIT)
-                    .filter(filterGroup)
+
                     .listener(object : Mp4Composer.Listener {
                         override fun onProgress(progress: Double, time: Double) {
                             //time 是纳秒的，需要除以 1000 转化为毫秒 好计算
@@ -654,6 +659,13 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
                         override fun onCompleted() {
                             //                                Log.e(TAG, "onCompleted()");
 //                            dismissDialog()
+                            mHandler.post(Runnable {
+                                ChooseCoverVideoActivity.gotoThis(this@EffectVideoActivity, outputPath)
+                            })
+//                            runOnUiThread(Runnable {
+//                                Log.e("Harrison", "onCompleted***********")
+//
+//                            })
                             isCombine = false
                         }
 
@@ -669,7 +681,10 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
                             isCombine = false
                         }
                     })
-                    .start()
+            if (filterGroup.groupSize > 0) {
+                composer.filter(filterGroup)
+            }
+            composer.start()
         }
     }
 
@@ -779,39 +794,12 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
                         videoEffectBar.setPathList(mVideoEffects, seekBar.max)
                         return
                     }
-                    if (size <= 0 || isStartClick) return
 
-                    for (i in size - 1 downTo 0) {
-
-                        if (mVideoEffects[i].getStartTime() < mVideoEffects[i].getEndTime()
-                                && progress >= mVideoEffects[i].getStartTime()
-                                && progress < mVideoEffects[i].getEndTime()
-                                || (mVideoEffects[i].getStartTime() > mVideoEffects[i].getEndTime()
-                                        && (progress >= mVideoEffects[i].getStartTime()
-                                        || progress < mVideoEffects[i].getEndTime()))
-                        ) {
-                            //在添加
-                            currentVideoEffectIndex = i
-                            val videoEffect = mVideoEffects[i]
-                            val indexFilterColor = videoEffect.getDynamicColorId()
-                            val color = mDynamicColorFilter.get(indexFilterColor)
-                            // Log.e("Harrison", "已改变特效" + currentVideoEffectIndex);
-                            mVideoRenderer?.changeDynamicColorFilter(color)
-                            return
-                        } else {
-                            //判断之前有没使用过特效
-                            if (currentVideoEffectIndex != -1) {
-                                val videoEffectRemove = mVideoEffects[currentVideoEffectIndex]
-                                val color = mDynamicColorFilter.get(videoEffectRemove.getDynamicColorId())
-                                mVideoRenderer?.removeDynamic(color)
-                                currentVideoEffectIndex = -1
-                                return
-
-                            }
-                        }
+                    if (isEditextEffect) {
+                        changeEffect(progress, mVideoEffects)
+                    } else {
+                        changeEffect(progress, mVideoRuntimeEffects)
                     }
-
-                    //  Log.e("Harrison", "不用修改特效");
 
                 }
 
@@ -866,6 +854,49 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
 
         }
 
+    }
+
+    private fun changeEffect(progress: Int, list: ArrayList<VideoEffect>) {
+        if (list == null || list.size <= 0) {
+            //判断之前有没使用过特效
+            if (currentVideoEffectIndex != -1) {
+//                val videoEffectRemove = list[currentVideoEffectIndex]
+//                val color = mDynamicColorFilter.get(videoEffectRemove.getDynamicColorId())
+                mVideoRenderer?.changeDynamicColorFilter(null)
+                currentVideoEffectIndex = -1
+            }
+            return
+        }
+        var size = list.size
+        for (i in size - 1 downTo 0) {
+
+            if (list[i].getStartTime() < list[i].getEndTime()
+                    && progress >= list[i].getStartTime()
+                    && progress < list[i].getEndTime()
+                    || (list[i].getStartTime() > list[i].getEndTime()
+                            && (progress >= list[i].getStartTime()
+                            || progress < list[i].getEndTime()))
+            ) {
+                //在添加
+                currentVideoEffectIndex = i
+                val videoEffect = list[i]
+                val indexFilterColor = videoEffect.getDynamicColorId()
+                val color = mDynamicColorFilter.get(indexFilterColor)
+                // Log.e("Harrison", "已改变特效" + currentVideoEffectIndex);
+                mVideoRenderer?.changeDynamicColorFilter(color)
+                return
+            } else {
+                //判断之前有没使用过特效
+                if (currentVideoEffectIndex != -1) {
+                    val videoEffectRemove = list[currentVideoEffectIndex]
+                    val color = mDynamicColorFilter.get(videoEffectRemove.getDynamicColorId())
+                    mVideoRenderer?.removeDynamic(color)
+                    currentVideoEffectIndex = -1
+                    return
+
+                }
+            }
+        }
     }
 
     /**
@@ -1088,10 +1119,14 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
         val id = v.id
         when (id) {
             R.id.btSave -> {
-                var size = mVideoEffects.size;
-                for (i in size - 1 downTo 0) {
-                    Log.e("Harrison", "*******" + mVideoEffects.get(i).getStartTime() + "****" + mVideoEffects.get(i).getEndTime())
+                isEditextEffect = false
+                if (mVideoEffects.size > 0) {
+                    Log.e("Harrison", "****mVideoEffects" + mVideoEffects.size + "****mVideoRuntimeEffects" + mVideoRuntimeEffects.size)
+                    mVideoRuntimeEffects.addAll(mVideoEffects)
+                    mVideoEffects.clear()
+                    Log.e("Harrison", "****mVideoEffects" + mVideoEffects.size + "****mVideoRuntimeEffects" + mVideoRuntimeEffects.size)
                 }
+                resetVideoWindown()
 
             }
             //            case R.id.imgVideoSmall:
@@ -1105,6 +1140,13 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
             //                break;
             R.id.btFilters -> showFilterView()
             R.id.btEffect -> {
+                isEditextEffect = true
+                if (mVideoRuntimeEffects.size > 0) {
+                    Log.e("Harrison", "****mVideoEffects" + mVideoEffects.size + "****mVideoRuntimeEffects" + mVideoRuntimeEffects.size)
+                    mVideoEffects.addAll(mVideoRuntimeEffects)
+                    Log.e("Harrison", "****mVideoEffects" + mVideoEffects.size + "****mVideoRuntimeEffects" + mVideoRuntimeEffects.size)
+                    binding.videoEffectBar.setPathList(mVideoEffects, binding.videoEffectBar.max)
+                }
                 //                mStickerView.setLocked(true);
                 val constraintSet = ConstraintSet()
                 constraintSet.clone(binding.rootView)
@@ -1143,32 +1185,12 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
             }
 
             R.id.btCloseImag -> if (mainGroup?.visibility == View.GONE) {
-                if (!(mVideoRenderer?.isVideoPlay)!!) {
-                    //如果沒播放的話，好像回到全屏是有问题的
-                    mVideoRenderer?.startPlayVideo()
-                }
-                if (binding.imgVideo?.visibility == View.VISIBLE) {
-                    binding.imgVideo?.visibility = View.GONE
-                }
-                val set = ConstraintSet()
-                set.clone(binding.rootView)
-                set.clear(R.id.layout_aspect)
-                set.connect(R.id.layout_aspect, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP, 0)
-                set.connect(R.id.layout_aspect, ConstraintSet.LEFT, ConstraintSet.PARENT_ID, ConstraintSet.LEFT, 0)
-                set.connect(R.id.layout_aspect, ConstraintSet.RIGHT, ConstraintSet.PARENT_ID, ConstraintSet.RIGHT, 0)
-                set.connect(R.id.layout_aspect, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM, 0)
+                //重置临时特效
+                isEditextEffect = false
+                mVideoEffects.clear()
+                binding.videoEffectBar.reset()
 
-                set.applyTo(binding.rootView)
-                TransitionManager.beginDelayedTransition(binding.rootView, object : Transition() {
-                    override fun captureStartValues(transitionValues: TransitionValues) {
-                        effectGroup?.visibility = View.GONE
-                        layoutStickerTool?.visibility = View.GONE
-                    }
-
-                    override fun captureEndValues(transitionValues: TransitionValues) {
-                        mainGroup?.visibility = View.VISIBLE
-                    }
-                })
+                resetVideoWindown()
 
             } else {
                 finish()
@@ -1180,18 +1202,48 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
                 combineFilterToVideoFile()
             }
             R.id.btSticker -> showStickerFragment()
-            R.id.btDeleteEffect->deletedEffect()
+            R.id.btDeleteEffect -> deletedEffect()
         }
+    }
+
+    //重置播放的窗口大小
+    private fun resetVideoWindown() {
+        if (!(mVideoRenderer?.isVideoPlay)!!) {
+            //如果沒播放的話，好像回到全屏是有问题的
+            mVideoRenderer?.startPlayVideo()
+        }
+        if (binding.imgVideo?.visibility == View.VISIBLE) {
+            binding.imgVideo?.visibility = View.GONE
+        }
+        val set = ConstraintSet()
+        set.clone(binding.rootView)
+        set.clear(R.id.layout_aspect)
+        set.connect(R.id.layout_aspect, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP, 0)
+        set.connect(R.id.layout_aspect, ConstraintSet.LEFT, ConstraintSet.PARENT_ID, ConstraintSet.LEFT, 0)
+        set.connect(R.id.layout_aspect, ConstraintSet.RIGHT, ConstraintSet.PARENT_ID, ConstraintSet.RIGHT, 0)
+        set.connect(R.id.layout_aspect, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM, 0)
+
+        set.applyTo(binding.rootView)
+        TransitionManager.beginDelayedTransition(binding.rootView, object : Transition() {
+            override fun captureStartValues(transitionValues: TransitionValues) {
+                effectGroup?.visibility = View.GONE
+                layoutStickerTool?.visibility = View.GONE
+            }
+
+            override fun captureEndValues(transitionValues: TransitionValues) {
+                mainGroup?.visibility = View.VISIBLE
+            }
+        })
     }
 
     /**
      * 删除特效
      */
-    private fun deletedEffect(){
+    private fun deletedEffect() {
         mVideoEffects?.let {
-            if(mVideoEffects.size >0){
+            if (mVideoEffects.size > 0) {
                 mVideoEffects.removeAt(mVideoEffects.size - 1)
-                binding.videoEffectBar.setPathList(mVideoEffects,binding.videoEffectBar.max)
+                binding.videoEffectBar.setPathList(mVideoEffects, binding.videoEffectBar.max)
             }
         }
     }
