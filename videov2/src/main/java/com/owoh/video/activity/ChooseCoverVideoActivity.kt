@@ -4,7 +4,11 @@ package com.owoh.video.activity
 import android.content.Context
 import android.content.Intent
 import android.databinding.DataBindingUtil
+import android.graphics.Color
+import android.graphics.Paint
 import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.ShapeDrawable
+import android.graphics.drawable.shapes.RectShape
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -15,6 +19,10 @@ import android.util.Log
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.SeekBar
+import com.bumptech.glide.Glide
 import com.cgfay.filterlibrary.utils.BitmapUtils
 import com.cgfay.filterlibrary.utils.DensityUtils
 import com.owoh.R
@@ -28,6 +36,8 @@ import com.owoh.video.media.bean.VideoEffectType
 import com.owoh.video.video.ExtractFrameWorkThread
 import com.owoh.video.video.VideoEditInfo
 import com.owoh.video.widget.VideoPreviewView
+import kotlinx.android.synthetic.main.activity_editext_cover_video.*
+import java.util.ArrayList
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 
@@ -40,14 +50,11 @@ class ChooseCoverVideoActivity : AppCompatActivity(), View.OnClickListener {
     private var videoPath: String? = null
     private var mVideoRenderer: VideoRenderer? = null
     private var mMaxWidth: Int = 0 //可裁剪区域的最大宽度
-    private val MARGIN = 46
     private var mExtractFrameWorkThread: ExtractFrameWorkThread? = null
-    private var mVideoEditAdapter: ThumbVideoAdapter? = null
     private var mVideoPreviewView: VideoPreviewView? = null
-
-    override fun onClick(v: View?) {
-
-    }
+    private var mDragImageDrawable: ShapeDrawable? = null
+    private var isThumb: Boolean = false;
+    private val thumbList = ArrayList<VideoEditInfo>()
 
     private lateinit var binding: ActivityEditextCoverVideoBinding
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -76,17 +83,26 @@ class ChooseCoverVideoActivity : AppCompatActivity(), View.OnClickListener {
             btSave.setOnClickListener(this@ChooseCoverVideoActivity)
             btCloseImag.setOnClickListener(this@ChooseCoverVideoActivity)
 
-            mMaxWidth = DensityUtils.getDisplayWidthPixels(this@ChooseCoverVideoActivity)
-            thumbRecyclerView?.layoutManager = LinearLayoutManager(this@ChooseCoverVideoActivity, LinearLayoutManager.HORIZONTAL, false)
-            mVideoEditAdapter = ThumbVideoAdapter(this@ChooseCoverVideoActivity, mMaxWidth / 11)
-            thumbRecyclerView?.adapter = mVideoEditAdapter
-            // thumbRecyclerView?.addOnScrollListener(mOnScrollListener)
+            mMaxWidth = DensityUtils.getDisplayWidthPixels(this@ChooseCoverVideoActivity) - DensityUtils.dp2px(this@ChooseCoverVideoActivity, 32f)
 
             //贴纸得显示时间选择
 
             mVideoPreviewView = VideoPreviewView(this@ChooseCoverVideoActivity)
             layoutAspect.addView(mVideoPreviewView, 0)
             layoutAspect.requestLayout()
+            mDragSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                    Log.e("Harrison", "******" + progress)
+                    mVideoRenderer?.changeVideoProgress(thumbList[progress].time.toInt())
+                }
+
+                override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                }
+
+                override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                }
+
+            })
 
         }
 
@@ -99,10 +115,34 @@ class ChooseCoverVideoActivity : AppCompatActivity(), View.OnClickListener {
                 ExtractFrameWorkThread.MSG_SAVE_SUCCESS -> {
                     val info = msg.obj as VideoEditInfo
                     Log.e("Harrison", "*******")
-                    mVideoEditAdapter?.addItemVideoInfo(info)
-                    mVideoEditAdapter?.notifyDataSetChanged()
+                    var imageView = ImageView(this@ChooseCoverVideoActivity)
+
+                    var layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1.0f)
+                    imageView.layoutParams = layoutParams
+                    Glide.with(this@ChooseCoverVideoActivity).load(info.path).into(imageView)
+                    binding.thumbRecyclerView.addView(imageView)
+                    thumbList.add(info)
+                    if (mDragImageDrawable == null) {
+                        mDragImageDrawable = ShapeDrawable(RectShape())
+                        mDragImageDrawable?.paint?.color = Color.WHITE
+                        var stroke = DensityUtils.dp2px(this@ChooseCoverVideoActivity, 2f).toFloat()
+                        mDragImageDrawable?.paint?.strokeWidth = stroke
+                        mDragImageDrawable?.paint?.style = Paint.Style.STROKE
+                        mDragImageDrawable?.intrinsicHeight = (DensityUtils.dp2px(this@ChooseCoverVideoActivity, 62f)-stroke).toInt()
+                        mDragImageDrawable?.intrinsicWidth = (mMaxWidth / MAX_COUNT_RANGE).toInt()
+                        binding.mDragSeekBar.max = MAX_COUNT_RANGE-1
+                        binding.mDragSeekBar.progress = 0
+                        binding.mDragSeekBar.thumb = mDragImageDrawable
+                    }
                 }
             }
+        }
+    }
+
+    override fun onClick(v: View?) {
+        when (v?.id) {
+            R.id.btSave ->
+                Log.e("Harrison", "******" + mDragSeekBar.progress)
         }
     }
 
@@ -119,7 +159,10 @@ class ChooseCoverVideoActivity : AppCompatActivity(), View.OnClickListener {
         //设置videoPlayer 状态监听
         mVideoRenderer?.setVideoPlayerStatusChangeLisenter(object : VideoRenderThread.VideoPlayerStatusChangeLisenter {
             override fun videoStart(totalTime: Int) {
+                mVideoRenderer?.stopPlayVideo()
+                if (isThumb) return
                 EXECUTOR.execute {
+                    isThumb = true
                     //获取第一帧图片并模糊
 
                     val bitmap = BitmapUtils.createVideoThumbnail(videoPath)
@@ -137,6 +180,8 @@ class ChooseCoverVideoActivity : AppCompatActivity(), View.OnClickListener {
                             outPutFileDirPath, 0, totalTime.toLong(), MAX_COUNT_RANGE
                     )
                     mExtractFrameWorkThread?.start()
+
+
                 }
 
             }
