@@ -143,6 +143,8 @@ class ChooseCoverVideoActivity : AppCompatActivity(), View.OnClickListener {
         when (v?.id) {
             R.id.btSave ->
                 Log.e("Harrison", "******" + mDragSeekBar.progress)
+            R.id.btCloseImag->
+                finish()
         }
     }
 
