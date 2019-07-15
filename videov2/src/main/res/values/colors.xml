@@ -7,6 +7,9 @@
     <color name="effect_item_color">#60EEEEEE</color>
     <color name="white">#FFFFFF</color>                 <!--白色 -->
     <color name="transparent">#00ffffff</color>
+    <color name="mask">#E0000000</color>
+    <color name="mask1">#D9000000</color>
+    <color name="trans">#00000000</color>
 
 
 </resources>

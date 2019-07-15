@@ -28,6 +28,7 @@ import com.cgfay.filterlibrary.utils.DensityUtils
 import com.owoh.R
 import com.owoh.databinding.ActivityEditextCoverVideoBinding
 import com.owoh.video.adapter.ThumbVideoAdapter
+import com.owoh.video.event.EventTextStickerChange
 import com.owoh.video.media.VideoRenderThread
 import com.owoh.video.media.VideoRenderer
 import com.owoh.video.media.bean.EFFECT_TYPE_SINGLE
@@ -37,6 +38,9 @@ import com.owoh.video.video.ExtractFrameWorkThread
 import com.owoh.video.video.VideoEditInfo
 import com.owoh.video.widget.VideoPreviewView
 import kotlinx.android.synthetic.main.activity_editext_cover_video.*
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 import java.util.ArrayList
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
@@ -75,6 +79,7 @@ class ChooseCoverVideoActivity : AppCompatActivity(), View.OnClickListener {
         iniView()
         initData()
     }
+
 
     private fun iniView() {
         binding.apply {

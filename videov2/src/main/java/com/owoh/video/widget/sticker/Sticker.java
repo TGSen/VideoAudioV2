@@ -53,6 +53,19 @@ public abstract class Sticker {
 
     private float endTime;
     private boolean isShow;
+    //这个变量是如果是DrawableSticker 那就是图片的path ,如果是TextSticker 那么是背景的path
+
+
+    public String getPath() {
+        return path;
+    }
+
+    public Sticker setPath(String path) {
+        this.path = path;
+        return this;
+    }
+
+    private String path;
 
     public PointF getMidPoint() {
         return midPoint;

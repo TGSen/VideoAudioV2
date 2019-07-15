@@ -9,7 +9,7 @@ class ItemSticker {
     var name: String? = null
     var path: String? = null
     var type: Int = TYPE_PNG;
-
+    val TYPE_TEXT =2
     companion object {
 
         val stickerList: List<ItemSticker>
@@ -19,16 +19,19 @@ class ItemSticker {
                 val itemSticker = ItemSticker()
                 itemSticker.name = "sticker"
                 itemSticker.path = path + "test1.jpg"
+                itemSticker.type = itemSticker.TYPE_PNG
                 list.add(itemSticker)
 
                 val itemSticker1 = ItemSticker()
                 itemSticker1.name = "sticker1"
                 itemSticker1.path = path + "test1.jpg"
+                itemSticker1.type = itemSticker1.TYPE_PNG
                 list.add(itemSticker1)
 
                 val itemSticker2 = ItemSticker()
                 itemSticker2.name = "sticker2"
                 itemSticker2.path = path + "test1.jpg"
+                itemSticker2.type = itemSticker2.TYPE_PNG
                 list.add(itemSticker2)
 
                 val itemSticker3 = ItemSticker()
@@ -42,6 +45,12 @@ class ItemSticker {
                 itemSticker4.path = path + "test3.gif"
                 itemSticker4.type = itemSticker4.TYPE_GIF
                 list.add(itemSticker4)
+
+                val textSticker = ItemSticker()
+                textSticker.name = "文字"
+                textSticker.path = path + "test1.jpg"
+                textSticker.type = textSticker.TYPE_TEXT
+                list.add(textSticker)
                 return list
             }
     }

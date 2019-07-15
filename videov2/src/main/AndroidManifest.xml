@@ -53,6 +53,12 @@
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />
 
+        <activity
+            android:name="com.owoh.video.activity.AddTextStickerActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/wx_login_style" />
+
     </application>
 
 </manifest>

@@ -46,6 +46,7 @@ import com.owoh.R
 import com.owoh.video.ItemSticker
 import com.owoh.video.adapter.EffectResourceAdapter
 import com.owoh.video.adapter.ThumbVideoAdapter
+import com.owoh.video.event.EventTextStickerChange
 import com.owoh.video.filter.GLColorFilter
 import com.owoh.video.filter.GLEffectFilter
 import com.owoh.video.filter.GLStickerFilter
@@ -67,6 +68,9 @@ import com.owoh.video.widget.sticker.*
 import kotlinx.android.synthetic.main.activity_editext_effect_video.*
 import kotlinx.android.synthetic.main.layout_editext_video.*
 import kotlinx.android.synthetic.main.layout_editext_video.view.*
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 import pl.droidsonroids.gif.GifDrawable
 import java.io.File
 import java.io.IOException
@@ -258,12 +262,27 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
                 .setCurrentRendererType(RENDER_TYPE_AT_TIME)
 
         mVideoRenderer?.initRenderer(this.applicationContext, mVideoEffectType)
-
+        EventBus.getDefault().register(this@EffectVideoActivity)
         initView()
         initData()
 
         initStickerView()
     }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onTextStickerChange(event: EventTextStickerChange) {
+
+        binding.stickerView.currentSticker?.let {
+            if (binding.stickerView.currentSticker is TextSticker) {
+                var textSticker = binding.stickerView.currentSticker as TextSticker
+                textSticker.setTextColor(Color.parseColor(event.color))
+                textSticker.text = event.text
+                textSticker.resizeText()
+                binding.stickerView.updateSticker()
+            }
+        }
+    }
+
 
     /**
      * 初始化贴纸 的view
@@ -382,13 +401,10 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
 
             }
         }
-
         binding.stickerView.icons = Arrays.asList(deleteIcon, zoomIcon, flipIcon)
         binding.stickerView.setBackgroundColor(Color.TRANSPARENT)
         binding.stickerView.isLocked = false
         binding.stickerView.isConstrained = true
-
-
         binding.stickerView.onStickerOperationListener = object : StickerView.OnStickerOperationListener {
             override fun onStickerAdded(sticker: Sticker) {
                 Log.e(TAG, "onStickerAdded")
@@ -397,7 +413,19 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
             override fun onStickerClicked(sticker: Sticker) {
                 //stickerView.removeAllSticker();
 
-                Log.e(TAG, "onStickerClicked")
+                var textSticker = binding.stickerView.currentSticker
+
+                textSticker?.let {
+                    if (textSticker is TextSticker && !TextUtils.isEmpty(textSticker.path)) {
+                        AddTextStickerActivity.gotoThis(this@EffectVideoActivity, textSticker.path)
+                        val ft = supportFragmentManager.beginTransaction()
+                        hideFragment(ft)
+                        ft.commit()
+                    }
+
+
+                }
+
             }
 
             override fun onStickerDeleted(sticker: Sticker) {
@@ -626,6 +654,55 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
 
                             canvas.drawBitmap(bitmap, matrix, mPaint)
 
+                        } else if (sticker is TextSticker) {
+                            Log.e("Harrison", "00000000000000000")
+
+                            val bd = drawable as BitmapDrawable
+                            var btm = bd.bitmap
+                            val bitmapScale = drawableWith.toFloat() / btm!!.width.toFloat()
+                            val currentScale = stickerScale * screenScale * bitmapScale
+//                            bitmap = Bitmap.createBitmap(
+//                                    btm.width,
+//                                    btm.height,
+//                                    Bitmap.Config.ARGB_8888
+//                            )
+                            bitmap = btm.copy(Bitmap.Config.ARGB_8888, true)
+                            gifCanvas.setBitmap(bitmap)
+                            var matrixText = Matrix()
+                            matrixText.postScale(stickerScale, stickerScale)
+
+                            matrix.postScale(currentScale, currentScale)
+                            matrix.postTranslate(
+                                    centerX - bitmap!!.width * currentScale / 2,
+                                    centerY - bitmap!!.height * currentScale / 2
+                            )
+                            matrix.postRotate(sticker.getCurrentAngle(), centerX, centerY)
+                            sticker.staticLayout.draw(gifCanvas)
+
+
+                            canvas.drawBitmap(bitmap, matrix, mPaint)
+
+//                            val bd = drawable as BitmapDrawable
+//                            var btm = bd.bitmap
+//                            val bitmapScale = drawableWith.toFloat() / btm!!.width.toFloat()
+//                            val currentScale = stickerScale * screenScale * bitmapScale
+//                            bitmap = Bitmap.createBitmap(
+//                                    sticker.width,
+//                                    sticker.height,
+//                                    Bitmap.Config.ARGB_8888
+//                            )
+//
+//                            gifCanvas.setBitmap(bitmap)
+//                            matrix.postScale(currentScale, currentScale)
+//                            matrix.postTranslate(
+//                                    centerX - bitmap!!.width * currentScale / 2,
+//                                    centerY - bitmap!!.height * currentScale / 2
+//                            )
+//                            matrix.postRotate(sticker.getCurrentAngle(), centerX, centerY)
+//                            sticker.draw(gifCanvas)
+//                            canvas.drawBitmap(bitmap, matrix, mPaint)
+//                            Log.e("Harrison", "*********************")
+
                         }
 
                     }
@@ -722,10 +799,7 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
             thumbRecyclerView?.adapter = mVideoEditAdapter
             thumbRecyclerView?.addOnScrollListener(mOnScrollListener)
 
-
             //贴纸得显示时间选择
-
-
             binding.rangeSeekBar.selectedMinValue = 0L
             binding.rangeSeekBar.selectedMaxValue = MAX_CUT_DURATION
             binding.rangeSeekBar.setMin_cut_time(MIN_CUT_DURATION)//设置最小裁剪时间
@@ -913,28 +987,38 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
                 override fun addSticker(item: ItemSticker) {
 
                     if (!TextUtils.isEmpty(item.path) && File(item.path).exists()) {
-                        if (item.type == item.TYPE_GIF) {
-                            //android P 以上版本
-                            //                                drawable = ImageDecoder.decodeDrawable(
-                            //                                        ImageDecoder.createSource(new File(item.getPath())));
-                            //                                if (drawable instanceof AnimatedImageDrawable) {
-                            //                                    ((AnimatedImageDrawable) drawable).start();
-                            //                                }
-
-                            var gifDrawable: GifDrawable? = null
-                            try {
-                                gifDrawable = GifDrawable(item.path!!)
-                                gifDrawable.start()
-                                binding.stickerView.addSticker(GifSticker(gifDrawable).setEndTime(binding.videoEffectBar.max.toFloat()))
-                            } catch (e: IOException) {
-                                e.printStackTrace()
+                        when (item.type) {
+                            item.TYPE_GIF -> {
+                                var gifDrawable: GifDrawable? = null
+                                try {
+                                    gifDrawable = GifDrawable(item.path!!)
+                                    gifDrawable.start()
+                                    binding.stickerView.addSticker(GifSticker(gifDrawable).setEndTime(binding.videoEffectBar.max.toFloat()))
+                                } catch (e: IOException) {
+                                    e.printStackTrace()
+                                }
                             }
 
-                        } else {
-                            val bitmap = BitmapFactory.decodeFile(item.path)
-                            val drawable = BitmapDrawable(bitmap)
-                            binding.stickerView.addSticker(DrawableSticker(drawable).setEndTime(binding.videoEffectBar.max.toFloat()))
+                            item.TYPE_PNG -> {
+                                val bitmap = BitmapFactory.decodeFile(item.path)
+                                val drawable = BitmapDrawable(bitmap)
+                                binding.stickerView.addSticker(DrawableSticker(drawable).setEndTime(binding.videoEffectBar.max.toFloat()))
+                            }
+
+                            item.TYPE_TEXT -> {
+                                val bitmap = BitmapFactory.decodeFile(item.path)
+                                val drawable = BitmapDrawable(bitmap)
+                                var textSticker = TextSticker(this@EffectVideoActivity)
+                                textSticker.path = item.path
+                                textSticker.drawable = drawable
+                                textSticker.text = " "
+                                textSticker.resizeText()
+                                textSticker.endTime = binding.videoEffectBar.max.toFloat()
+                                binding.stickerView.addSticker(textSticker)
+                            }
+
                         }
+
                     }
 
                 }
@@ -1055,6 +1139,7 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
 
     override fun onDestroy() {
         super.onDestroy()
+        EventBus.getDefault().unregister(this@EffectVideoActivity)
         mHandler.removeCallbacksAndMessages(null)
         if (mVideoRenderer != null) {
             mVideoRenderer?.destroyRenderer()
