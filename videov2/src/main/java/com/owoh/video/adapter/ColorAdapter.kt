@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Color
 import android.support.v4.content.ContextCompat
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -60,6 +61,13 @@ class ColorAdapter(
         return null
     }
 
+    /**
+     * 设置某个被选中
+     */
+    fun setSeleted(index: Int) {
+        changeItem(index)
+    }
+
     inner class Vh(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val colorView = itemView.findViewById<ColorSeletedView>(R.id.colorView)!!
 
@@ -72,15 +80,12 @@ class ColorAdapter(
                 } else {
                     colorView.setColor(it.color)
                 }
-                if(item.isSeleted) currentSeleted = position
+                if(item.isSeleted){
+                    currentSeleted = position
+                }
                 colorView.setSeleted(item.isSeleted)
                 itemView.setOnClickListener {
-                    if (currentSeleted != position && currentSeleted >= 0 && currentSeleted < colorData!!.size) {
-                        colorData[currentSeleted].isSeleted = false
-                        notifyItemChanged(currentSeleted)
-                    }
-                    colorData?.get(position)?.isSeleted = !(colorData?.get(position)?.isSeleted)!!
-                    notifyItemChanged(position)
+                    changeItem(position)
                     currentSeleted = position
                     listener?.let {
                         listener?.onSeleted(item.color,position)
@@ -89,5 +94,15 @@ class ColorAdapter(
             }
 
         }
+    }
+
+    private fun changeItem ( position:Int){
+        if (currentSeleted != position && currentSeleted >= 0 && currentSeleted < colorData!!.size) {
+            colorData[currentSeleted].isSeleted = false
+            notifyItemChanged(currentSeleted)
+        }
+        colorData?.get(position)?.isSeleted = !(colorData?.get(position)?.isSeleted)!!
+        notifyItemChanged(position)
+        currentSeleted = position
     }
 }

@@ -17,6 +17,7 @@ import android.text.StaticLayout;
 import android.text.TextPaint;
 
 import com.owoh.R;
+import com.owoh.video.event.EventTextStickerChange;
 
 /**
  * Customize your sticker with text and image background.
@@ -44,6 +45,16 @@ public class TextSticker extends Sticker {
     private StaticLayout staticLayout;
     private Layout.Alignment alignment;
     private String text;
+
+    private EventTextStickerChange change;
+
+    public EventTextStickerChange getChange() {
+        return change;
+    }
+
+    public void setChange(EventTextStickerChange change) {
+        this.change = change;
+    }
 
     /**
      * Upper bounds for text size.
@@ -83,6 +94,28 @@ public class TextSticker extends Sticker {
         maxTextSizePixels = convertSpToPx(32);
         alignment = Layout.Alignment.ALIGN_CENTER;
         textPaint.setTextSize(maxTextSizePixels);
+    }
+
+     public void drawCanvas(@NonNull Canvas canvas) {
+        canvas.save();
+        if (drawable != null) {
+            drawable.setBounds(realBounds);
+            drawable.draw(canvas);
+        }
+        canvas.restore();
+
+        canvas.save();
+        if (textRect.width() == getWidth()) {
+            int dy = getHeight() / 2 - staticLayout.getHeight() / 2;
+            // center vertical
+            canvas.translate(0, dy);
+        } else {
+            int dx = textRect.left;
+            int dy = textRect.top + textRect.height() / 2 - staticLayout.getHeight() / 2;
+            canvas.translate(dx, dy);
+        }
+        staticLayout.draw(canvas);
+        canvas.restore();
     }
 
     @Override public void draw(@NonNull Canvas canvas) {

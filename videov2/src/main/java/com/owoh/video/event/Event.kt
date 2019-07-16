@@ -1,8 +1,8 @@
 package com.owoh.video.event
 
-import android.text.Editable
+import java.io.Serializable
 
-class EventTextStickerChange(text: String, color: String) {
+class EventTextStickerChange(text: String, color: String):Serializable {
      var text: String? =null
      var color: String? =null
 

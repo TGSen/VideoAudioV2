@@ -276,6 +276,7 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
             if (binding.stickerView.currentSticker is TextSticker) {
                 var textSticker = binding.stickerView.currentSticker as TextSticker
                 textSticker.setTextColor(Color.parseColor(event.color))
+                textSticker.change = event
                 textSticker.text = event.text
                 textSticker.resizeText()
                 binding.stickerView.updateSticker()
@@ -417,7 +418,7 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
 
                 textSticker?.let {
                     if (textSticker is TextSticker && !TextUtils.isEmpty(textSticker.path)) {
-                        AddTextStickerActivity.gotoThis(this@EffectVideoActivity, textSticker.path)
+                        AddTextStickerActivity.gotoThis(this@EffectVideoActivity, textSticker.path,textSticker.change)
                         val ft = supportFragmentManager.beginTransaction()
                         hideFragment(ft)
                         ft.commit()
@@ -656,52 +657,27 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
 
                         } else if (sticker is TextSticker) {
                             Log.e("Harrison", "00000000000000000")
-
                             val bd = drawable as BitmapDrawable
                             var btm = bd.bitmap
                             val bitmapScale = drawableWith.toFloat() / btm!!.width.toFloat()
                             val currentScale = stickerScale * screenScale * bitmapScale
-//                            bitmap = Bitmap.createBitmap(
-//                                    btm.width,
-//                                    btm.height,
-//                                    Bitmap.Config.ARGB_8888
-//                            )
-                            bitmap = btm.copy(Bitmap.Config.ARGB_8888, true)
-                            gifCanvas.setBitmap(bitmap)
-                            var matrixText = Matrix()
-                            matrixText.postScale(stickerScale, stickerScale)
+                            bitmap = Bitmap.createBitmap(
+                                    btm.width,
+                                    btm.height,
+                                    Bitmap.Config.ARGB_8888
+                            )
 
-                            matrix.postScale(currentScale, currentScale)
+                            gifCanvas.setBitmap(bitmap)
+                         //   matrix.postScale(currentScale, currentScale)
                             matrix.postTranslate(
-                                    centerX - bitmap!!.width * currentScale / 2,
-                                    centerY - bitmap!!.height * currentScale / 2
+                                    centerX - btm!!.width * currentScale / 2,
+                                    centerY - btm!!.height * currentScale / 2
                             )
                             matrix.postRotate(sticker.getCurrentAngle(), centerX, centerY)
-                            sticker.staticLayout.draw(gifCanvas)
 
+                            sticker.drawCanvas(gifCanvas)
 
                             canvas.drawBitmap(bitmap, matrix, mPaint)
-
-//                            val bd = drawable as BitmapDrawable
-//                            var btm = bd.bitmap
-//                            val bitmapScale = drawableWith.toFloat() / btm!!.width.toFloat()
-//                            val currentScale = stickerScale * screenScale * bitmapScale
-//                            bitmap = Bitmap.createBitmap(
-//                                    sticker.width,
-//                                    sticker.height,
-//                                    Bitmap.Config.ARGB_8888
-//                            )
-//
-//                            gifCanvas.setBitmap(bitmap)
-//                            matrix.postScale(currentScale, currentScale)
-//                            matrix.postTranslate(
-//                                    centerX - bitmap!!.width * currentScale / 2,
-//                                    centerY - bitmap!!.height * currentScale / 2
-//                            )
-//                            matrix.postRotate(sticker.getCurrentAngle(), centerX, centerY)
-//                            sticker.draw(gifCanvas)
-//                            canvas.drawBitmap(bitmap, matrix, mPaint)
-//                            Log.e("Harrison", "*********************")
 
                         }
 

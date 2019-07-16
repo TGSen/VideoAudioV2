@@ -27,6 +27,8 @@ import com.owoh.video.widget.sticker.Sticker
 import com.owoh.video.widget.sticker.StickerView
 import com.owoh.video.widget.sticker.TextSticker
 import org.greenrobot.eventbus.EventBus
+import java.util.concurrent.Executor
+import java.util.concurrent.Executors
 
 
 class AddTextStickerActivity : AppCompatActivity(), View.OnClickListener {
@@ -34,6 +36,7 @@ class AddTextStickerActivity : AppCompatActivity(), View.OnClickListener {
 
     private var imagePath: String? = null
     private var colorAdapter: ColorAdapter? = null
+    private var colorItems: ArrayList<ColorItem> = arrayListOf<ColorItem>()
 
     private lateinit var binding: com.owoh.databinding.ActivityAddTextstickerBinding
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,15 +57,35 @@ class AddTextStickerActivity : AppCompatActivity(), View.OnClickListener {
     private fun initData() {
         val bundle = intent.getBundleExtra(BUNDLE_PATH)
         imagePath = bundle.getString(KEY_IMAGE_PATH)
+        var text = bundle.getSerializable(KEY_TEXT) as EventTextStickerChange
         val bitmap = BitmapFactory.decodeFile(imagePath)
         val drawable = BitmapDrawable(bitmap)
         var textSticker = TextSticker(this@AddTextStickerActivity)
         textSticker.drawable = drawable
-        textSticker.text = " "
+        var texts = text?.text
+        if (TextUtils.isEmpty(texts) || texts.equals(" ")) {
+            texts = " "
+        } else {
+            binding.editText.setText(texts)
+        }
+        textSticker.text = texts
         textSticker.resizeText()
+
         textSticker.isShow = true
         binding.stickerView.isLocked = true
         binding.stickerView.addSticker(textSticker)
+        text?.color?.let {
+            textSticker.setTextColor(Color.parseColor(it))
+            binding.stickerView.updateSticker()
+            for ((index, values) in colorItems.withIndex()) {
+                if (it == values.color) {
+                    colorAdapter?.setSeleted(index)
+                    binding.recyclerview.smoothScrollToPosition(index)
+                }
+            }
+        }
+
+
     }
 
     private fun initView() {
@@ -70,10 +93,8 @@ class AddTextStickerActivity : AppCompatActivity(), View.OnClickListener {
             //   var decoration = GridDecoration(8,9)
             submit.setOnClickListener(this@AddTextStickerActivity)
             btCloseImag.setOnClickListener(this@AddTextStickerActivity)
-            var colorItems = arrayListOf<ColorItem>()
             ColorData.createData()
             ColorData.getData(colorItems)
-            colorItems[0].isSeleted = true
             colorAdapter = ColorAdapter(this@AddTextStickerActivity, colorItems)
             binding?.recyclerview?.adapter = colorAdapter
             var layoutManager = LinearLayoutManager(this@AddTextStickerActivity)
@@ -101,8 +122,9 @@ class AddTextStickerActivity : AppCompatActivity(), View.OnClickListener {
                 }
 
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                    binding.stickerView?.stickers[0]?.let {
-                        var textSticker = binding.stickerView?.stickers[0] as TextSticker
+                    binding.stickerView?.stickers?.let {
+                        if (it.size <= 0) return
+                        var textSticker = it[0] as TextSticker
                         var content = " "
                         if (!TextUtils.isEmpty(s)) {
                             content = s.toString()
@@ -168,10 +190,10 @@ class AddTextStickerActivity : AppCompatActivity(), View.OnClickListener {
             R.id.submit -> {
                 if (!TextUtils.isEmpty(binding.editText.text)) {
                     colorAdapter?.getSeletedColor()?.let {
-                        Log.e("Harrison","it:"+it)
                         EventBus.getDefault().post(EventTextStickerChange(binding.editText.text.toString(), it))
                     }
-
+                }else{
+                    EventBus.getDefault().post(EventTextStickerChange(" ", "#FFFFFF"))
                 }
                 finish()
             }
@@ -180,11 +202,20 @@ class AddTextStickerActivity : AppCompatActivity(), View.OnClickListener {
 
     companion object {
         private const val KEY_IMAGE_PATH = "path"
+        private const val KEY_TEXT = "text"
         private const val BUNDLE_PATH = "bundle"
-        fun gotoThis(context: Context, path: String) {
+        var EXECUTOR: Executor = Executors.newCachedThreadPool()
+        fun gotoThis(context: Context, path: String, text: EventTextStickerChange?) {
             val intent = Intent(context, AddTextStickerActivity::class.java)
             val bundle = Bundle()
             bundle.putString(KEY_IMAGE_PATH, path)
+            if (text == null) {
+                var etc = EventTextStickerChange(" ", "#FFFFFF")
+                bundle.putSerializable(KEY_TEXT, etc)
+            } else {
+                bundle.putSerializable(KEY_TEXT, text)
+            }
+
             intent.putExtra(BUNDLE_PATH, bundle)
             context.startActivity(intent)
         }
