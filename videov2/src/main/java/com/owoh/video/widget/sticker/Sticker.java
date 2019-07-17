@@ -46,6 +46,18 @@ public abstract class Sticker {
         this.isShow = true;
     }
 
+    //有些是显示的，有些是不在预览中显示
+    private boolean isPreview = true;
+
+    public boolean isPreview() {
+        return isPreview;
+    }
+
+    public Sticker setPreview(boolean preview) {
+        isPreview = preview;
+        return this;
+    }
+
     /**
      * 贴纸的开始时间，结束时间
      */
@@ -248,6 +260,7 @@ public abstract class Sticker {
 
     /**
      * 获取中心点的位置
+     *
      * @return
      */
     @NonNull

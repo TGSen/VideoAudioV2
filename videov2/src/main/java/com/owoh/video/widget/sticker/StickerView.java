@@ -209,7 +209,7 @@ public class StickerView extends FrameLayout {
         for (int i = 0; i < stickers.size(); i++) {
             Sticker sticker = stickers.get(i);
             if (sticker != null) {
-                if (sticker.isShow()) {
+                if (sticker.isShow() ) {
                     sticker.draw(canvas);
                 } else {
                     //不显示得话，那就判断是否是显示边框，如果当前
