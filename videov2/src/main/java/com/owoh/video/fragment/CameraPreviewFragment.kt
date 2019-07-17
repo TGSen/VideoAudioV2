@@ -2,6 +2,7 @@ package com.owoh.video.fragment
 
 import android.Manifest
 import android.app.Activity
+import android.app.Activity.RESULT_OK
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -12,6 +13,7 @@ import android.hardware.Camera
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
+import android.provider.MediaStore
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentTransaction
 import android.support.v7.widget.LinearLayoutManager
@@ -31,7 +33,6 @@ import com.cgfay.filterlibrary.utils.PermissionUtils
 import com.owoh.R
 import com.owoh.databinding.FragmentCameraPreviewBinding
 import com.owoh.video.activity.EffectVideoActivity
-import com.owoh.video.activity.EffectVideoActivityV
 import com.owoh.video.engine.GalleryType
 import com.owoh.video.engine.OnCameraCallback
 import com.owoh.video.engine.OnRecordListener
@@ -126,8 +127,6 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
             Log.e("Harrison", "onCompletion**")
         }
     }
-
-
 
 
     /**
@@ -412,11 +411,13 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
             tvSeletedBgm.setOnClickListener(this@CameraPreviewFragment)
             btFlash.setOnClickListener(this@CameraPreviewFragment)
             btFilters.setOnClickListener(this@CameraPreviewFragment)
+
         }
 
         binding.layoutBottom.apply {
             pointView.visibility = View.VISIBLE
             btnTools.setOnClickListener(this@CameraPreviewFragment)
+            btUpload.setOnClickListener(this@CameraPreviewFragment)
             //底部指示器的
             val galleryIndicator = resources.getStringArray(R.array.gallery_indicator)
             mIndicatorText.addAll(Arrays.asList(*galleryIndicator))
@@ -469,7 +470,6 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
         super.onResume()
         registerHomeReceiver()
     }
-
 
 
     override fun onPause() {
@@ -525,6 +525,10 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
             R.id.btn_record_preview -> gotoCombinePath()
 
             R.id.tvSeletedBgm -> showMusicFragment()
+            R.id.btUpload -> {
+                val intent = Intent(Intent.ACTION_PICK, android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
+                startActivityForResult(intent, REQUEST_VIDEO_CODE)
+            }
         }
     }
 
@@ -761,6 +765,27 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
         }
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_VIDEO_CODE) {
+            if (resultCode == RESULT_OK) {
+                var uri = data?.data;
+                var cr = activity?.contentResolver;
+                var cursor = cr?.query(uri, null, null, null, null)
+                cursor?.moveToFirst().let {
+                    var videoPath = cursor?.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA))
+                    cursor?.close()
+                    videoPath?.let {
+                        gotoEffectVideo(it)
+                    }
+
+                }
+
+            }
+        }
+    }
+
+
     /**
      * 请求存储权限
      */
@@ -866,7 +891,8 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
 
         // 对焦大小
         private val FocusSize = 80
-        private val MSG_SHUTTER_PROGRESS = 0
+        private const val MSG_SHUTTER_PROGRESS = 0
+        private const val REQUEST_VIDEO_CODE = 0
     }
 
 
