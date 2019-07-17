@@ -204,7 +204,7 @@ class AddTextStickerActivity : AppCompatActivity(), View.OnClickListener {
         private const val KEY_IMAGE_PATH = "path"
         private const val KEY_TEXT = "text"
         private const val BUNDLE_PATH = "bundle"
-        var EXECUTOR: Executor = Executors.newCachedThreadPool()
+
         fun gotoThis(context: Context, path: String, text: EventTextStickerChange?) {
             val intent = Intent(context, AddTextStickerActivity::class.java)
             val bundle = Bundle()

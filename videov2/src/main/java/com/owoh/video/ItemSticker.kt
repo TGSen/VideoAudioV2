@@ -46,6 +46,12 @@ class ItemSticker {
                 itemSticker4.type = itemSticker4.TYPE_GIF
                 list.add(itemSticker4)
 
+                val itemSticker6 = ItemSticker()
+                itemSticker6.name = "sticker4"
+                itemSticker6.path = path + "watermark.gif"
+                itemSticker6.type = itemSticker6.TYPE_GIF
+                list.add(itemSticker6)
+
                 val textSticker = ItemSticker()
                 textSticker.name = "文字"
                 textSticker.path = path + "test1.jpg"

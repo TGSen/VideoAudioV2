@@ -418,13 +418,11 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
 
                 textSticker?.let {
                     if (textSticker is TextSticker && !TextUtils.isEmpty(textSticker.path)) {
-                        AddTextStickerActivity.gotoThis(this@EffectVideoActivity, textSticker.path,textSticker.change)
+                        AddTextStickerActivity.gotoThis(this@EffectVideoActivity, textSticker.path, textSticker.change)
                         val ft = supportFragmentManager.beginTransaction()
                         hideFragment(ft)
                         ft.commit()
                     }
-
-
                 }
 
             }
@@ -567,6 +565,7 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
 
     //特效，贴纸，合成Mp4
     private fun combineFilterToVideoFile() {
+
         // showProgressDialog(getString(R.string.combine_video_message), false)
         isCombine = true
         EXECUTOR.execute {
@@ -598,9 +597,13 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
             val screenScale = Math.min(videoWidth.toFloat() / widthScreen, videoHeight.toFloat() / heightScreen)
             val gifCanvas = Canvas()
 
+
+
+
+
             glStickerFilter = object : GLStickerFilter() {
-                internal var bitmap: Bitmap? = null
-                internal var matrix = Matrix()
+                 var bitmap: Bitmap? = null
+                 var matrix = Matrix()
 
                 override fun drawCanvas(canvas: Canvas, mPaint: Paint) {
                     val stickers = binding.stickerView?.stickers
@@ -618,6 +621,8 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
                         matrix.reset()
 
                         if (sticker is GifSticker) {
+
+
                             //判断之前有没给drawable 设置
                             val gifDrawable = drawable as GifDrawable
                             val currentScale = stickerScale * screenScale
@@ -627,7 +632,7 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
                                     Bitmap.Config.ARGB_8888
                             )
                             gifCanvas.setBitmap(bitmap)
-
+                            matrix.postScale(currentScale, currentScale)
                             matrix.postTranslate(
                                     centerX - bitmap!!.width * currentScale / 2,
                                     centerY - bitmap!!.height * currentScale / 2
@@ -656,7 +661,6 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
                             canvas.drawBitmap(bitmap, matrix, mPaint)
 
                         } else if (sticker is TextSticker) {
-                            Log.e("Harrison", "00000000000000000")
                             val bd = drawable as BitmapDrawable
                             var btm = bd.bitmap
                             val bitmapScale = drawableWith.toFloat() / btm!!.width.toFloat()
@@ -668,7 +672,7 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
                             )
 
                             gifCanvas.setBitmap(bitmap)
-                         //   matrix.postScale(currentScale, currentScale)
+                            //   matrix.postScale(currentScale, currentScale)
                             matrix.postTranslate(
                                     centerX - btm!!.width * currentScale / 2,
                                     centerY - btm!!.height * currentScale / 2
@@ -696,6 +700,66 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
             if (binding.stickerView.stickerCount > 0) {
                 filterGroup.addFilterItem(glStickerFilter)
             }
+
+            //最后添加个Logo.gif
+            var gifDrawable: GifDrawable? = null
+            var logoSticker: GifSticker? = null
+            try {
+                //
+//                gifDrawable = GifDrawable( File("/storage/emulated/0/Download/watermark.gif"))
+                gifDrawable = GifDrawable.createFromResource(resources, R.drawable.watermark)
+                logoSticker = GifSticker(gifDrawable)
+                gifDrawable?.start()
+
+            } catch (e: IOException) {
+                Log.e("Harrison", "e********" + e.localizedMessage)
+                e.printStackTrace()
+            }
+            logoSticker?.let {
+                var logoStickerFilter = object : GLStickerFilter() {
+                    var bitmap: Bitmap? = null
+                    var matrix = Matrix()
+
+                    override fun drawCanvas(canvas: Canvas, mPaint: Paint) {
+                        val stickerScale = it.currentScale
+                        val drawable = it.drawable
+                        val drawableWith = drawable.intrinsicWidth
+                        val centerX = it.mappedCenterPoint.x / widthScreen * canvas.width
+                        val centerY = it.mappedCenterPoint.y / heightScreen * canvas.height
+                        matrix.reset()
+
+                        val gifDrawable = drawable as GifDrawable
+
+                        val currentScale = stickerScale * screenScale
+                        bitmap = Bitmap.createBitmap(
+                                drawable.getMinimumWidth() ,
+                                drawable.getMinimumHeight(),
+                                Bitmap.Config.ARGB_8888
+                        )
+                        gifCanvas.setBitmap(bitmap)
+                        matrix.postScale(0.1f, 0.1f)
+//                        matrix.postTranslate(
+//                                centerX - bitmap!!.width * currentScale / 2,
+//                                centerY - bitmap!!.height * currentScale / 2
+//                        )
+
+//                        matrix.postTranslate(
+//                                (gifCanvas.width /15f).toFloat(),
+//                                (gifCanvas.height / 15f).toFloat()
+//                        )
+//                        matrix.postRotate(it.currentAngle, centerX, centerY)
+                        mPaint.style = Paint.Style.STROKE
+                        mPaint.strokeWidth = 60f
+                        mPaint.color = Color.YELLOW
+                        gifCanvas.drawRect(Rect(0, 0, gifCanvas.width, gifCanvas.height), mPaint)
+                        Log.e("Harrison", "*****")
+                        gifDrawable.draw(gifCanvas)
+                        canvas.drawBitmap(bitmap, matrix, mPaint)
+                    }
+                }
+                filterGroup.addFilterItem(logoStickerFilter)
+            }
+
 
             var composer = Mp4Composer(videoPath, outputPath)
                     .size(videoWidth, videoHeight)
@@ -753,6 +817,8 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
             btVoiceAdjust.setOnClickListener(this@EffectVideoActivity)
             btEffect.setOnClickListener(this@EffectVideoActivity)
             btFilters.setOnClickListener(this@EffectVideoActivity)
+
+
         }
         binding.apply {
             //        imgVideoSmall = findViewById(R.id.imgVideoSmall);
@@ -763,6 +829,10 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
             btSave.setOnClickListener(this@EffectVideoActivity)
             btCloseImag.setOnClickListener(this@EffectVideoActivity)
             btDeleteEffect.setOnClickListener(this@EffectVideoActivity)
+
+
+
+
 
             effectGroup.visibility = View.GONE
             layoutStickerTool.visibility = View.GONE
@@ -967,6 +1037,7 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
                             item.TYPE_GIF -> {
                                 var gifDrawable: GifDrawable? = null
                                 try {
+                                    Log.e("Harrison",item.path)
                                     gifDrawable = GifDrawable(item.path!!)
                                     gifDrawable.start()
                                     binding.stickerView.addSticker(GifSticker(gifDrawable).setEndTime(binding.videoEffectBar.max.toFloat()))

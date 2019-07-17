@@ -166,7 +166,7 @@ class ChooseCoverVideoActivity : AppCompatActivity(), View.OnClickListener {
         //设置videoPlayer 状态监听
         mVideoRenderer?.setVideoPlayerStatusChangeLisenter(object : VideoRenderThread.VideoPlayerStatusChangeLisenter {
             override fun videoStart(totalTime: Int) {
-                mVideoRenderer?.stopPlayVideo()
+              //  mVideoRenderer?.stopPlayVideo()
                 if (isThumb) return
                 EXECUTOR.execute {
                     isThumb = true
