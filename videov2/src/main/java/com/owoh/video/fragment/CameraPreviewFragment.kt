@@ -246,6 +246,9 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
     }
 
 
+
+
+
     /**
      * 录制监听器
      */
@@ -469,8 +472,13 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
     override fun onResume() {
         super.onResume()
         registerHomeReceiver()
+
     }
 
+    override fun onStop() {
+        super.onStop()
+        MusicManager.getInstance().stop()
+    }
 
     override fun onPause() {
         super.onPause()

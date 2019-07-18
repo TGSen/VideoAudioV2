@@ -84,10 +84,12 @@ class MusicFragment : Fragment() {
         DownLoadService.getInstance().setDownloadListener { path -> onMusicChangeListener?.change(path) }
         var savePath = Environment.getExternalStorageDirectory().toString() + "/OwOh/download/music"
         musicAdapter!!.setOnItemClickListener { position ->
-            //切换音乐
-            if (onMusicChangeListener != null) {
-                DownLoadService.getInstance().downloadFile( mResourceData[position].getMusic(),savePath)
-            }
+
+            onMusicChangeListener?.change(mResourceData[position].getMusic())
+//            //切换音乐
+//            if (onMusicChangeListener != null) {
+//                DownLoadService.getInstance().downloadFile( mResourceData[position].getMusic(),savePath)
+//            }
         }
     }
 

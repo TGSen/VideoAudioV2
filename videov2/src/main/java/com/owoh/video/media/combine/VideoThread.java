@@ -56,7 +56,7 @@ public class VideoThread extends Thread implements IAudioVideo {
         for (int i = 0; i < videoTrackCount; i++) {
             MediaFormat format = videoExtractor.getTrackFormat(i);
             String mimeType = format.getString(MediaFormat.KEY_MIME);
-            if (mimeType.startsWith("com/owoh/video/")) {
+            if (mimeType.startsWith("video/")) {
                 this.videoTrackIndex = i;
                 break;
             }
