@@ -70,6 +70,7 @@ public class MusicService extends Service {
          */
         public void play() {
             if (!mMediaPlayer.isPlaying()) {
+                Log.e("Harrison","MusicBinder isPlaying");
                 //如果还没开始播放，就开始
                 mMediaPlayer.start();
             }
@@ -151,7 +152,7 @@ public class MusicService extends Service {
                 mMediaPlayer.setDataSource(url);
                 mMediaPlayer.prepareAsync();
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e("Harrison","****changeUrl IOException"+e.getLocalizedMessage());
                 return false;
             }
             return true;

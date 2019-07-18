@@ -5,7 +5,6 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +15,6 @@ import com.owoh.R;
 import com.owoh.video.loader.MediaLoader;
 import com.owoh.video.loader.impl.GlideMediaLoader;
 import com.owoh.video.media.bgmusic.ItemMusic;
-import com.cgfay.filterlibrary.utils.BitmapUtils;
 
 import java.util.List;
 
@@ -55,20 +53,15 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.ResourceHold
     @Override
     public void onBindViewHolder(@NonNull ResourceHolder holder, final int position) {
         ItemMusic resource = mResourceList.get(position);
-        holder.name.setText(resource.getName());
-        if (!TextUtils.isEmpty(resource.getThumbPath()) && resource.getThumbPath().startsWith("assets://")) {
-            holder.resourceThumb.setImageBitmap(BitmapUtils.getImageFromAssetsFile(mContext,
-                    resource.getThumbPath().substring("assets://".length())));
-        } else {
-            if (mMediaLoader != null) {
-                mMediaLoader.loadThumbnail(mContext, mPlaceHolder, holder.resourceThumb,
-                        Uri.parse(resource.getThumbPath()));
-            }
+        holder.name.setText(resource.getName_cn());
+        if (mMediaLoader != null) {
+            mMediaLoader.loadThumbnail(mContext, mPlaceHolder, holder.resourceThumb,
+                    Uri.parse(resource.getImage()));
         }
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(mListener!=null){
+                if (mListener != null) {
                     mListener.onClick(position);
                 }
             }

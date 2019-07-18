@@ -539,20 +539,23 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
         val ft = childFragmentManager.beginTransaction()
         hideFragment(ft)
         if (musicFragment == null) {
-            musicFragment = MusicFragment.getInstance()
+            musicFragment = MusicFragment.instance
             MusicManager.getInstance().startService(mActivity, bgMusicMediaPlayerLinstener)
             VideoAudioCombine.getInstance().setVideoAudioCombineStateListener(mVideoAudioCombineStateListener)
-            musicFragment!!.setOnMusicChangeListener { url ->
-                Log.e("Harrison", "$url***")
-                ///这里规定，如果url 为null，就启动麦克风，否则就是背景音乐
-                if (MusicManager.getInstance().changeAudioPlay(url)) {
-                    VideoAudioCombine.getInstance().setBgMusicEnable(true).audioPath = url
-                    PreviewRecorder.getInstance().enableAudio(false)
-                } else {
-                    PreviewRecorder.getInstance().enableAudio(true)
-                    VideoAudioCombine.getInstance().isBgMusicEnable = false
+            musicFragment!!.setOnMusicChangeListener (object :MusicFragment.OnMusicChangeListener{
+                override fun change(url: String?) {
+                    Log.e("Harrison", "$url***")
+                    ///这里规定，如果url 为null，就启动麦克风，否则就是背景音乐
+                    if (MusicManager.getInstance().changeAudioPlay(url)) {
+                        VideoAudioCombine.getInstance().setBgMusicEnable(true).audioPath = url
+                        PreviewRecorder.getInstance().enableAudio(false)
+                    } else {
+                        PreviewRecorder.getInstance().enableAudio(true)
+                        VideoAudioCombine.getInstance().isBgMusicEnable = false
+                    }
                 }
-            }
+
+            })
             ft.add(R.id.fragment_container, musicFragment!!)
         } else {
             ft.show(musicFragment!!)

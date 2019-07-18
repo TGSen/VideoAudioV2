@@ -383,7 +383,7 @@ public class CameraPreviewFragmentV extends Fragment implements View.OnClickList
         FragmentTransaction ft = getChildFragmentManager().beginTransaction();
         hideFragment(ft);
         if (musicFragment == null) {
-            musicFragment = MusicFragment.getInstance();
+            musicFragment = MusicFragment.Companion.getInstance();
             MusicManager.getInstance().startService(mActivity, bgMusicMediaPlayerLinstener);
             VideoAudioCombine.getInstance().setVideoAudioCombineStateListener(mVideoAudioCombineStateListener);
             musicFragment.setOnMusicChangeListener(new MusicFragment.OnMusicChangeListener() {

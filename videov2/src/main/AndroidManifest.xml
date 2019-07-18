@@ -59,6 +59,8 @@
             android:screenOrientation="portrait"
             android:theme="@style/wx_login_style" />
 
+        <service android:name=".video.media.bgmusic.MusicService" />
+
     </application>
 
 </manifest>
