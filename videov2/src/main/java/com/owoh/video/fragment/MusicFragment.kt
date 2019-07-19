@@ -8,6 +8,7 @@ import android.os.Environment
 import android.support.v4.app.Fragment
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -84,12 +85,12 @@ class MusicFragment : Fragment() {
         DownLoadService.getInstance().setDownloadListener { path -> onMusicChangeListener?.change(path) }
         var savePath = Environment.getExternalStorageDirectory().toString() + "/OwOh/download/music"
         musicAdapter!!.setOnItemClickListener { position ->
-
-            onMusicChangeListener?.change(mResourceData[position].getMusic())
+//            onMusicChangeListener?.change(mResourceData[position].getMusic())
 //            //切换音乐
-//            if (onMusicChangeListener != null) {
-//                DownLoadService.getInstance().downloadFile( mResourceData[position].getMusic(),savePath)
-//            }
+            if (onMusicChangeListener != null) {
+                Log.e("Harrison","*******download:"+mResourceData[position].getMusic())
+                DownLoadService.getInstance().downloadFile( mResourceData[position].getMusic(),savePath)
+            }
         }
     }
 

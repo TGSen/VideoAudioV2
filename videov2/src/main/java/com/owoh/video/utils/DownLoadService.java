@@ -79,6 +79,7 @@ public class DownLoadService {
         try {
             _outputStream = new FileOutputStream(file);
         } catch (FileNotFoundException e) {
+
             e.printStackTrace();
             return;
         }
@@ -88,6 +89,7 @@ public class DownLoadService {
             HttpURLConnection _downLoadCon = (HttpURLConnection) url.openConnection();
             _downLoadCon.setRequestMethod("GET");
             fileLength = Integer.valueOf(_downLoadCon.getHeaderField("Content-Length"));//文件大小
+            Log.e("Harrison","fileLength"+fileLength);
             if (file.exists() && file.length() == fileLength) {
                 Log.e("Harrison", "文件存在");
                 if (downloadListener != null) {

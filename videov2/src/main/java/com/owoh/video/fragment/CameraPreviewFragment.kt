@@ -10,6 +10,7 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.databinding.DataBindingUtil
 import android.hardware.Camera
+import android.media.MediaFormat
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
@@ -42,6 +43,7 @@ import com.owoh.video.engine.recorder.PreviewRecorder
 import com.owoh.video.engine.render.PreviewRenderer
 import com.owoh.video.media.bgmusic.MusicManager
 import com.owoh.video.media.bgmusic.MusicService
+import com.owoh.video.media.change.AudioCodec
 import com.owoh.video.media.combine.VideoAudioCombine
 import com.owoh.video.utils.PathConstraints
 import com.owoh.video.widget.CainSurfaceView
@@ -244,9 +246,6 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
 
 
     }
-
-
-
 
 
     /**
@@ -550,7 +549,7 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
             musicFragment = MusicFragment.instance
             MusicManager.getInstance().startService(mActivity, bgMusicMediaPlayerLinstener)
             VideoAudioCombine.getInstance().setVideoAudioCombineStateListener(mVideoAudioCombineStateListener)
-            musicFragment!!.setOnMusicChangeListener (object :MusicFragment.OnMusicChangeListener{
+            musicFragment!!.setOnMusicChangeListener(object : MusicFragment.OnMusicChangeListener {
                 override fun change(url: String?) {
                     Log.e("Harrison", "$url***")
                     ///这里规定，如果url 为null，就启动麦克风，否则就是背景音乐
@@ -733,6 +732,30 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
     }
 
     private fun gotoCombinePath() {
+        //首先检查音频是否是AAC,
+        if (VideoAudioCombine.getInstance().isBgMusicEnable && !TextUtils.isEmpty(VideoAudioCombine.getInstance().audioPath)) {
+            var audioCodec = AudioCodec.newInstance()
+            //编码AAC
+            var srcFile = File(VideoAudioCombine.getInstance().audioPath)
+            var dstPath = srcFile.parentFile.absolutePath + "/aac/"
+            audioCodec.setEncodeType(MediaFormat.MIMETYPE_AUDIO_AAC)
+            audioCodec.setIOPath(VideoAudioCombine.getInstance().audioPath, dstPath);
+            audioCodec.prepare();
+            audioCodec.startAsync();
+            audioCodec.setOnCompleteListener {
+                audioCodec.release();
+                VideoAudioCombine.getInstance().audioPath = it
+                combineVideoAudio()
+
+            }
+        } else {
+            combineVideoAudio()
+        }
+
+
+    }
+
+    private fun combineVideoAudio() {
         combinePath = PathConstraints.getVideoCachePath(mActivity)
         binding.layoutBottom.btShutter.reset()
         PreviewRecorder.getInstance().combineVideo(combinePath, mCombineListener)

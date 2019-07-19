@@ -183,6 +183,9 @@ public class EffectVideoActivityV extends AppCompatActivity implements View.OnCl
             }
         }
     };
+
+    public void test(){
+    }
     private ConstraintLayout mRootView;
     private RecyclerView mRecyclerView, mThumbRecyclerView;
     private TextView tvTotalTime, tvStartTime, mStickerTimeTv;
