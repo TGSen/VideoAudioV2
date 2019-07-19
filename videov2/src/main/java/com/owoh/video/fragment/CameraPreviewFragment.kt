@@ -752,7 +752,6 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
             combineVideoAudio()
         }
 
-
     }
 
     private fun combineVideoAudio() {
