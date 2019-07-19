@@ -692,7 +692,7 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
                 var gifDrawable = GifDrawable.createFromResource(resources, R.drawable.watermark)
                 gifDrawable?.start()
                 logoGifSticker = GifSticker(gifDrawable).setEndTime(binding.videoEffectBar.max.toFloat()).setPreview(false) as GifSticker?
-                binding.stickerView.addSticker(logoGifSticker!!, Sticker.Position.BOTTOM)
+//                binding.stickerView.addSticker(logoGifSticker!!, Sticker.Position.BOTTOM)
             } catch (e: IOException) {
                 e.printStackTrace()
             }
@@ -711,12 +711,12 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
                         //判断之前有没给drawable 设置
                         val gifDrawable = drawable as GifDrawable
                         val currentScale = stickerScale * screenScale
-                        bitmap = Bitmap.createBitmap(
-                                drawable.intrinsicWidth,
-                                drawable.intrinsicHeight,
-                                Bitmap.Config.ARGB_8888
-                        )
-                        gifCanvas.setBitmap(bitmap)
+//                        bitmap = Bitmap.createBitmap(
+//                                drawable.intrinsicWidth,
+//                                drawable.intrinsicHeight,
+//                                Bitmap.Config.ARGB_8888
+//                        )
+                        gifCanvas.setBitmap(gifDrawable.currentFrame)
                         matrix.postScale(currentScale, currentScale)
 
                         //如果不是显示的话，那就是logo
@@ -737,7 +737,7 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
 
             var composer = Mp4Composer(videoPath, outputPath)
                     .size(videoWidth, videoHeight)
-                    .fillMode(FillMode.PRESERVE_ASPECT_FIT)
+                    .fillMode(FillMode.PRESERVE_ASPECT_CROP)
                     .listener(object : Mp4Composer.Listener {
                         override fun onProgress(progress: Double, time: Double) {
                             //time 是纳秒的，需要除以 1000 转化为毫秒 好计算

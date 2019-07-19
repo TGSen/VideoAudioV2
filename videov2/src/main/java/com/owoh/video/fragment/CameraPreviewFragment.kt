@@ -47,6 +47,7 @@ import com.owoh.video.media.change.AudioCodec
 import com.owoh.video.media.combine.VideoAudioCombine
 import com.owoh.video.utils.PathConstraints
 import com.owoh.video.widget.CainSurfaceView
+import com.owoh.video.widget.MarqueeTextView
 import com.owoh.video.widget.ShutterView
 import com.owoh.video.widget.recycleview.CenterLayoutManager
 import com.owoh.video.widget.recycleview.GalleryItemDecoration
@@ -413,6 +414,14 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
             tvSeletedBgm.setOnClickListener(this@CameraPreviewFragment)
             btFlash.setOnClickListener(this@CameraPreviewFragment)
             btFilters.setOnClickListener(this@CameraPreviewFragment)
+
+            tvSeletedBgm.text = "选择音乐";
+            // 初始化
+            tvSeletedBgm.init()
+            // 设置滚动方向
+            tvSeletedBgm.setScrollDirection(MarqueeTextView.RIGHT_TO_LEFT);
+            // 设置滚动速度
+            tvSeletedBgm.setScrollMode(MarqueeTextView.SCROLL_SLOW);
 
         }
 

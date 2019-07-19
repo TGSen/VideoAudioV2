@@ -6,7 +6,6 @@
     app:layout_constraintTop_toTopOf="parent">
 
 
-
     <ImageView
         android:id="@+id/btCloseImag"
         android:layout_width="@dimen/dp24"
@@ -25,15 +24,17 @@
         app:constraint_referenced_ids="tvSeletedBgm" />
 
 
-    <TextView
+
+    <com.owoh.video.widget.MarqueeTextView
         android:id="@+id/tvSeletedBgm"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:drawableLeft="@mipmap/ic_music"
         android:drawablePadding="@dimen/dp4"
+        android:focusableInTouchMode="true"
         android:gravity="center_vertical"
-
-        android:text="@string/choose_music"
+        android:scrollHorizontally="true"
+        android:singleLine="true"
+        android:drawableLeft="@mipmap/ic_music"
         android:textColor="@color/colorWhilte"
         android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="@+id/btCloseImag"
