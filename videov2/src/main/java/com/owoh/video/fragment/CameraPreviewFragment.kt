@@ -26,6 +26,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import com.blankj.utilcode.util.ToastUtils
 import com.cgfay.filterlibrary.fragment.PermissionConfirmDialogFragment
 import com.cgfay.filterlibrary.fragment.PermissionErrorDialogFragment
 import com.cgfay.filterlibrary.multimedia.VideoCombiner
@@ -52,6 +53,7 @@ import com.owoh.video.widget.ShutterView
 import com.owoh.video.widget.recycleview.CenterLayoutManager
 import com.owoh.video.widget.recycleview.GalleryItemDecoration
 import com.owoh.video.widget.recycleview.RvAdapter
+import com.qmuiteam.qmui.widget.dialog.QMUIDialog
 import kotlinx.android.synthetic.main.fragment_camera_preview.*
 import kotlinx.android.synthetic.main.view_preview_bottom.*
 import kotlinx.android.synthetic.main.view_preview_bottom.view.*
@@ -527,6 +529,18 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
         when (v.id) {
             R.id.btSwitchCamera -> switchCamera()
             R.id.btCloseImag -> {
+                if (PreviewRecorder.getInstance().numberOfSubVideo > 0) {
+                    QMUIDialog.MessageDialogBuilder(activity)
+                            .setMessage(getString(R.string.dilog_record))
+                            .addAction(getString(R.string.dilog_cancel)) { dialog, _ -> dialog.dismiss() }
+                            .addAction(0, getString(R.string.dilog_exist)) { dialog, _ ->
+                                dialog.dismiss()
+                                activity?.finish()
+                            }
+                            .create(R.style.QMUI_Dialog).show()
+                } else {
+                    activity?.finish()
+                }
             }
             R.id.btnTools ->
                 //打开道具
@@ -741,6 +755,10 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
     }
 
     private fun gotoCombinePath() {
+        if (!PreviewRecorder.getInstance().isCanPreview) {
+            ToastUtils.showShort(getString(R.string.video_short_tip))
+            return
+        }
         //首先检查音频是否是AAC,
         if (VideoAudioCombine.getInstance().isBgMusicEnable && !TextUtils.isEmpty(VideoAudioCombine.getInstance().audioPath)) {
             var audioCodec = AudioCodec.newInstance()

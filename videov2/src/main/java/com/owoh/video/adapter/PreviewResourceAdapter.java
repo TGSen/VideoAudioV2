@@ -9,15 +9,14 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
+import com.cgfay.filterlibrary.glfilter.resource.bean.ResourceData;
+import com.cgfay.filterlibrary.utils.BitmapUtils;
 import com.owoh.R;
 import com.owoh.video.loader.MediaLoader;
 import com.owoh.video.loader.impl.GlideMediaLoader;
-import com.cgfay.filterlibrary.glfilter.resource.bean.ResourceData;
-import com.cgfay.filterlibrary.utils.BitmapUtils;
 
 import java.util.List;
 
@@ -49,8 +48,7 @@ public class PreviewResourceAdapter extends RecyclerView.Adapter<PreviewResource
         View view = LayoutInflater.from(mContext).inflate(R.layout.item_preview_resource_view,
                 parent, false);
         ResourceHolder holder = new ResourceHolder(view);
-        holder.resourceRoot = (LinearLayout) view.findViewById(R.id.resource_root);
-        holder.resourcePanel = (FrameLayout) view.findViewById(R.id.resource_panel);
+        holder.imageSeleted = view.findViewById(R.id.imageSeleted);
         holder.resourceThumb = (ImageView) view.findViewById(R.id.resource_thumb);
         return holder;
     }
@@ -70,13 +68,13 @@ public class PreviewResourceAdapter extends RecyclerView.Adapter<PreviewResource
         }
 
         if (position == mSelected) {
-            holder.resourcePanel.setBackgroundResource(R.drawable.ic_camera_effect_selected);
+            holder.imageSeleted.setVisibility(View.VISIBLE);
         } else {
-            holder.resourcePanel.setBackgroundResource(0);
+            holder.imageSeleted.setVisibility(View.GONE);
         }
 
         final int currentPosition = position;
-        holder.resourceRoot.setOnClickListener(new View.OnClickListener() {
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (mSelected == currentPosition) {
@@ -87,7 +85,7 @@ public class PreviewResourceAdapter extends RecyclerView.Adapter<PreviewResource
                 notifyItemChanged(last);
                 notifyItemChanged(currentPosition);
                 if (mListener != null) {
-                    mListener.onResourceChanged(mResourceList.get(currentPosition),currentPosition);
+                    mListener.onResourceChanged(mResourceList.get(currentPosition), currentPosition);
                 }
             }
         });
@@ -102,8 +100,8 @@ public class PreviewResourceAdapter extends RecyclerView.Adapter<PreviewResource
     public class ResourceHolder extends RecyclerView.ViewHolder {
 
         public LinearLayout resourceRoot;
-        public FrameLayout resourcePanel;
         public ImageView resourceThumb;
+        public ImageView imageSeleted;
 
         public ResourceHolder(View itemView) {
             super(itemView);

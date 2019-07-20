@@ -12,3 +12,7 @@ class EventTextStickerChange(text: String, color: String):Serializable {
      }
 
 }
+
+class EventCloseFragment{
+
+}

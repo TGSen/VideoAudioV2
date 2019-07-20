@@ -46,6 +46,7 @@ import com.owoh.R
 import com.owoh.video.ItemSticker
 import com.owoh.video.adapter.EffectResourceAdapter
 import com.owoh.video.adapter.ThumbVideoAdapter
+import com.owoh.video.event.EventCloseFragment
 import com.owoh.video.event.EventTextStickerChange
 import com.owoh.video.filter.GLColorFilter
 import com.owoh.video.filter.GLEffectFilter
@@ -65,6 +66,7 @@ import com.owoh.video.widget.RangeSeekBar
 import com.owoh.video.widget.SpaceItemDecoration
 import com.owoh.video.widget.VideoPreviewView
 import com.owoh.video.widget.sticker.*
+import com.qmuiteam.qmui.widget.dialog.QMUIDialog
 import kotlinx.android.synthetic.main.activity_editext_effect_video.*
 import kotlinx.android.synthetic.main.layout_editext_video.*
 import kotlinx.android.synthetic.main.layout_editext_video.view.*
@@ -282,6 +284,11 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
                 binding.stickerView.updateSticker()
             }
         }
+    } @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onCloseFragment(event: EventCloseFragment) {
+        val ft = supportFragmentManager.beginTransaction()
+        hideFragment(ft)
+        ft.commit()
     }
 
 
@@ -578,9 +585,7 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
             val widthScreen = DensityUtils.getDisplayWidthPixels(this@EffectVideoActivity)
             val heightScreen = DensityUtils.getDisplayHeightPixels(this@EffectVideoActivity)
             val filterGroup = GlFilterGroup()
-
             //这个是颜色的滤镜
-
             mColorFilterFragment?.currentColorFilter?.fsPath?.let {
 
                 val colorFilter = GLColorFilter()
@@ -600,7 +605,6 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
 
                 override fun drawCanvas(canvas: Canvas, mPaint: Paint) {
                     val stickers = binding.stickerView?.stickers
-
                     for (i in 0 until binding.stickerView?.stickerCount) {
                         val sticker = stickers[i]
                         if (sticker.startTime > glStickerFilter!!.currentTime || sticker.endTime < glStickerFilter!!.currentTime) {
@@ -718,16 +722,13 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
 //                        )
                         gifCanvas.setBitmap(gifDrawable.currentFrame)
                         matrix.postScale(currentScale, currentScale)
-
                         //如果不是显示的话，那就是logo
                         matrix.postTranslate(
                                 100f,
                                 ((canvas.height - 100).toFloat())
                         )
-
                         gifDrawable.draw(gifCanvas)
                         canvas.drawBitmap(bitmap, matrix, mPaint)
-
                     }
                 }
 //                filterGroup.addFilterItem(logoStickerFilter)
@@ -747,7 +748,6 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
                         }
 
                         override fun onCompleted() {
-                            //                                Log.e(TAG, "onCompleted()");
 //                            dismissDialog()
                             mHandler.post(Runnable {
                                 ChooseCoverVideoActivity.gotoThis(this@EffectVideoActivity, outputPath)
@@ -799,10 +799,6 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
             btCloseImag.setOnClickListener(this@EffectVideoActivity)
             btDeleteEffect.setOnClickListener(this@EffectVideoActivity)
 
-
-
-
-
             effectGroup.visibility = View.GONE
             layoutStickerTool.visibility = View.GONE
             mainGroup.visibility = View.VISIBLE
@@ -851,6 +847,7 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
                     }
 
                 }
+
                 override fun onStartTrackingTouch(seekBar: SeekBar) {
                     //触摸Seekbar 停止播放
                     mVideoRenderer?.stopPlayVideo()
@@ -1036,11 +1033,6 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
 
                 }
 
-                override fun onClosePanl() {
-                    val ft = supportFragmentManager.beginTransaction()
-                    hideFragment(ft)
-                    ft.commit()
-                }
             })
 
         } else {
@@ -1291,7 +1283,14 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
                 resetVideoWindown()
 
             } else {
-                finish()
+                QMUIDialog.MessageDialogBuilder(this@EffectVideoActivity)
+                        .setMessage(getString(R.string.dilog_editext_effect))
+                        .addAction(getString(R.string.dilog_cancel)) { dialog, _ -> dialog.dismiss() }
+                        .addAction(0, getString(R.string.dilog_exist)) { dialog, _ ->
+                            dialog.dismiss()
+                            finish()
+                        }
+                        .create(R.style.QMUI_Dialog).show()
             }
             R.id.btVoiceAdjust -> showVoiceAdjust()
             R.id.imgNext -> {

@@ -181,7 +181,11 @@ public final class PreviewRecorder {
             stopTimer();
         }
     }
-
+    public boolean isCanPreview(){
+        //录制一半
+        if(getAvailableTime()<mMaxMillisSeconds/2)return true;
+        return false;
+    }
     /**
      * 销毁录制器
      */
@@ -572,7 +576,7 @@ public final class PreviewRecorder {
             mReleaseCount++;
             // 不允许音频录制、允许录制音频并且释放了两个MediaEncoder，就完全释放掉了，如果是GIF，则没有音频
             if (!mRecordAudio || (mRecordAudio && mReleaseCount == 2) || mRecordType == RecordType.Gif) {
-                Log.e("Harrison","onReleased***********");
+
                 // 录制完成跳转预览页面
                 String outputPath = HardcodeEncoder.getInstance().getOutputPath();
                 // 添加分段视频，存在时长为0的情况，也就是取消倒计时但不保存时长的情况

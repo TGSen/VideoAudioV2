@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.cgfay.filterlibrary.utils.DensityUtils;
 import com.owoh.R;
 import com.owoh.video.adapter.PreviewResourceAdapter;
 import com.owoh.video.engine.render.PreviewRenderer;
@@ -25,6 +26,7 @@ import com.cgfay.filterlibrary.glfilter.resource.ResourceJsonCodec;
 import com.cgfay.filterlibrary.glfilter.resource.bean.ResourceData;
 import com.cgfay.filterlibrary.glfilter.resource.bean.ResourceType;
 import com.cgfay.filterlibrary.glfilter.stickers.bean.DynamicSticker;
+import com.owoh.video.widget.GridDecoration;
 
 import org.json.JSONException;
 
@@ -141,6 +143,7 @@ public class PreviewFiltersFragment extends Fragment {
         mResourceView = view.findViewById(R.id.preview_resource_list);
 
         GridLayoutManager manager = new GridLayoutManager(mActivity, 5);
+        mResourceView.addItemDecoration(new GridDecoration(16,5));
         mResourceView.setLayoutManager(manager);
         mPreviewResourceAdapter = new PreviewResourceAdapter(mActivity, mResourceData);
         mResourceView.setAdapter(mPreviewResourceAdapter);

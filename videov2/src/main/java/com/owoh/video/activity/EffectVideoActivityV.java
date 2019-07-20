@@ -1010,12 +1010,7 @@ public class EffectVideoActivityV extends AppCompatActivity implements View.OnCl
 
                 }
 
-                @Override
-                public void onClosePanl() {
-                    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                    hideFragment(ft);
-                    ft.commit();
-                }
+
             });
 
         } else {

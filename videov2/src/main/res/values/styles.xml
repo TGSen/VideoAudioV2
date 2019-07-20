@@ -1,13 +1,18 @@
 <resources>
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+    <style name="AppTheme" parent="QMUI.Compat.NoActionBar">
+        <item name="colorPrimary">#333333</item>
+        <item name="colorPrimaryDark">#333333</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:spinnerItemStyle">@style/DefaultSpinnerItemStyle</item>
+        <item name="android:spinnerDropDownItemStyle">@style/DefaultSpinnerItemStyle</item>
     </style>
 
+    <style name="DefaultSpinnerItemStyle" parent="@android:style/Widget.Holo.DropDownItem.Spinner">
+        <item name="android:textSize">12dp</item>
+        <item name="android:minWidth">100dp</item>
+        <item name="android:layout_width">wrap_content</item>
+    </style>
 
     <style name="wx_login_style" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="windowNoTitle">true</item>

@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">VideoV2</string>
     <string name="combine_video_message">正在合并视频</string>
+    <string name="video_short_tip">视频太短了,再拍一段吧</string>
+    <string name="dilog_record">退出后将不会保存，是否退出？</string>
+    <string name="dilog_exist">退出</string>
+    <string name="dilog_cancel">取消</string>
+    <string name="dilog_editext_effect">退出设置的特效将会失效</string>
 </resources>

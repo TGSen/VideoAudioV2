@@ -11,12 +11,15 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import android.widget.ImageView;
+
 import com.owoh.R;
-import com.owoh.video.adapter.StickersAdapter;
 import com.owoh.video.ItemSticker;
+import com.owoh.video.adapter.StickersAdapter;
+import com.owoh.video.event.EventCloseFragment;
 import com.owoh.video.media.VideoRenderer;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,15 +88,6 @@ public class StickersFragment extends Fragment {
 
     private void initView(View view) {
         mResourceView = view.findViewById(R.id.preview_resource_list);
-        ImageView imageView = view.findViewById(R.id.imageClose);
-        imageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (onStickerAddListener != null) {
-                    onStickerAddListener.onClosePanl();
-                }
-            }
-        });
         GridLayoutManager manager = new GridLayoutManager(mActivity, 5);
         mResourceView.setLayoutManager(manager);
         mResourceData.addAll(ItemSticker.Companion.getStickerList());
@@ -138,6 +132,6 @@ public class StickersFragment extends Fragment {
     public interface OnStickerPanlListener {
         void addSticker(ItemSticker url);
 
-        void onClosePanl();
+
     }
 }
