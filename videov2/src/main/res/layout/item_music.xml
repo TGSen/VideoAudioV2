@@ -14,10 +14,10 @@
 
     <TextView
         android:id="@+id/name"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_marginTop="@dimen/dp4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:layout_marginTop="@dimen/dp4"
         android:textColor="@color/white"
-        android:textSize="@dimen/sp14" />
+        android:textSize="@dimen/dp12" />
 </LinearLayout>

@@ -19,7 +19,7 @@ import com.owoh.video.adapter.MusicAdapter
 import com.owoh.video.media.VideoRenderer
 import com.owoh.video.media.bgmusic.ItemMusic
 import com.owoh.video.utils.DownLoadService
-
+import com.owoh.video.widget.GridDecoration
 
 
 /**
@@ -79,9 +79,10 @@ class MusicFragment : Fragment() {
         mResourceView = view.findViewById(R.id.preview_resource_list)
 
         val manager = GridLayoutManager(mActivity, 5)
-        mResourceView!!.layoutManager = manager
+        mResourceView?.layoutManager = manager
         musicAdapter = MusicAdapter(mActivity!!, mResourceData)
-        mResourceView!!.adapter = musicAdapter
+        mResourceView?.adapter = musicAdapter
+        mResourceView?.addItemDecoration(GridDecoration(16,5))
         DownLoadService.getInstance().setDownloadListener { path -> onMusicChangeListener?.change(path) }
         var savePath = Environment.getExternalStorageDirectory().toString() + "/OwOh/download/music"
         musicAdapter!!.setOnItemClickListener { position ->

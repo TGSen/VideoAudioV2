@@ -5,5 +5,6 @@
     <string name="dilog_record">退出后将不会保存，是否退出？</string>
     <string name="dilog_exist">退出</string>
     <string name="dilog_cancel">取消</string>
+    <string name="seleted_music">选择音乐</string>
     <string name="dilog_editext_effect">退出设置的特效将会失效</string>
 </resources>

@@ -416,15 +416,6 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
             tvSeletedBgm.setOnClickListener(this@CameraPreviewFragment)
             btFlash.setOnClickListener(this@CameraPreviewFragment)
             btFilters.setOnClickListener(this@CameraPreviewFragment)
-
-            tvSeletedBgm.text = "选择音乐";
-            // 初始化
-            tvSeletedBgm.init()
-            // 设置滚动方向
-            tvSeletedBgm.setScrollDirection(MarqueeTextView.RIGHT_TO_LEFT);
-            // 设置滚动速度
-            tvSeletedBgm.setScrollMode(MarqueeTextView.SCROLL_SLOW);
-
         }
 
         binding.layoutBottom.apply {

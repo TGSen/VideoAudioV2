@@ -4,10 +4,9 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
 import android.support.v7.widget.AppCompatTextView;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
-import android.view.WindowManager;
 
 public class MarqueeTextView extends AppCompatTextView {
 
@@ -22,12 +21,7 @@ public class MarqueeTextView extends AppCompatTextView {
     /**
      * 字幕滚动的方向 0:左往右, 1:右往左
      */
-    public static final int LEFT_TO_RIGHT = 0;
-    public static final int RIGHT_TO_LEFT = 1;
-    /**
-     * 默认是从右往左
-     */
-    public int direction = RIGHT_TO_LEFT;
+
 
     /**
      * 文字的横坐标偏移量
@@ -81,7 +75,6 @@ public class MarqueeTextView extends AppCompatTextView {
 
     /**
      * 初始化
-     *
      */
     public void init() {
         mPaint = getPaint();
@@ -91,39 +84,45 @@ public class MarqueeTextView extends AppCompatTextView {
         text = getText().toString();
         textLength = mPaint.measureText(text);
 
-//        DisplayMetrics metrics = new DisplayMetrics();
-//        windowManager.getDefaultDisplay().getMetrics(metrics);
-//        int height = metrics.heightPixels;
-//        viewWidth = metrics.widthPixels;
         viewWidth = viewWidth - getLeft() - getLeft();
         // 滚动文本的长度: view 长度 + 文本滑出屏幕的长度
         viewTextWidth = viewWidth + textLength;
         // 滚动文本的绘制起始 y 坐标
         y = getTextSize() + getPaddingTop();
+
+    }
+
+    private int drawableLeft = 0;
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        init();
+        Drawable[] drawables = getCompoundDrawables();
+        if (drawables != null && drawables.length > 0) {
+            Drawable drawable = drawables[0];
+            drawableLeft = drawable.getIntrinsicWidth();
+        }
+        setText("");
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        if (offX <= viewTextWidth) {
+            /**
+             * viewWidth - offX： x 坐标逐渐变小,往左移动
+             */
+            canvas.save();
+            canvas.translate(drawableLeft, 0);
+            canvas.drawText(text, viewWidth - offX, y, mPaint);
+            canvas.restore();
 
-        if (direction == RIGHT_TO_LEFT) {
-            if (offX <= viewTextWidth) {
-                /**
-                 * viewWidth - offX： x 坐标逐渐变小,往左移动
-                 */
-                canvas.drawText(text, viewWidth - offX, y, mPaint);
-            } else {
-                offX = viewWidth / 3;
-            }
+
         } else {
-            if (offX <= viewTextWidth) {
-                /**
-                 * -textLength+offX： x 坐标逐渐变大,往右移动
-                 */
-                canvas.drawText(text, -textLength + offX, y, mPaint);
-            } else {
-                offX = 0;
-            }
+            offX = viewWidth;
         }
+
 
         // 滚动文本的偏移量
         offX += mStep;
@@ -147,14 +146,6 @@ public class MarqueeTextView extends AppCompatTextView {
         }
     }
 
-    /**
-     * 设置字幕滚动的方向
-     *
-     * @param direction 0:LEFT_TO_RIGHT  1:RIGHT_TO_LEFT
-     */
-    public void setScrollDirection(int direction) {
-        this.direction = direction;
-    }
 
     /**
      * 将sp值转换为px值
