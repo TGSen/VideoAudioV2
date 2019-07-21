@@ -26,6 +26,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import com.blankj.utilcode.util.FlashlightUtils
 import com.blankj.utilcode.util.ToastUtils
 import com.cgfay.filterlibrary.fragment.PermissionConfirmDialogFragment
 import com.cgfay.filterlibrary.fragment.PermissionErrorDialogFragment
@@ -538,6 +539,13 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
                 showCameraStyleTools()
             //测试视频编辑页面
             R.id.btFlash -> {
+                if(FlashlightUtils.isFlashlightEnable()){
+                    if(FlashlightUtils.isFlashlightOn()){
+                        FlashlightUtils.setFlashlightStatus(false)
+                    }else{
+                        FlashlightUtils.setFlashlightStatus(true)
+                    }
+                }
             }
             R.id.btFilters -> showEffectView()
             R.id.btShutter -> {
