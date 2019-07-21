@@ -51,6 +51,7 @@ import com.owoh.video.event.EventTextStickerChange
 import com.owoh.video.filter.GLColorFilter
 import com.owoh.video.filter.GLEffectFilter
 import com.owoh.video.filter.GLStickerFilter
+import com.owoh.video.fragment.MusicFragment
 import com.owoh.video.fragment.PreviewFiltersFragment
 import com.owoh.video.fragment.StickersFragment
 import com.owoh.video.fragment.VoiceAdjustFragment
@@ -60,6 +61,9 @@ import com.owoh.video.media.bean.EFFECT_TYPE_SINGLE
 import com.owoh.video.media.bean.RENDER_TYPE_AT_TIME
 import com.owoh.video.media.bean.VideoEffect
 import com.owoh.video.media.bean.VideoEffectType
+import com.owoh.video.media.bgmusic.MusicManager
+import com.owoh.video.media.bgmusic.MusicService
+import com.owoh.video.media.combine.VideoAudioCombine
 import com.owoh.video.video.ExtractFrameWorkThread
 import com.owoh.video.video.VideoEditInfo
 import com.owoh.video.widget.RangeSeekBar
@@ -104,6 +108,8 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
     private var mStickerFragment: StickersFragment? = null
     //
     private var mVoiceAdjustFragment: VoiceAdjustFragment? = null
+    // 背景音乐页面
+    private var musicFragment: MusicFragment? = null
     private var mVideoPreviewView: VideoPreviewView? = null
 
     /**
@@ -284,7 +290,9 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
                 binding.stickerView.updateSticker()
             }
         }
-    } @Subscribe(threadMode = ThreadMode.MAIN)
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
     fun onCloseFragment(event: EventCloseFragment) {
         val ft = supportFragmentManager.beginTransaction()
         hideFragment(ft)
@@ -785,14 +793,13 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
             btSticker.setOnClickListener(this@EffectVideoActivity)
             btVoiceAdjust.setOnClickListener(this@EffectVideoActivity)
             btEffect.setOnClickListener(this@EffectVideoActivity)
-            btFilters.setOnClickListener(this@EffectVideoActivity)
-
+            btAdjustBGM.setOnClickListener(this@EffectVideoActivity)
 
         }
         binding.apply {
             //        imgVideoSmall = findViewById(R.id.imgVideoSmall);
             //        imgVideoSmall.setOnClickListener(this);
-
+            btFilters.setOnClickListener(this@EffectVideoActivity)
             binding.imgVideo?.visibility = View.GONE
 
             btSave.setOnClickListener(this@EffectVideoActivity)
@@ -1176,6 +1183,7 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
         //  hideToolsLayout();
     }
 
+
     /**
      * 隐藏其他的Fragment
      *
@@ -1192,6 +1200,10 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
                 ft.hide(it)
         }
         mStickerFragment?.let {
+            if (it.isAdded)
+                ft.hide(it)
+        }
+        musicFragment?. let {
             if (it.isAdded)
                 ft.hide(it)
         }
@@ -1229,6 +1241,7 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
             //                imgVideoSmall.setSelected(mVideoRenderer.isVideoPlay());
             //                break;
             R.id.btFilters -> showFilterView()
+            R.id.btAdjustBGM -> showMusicFragment()
             R.id.btEffect -> {
                 isEditextEffect = true
                 if (mVideoRuntimeEffects.size > 0) {
@@ -1351,7 +1364,7 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
     private fun showVoiceAdjust() {
         val ft = supportFragmentManager.beginTransaction()
         if (mVoiceAdjustFragment == null) {
-            mVoiceAdjustFragment = VoiceAdjustFragment.getInstance()
+            mVoiceAdjustFragment = VoiceAdjustFragment.instance
             ft.add(R.id.fragment_container, mVoiceAdjustFragment!!)
             mVoiceAdjustFragment?.setOnVoiceSeekBarChangeListener(object :
                     VoiceAdjustFragment.OnVoiceSeekBarChangeListener {
@@ -1368,12 +1381,83 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
         } else {
             ft.show(mVoiceAdjustFragment!!)
         }
-        //隐藏其他的
-        if (mColorFilterFragment != null && mColorFilterFragment!!.isAdded) {
-            ft.hide(mColorFilterFragment!!)
+
+        ft.commit()
+    }
+
+
+    /**
+     * 显示音乐列表
+     */
+    private fun showMusicFragment() {
+        val ft = supportFragmentManager.beginTransaction()
+        hideFragment(ft)
+        if (musicFragment == null) {
+            musicFragment = MusicFragment.instance
+            musicFragment?.setTitle(getString(R.string.adjust_bgm))
+            MusicManager.getInstance().startService(this@EffectVideoActivity, bgMusicMediaPlayerLinstener)
+            //  VideoAudioCombine.getInstance().setVideoAudioCombineStateListener(mVideoAudioCombineStateListener)
+            musicFragment?.setOnMusicChangeListener(object : MusicFragment.OnMusicChangeListener {
+                override fun change(url: String?, name: String?) {
+                    Log.e("Harrison", "$url***")
+                    ///这里规定，如果url 为null，就启动麦克风，否则就是背景音乐
+                    if (MusicManager.getInstance().changeAudioPlay(url)) {
+//                        VideoAudioCombine.getInstance().setBgMusicEnable(true).audioPath = url
+//                        PreviewRecorder.getInstance().enableAudio(false)
+                    } else {
+                        MusicManager.getInstance().stop()
+//                        binding.layoutTop.tvSeletedBgm.setText(getString(R.string.choose_music))
+//                        PreviewRecorder.getInstance().enableAudio(true)
+//                        binding.layoutTop.tvSeletedBgm.textSpeed = 0.0f
+//                        VideoAudioCombine.getInstance().isBgMusicEnable = false
+                    }
+                }
+            })
+            ft.add(R.id.fragment_container, musicFragment!!)
+        } else {
+            ft.show(musicFragment!!)
         }
         ft.commit()
     }
+
+
+    private val mVideoAudioCombineStateListener = object : VideoAudioCombine.VideoAudioCombineStateListener {
+        override fun success(combimePath: String) {
+            Log.e("Harrison", "combimePath$combimePath")
+            //  gotoEffectVideo(combimePath)
+        }
+
+        override fun fail() {
+            Log.e("Harrison", "combine avdio onFail**")
+        }
+
+        override fun start() {
+            Log.e("Harrison", "combine avdio start**")
+        }
+    }
+
+
+    /**
+     * 背景 音乐的Service 回调
+     */
+    private val bgMusicMediaPlayerLinstener = object : MusicService.MediaPlayerLinstener {
+        override fun onStart(url: String) {
+            Log.e("Harrison", "onStart**$url")
+        }
+
+        override fun onFail(url: String) {
+            Log.e("Harrison", "onFail**$url")
+        }
+
+        override fun onPrepareFinish() {
+            Log.e("Harrison", "onPrepareFinish**")
+        }
+
+        override fun onCompletion() {
+            Log.e("Harrison", "onCompletion**")
+        }
+    }
+
 
     companion object {
         private val TAG = "Harrison"

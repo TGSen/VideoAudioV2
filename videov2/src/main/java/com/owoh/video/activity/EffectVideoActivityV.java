@@ -1287,7 +1287,7 @@ public class EffectVideoActivityV extends AppCompatActivity implements View.OnCl
     private void showVoiceAdjust() {
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         if (mVoiceAdjustFragment == null) {
-            mVoiceAdjustFragment = VoiceAdjustFragment.getInstance();
+            mVoiceAdjustFragment = VoiceAdjustFragment.Companion.getInstance();
             ft.add(R.id.fragment_container, mVoiceAdjustFragment);
             mVoiceAdjustFragment.setOnVoiceSeekBarChangeListener(new VoiceAdjustFragment.OnVoiceSeekBarChangeListener() {
 

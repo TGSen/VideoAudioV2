@@ -8,6 +8,7 @@ import android.os.Environment
 import android.support.v4.app.Fragment
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.text.TextUtils
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -33,7 +34,7 @@ class MusicFragment : Fragment() {
 
 
     private var mActivity: Activity? = null
-    private var currentSeleted:Int=-1
+    private var currentSeleted: Int = -1
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
@@ -70,23 +71,35 @@ class MusicFragment : Fragment() {
         musicAdapter!!.notifyDataSetChanged()
     }
 
+    private var mTitle: String? = null
+    public fun setTitle(title: String) {
+
+        mTitle = title
+
+    }
 
     private fun initView() {
         binding?.apply {
-            title.text = getString(R.string.music)
+            if (TextUtils.isEmpty(mTitle)) {
+                title.text = getString(R.string.music)
+            } else {
+                title.text = mTitle
+            }
+
+
             val manager = GridLayoutManager(mActivity, 5)
             previewResourceList.layoutManager = manager as RecyclerView.LayoutManager?
             musicAdapter = MusicAdapter(mActivity, mResourceData)
             previewResourceList.adapter = musicAdapter
             previewResourceList.addItemDecoration(GridDecoration(16, 5))
-            DownLoadService.getInstance().setDownloadListener { path -> onMusicChangeListener?.change(path,mResourceData[currentSeleted].getName_cn()) }
+            DownLoadService.getInstance().setDownloadListener { path -> onMusicChangeListener?.change(path, mResourceData[currentSeleted].getName_cn()) }
             var savePath = Environment.getExternalStorageDirectory().toString() + "/OwOh/download/music"
             musicAdapter?.setOnItemClickListener { position ->
                 //            onMusicChangeListener?.change(mResourceData[position].getMusic())
 //            //切换音乐
                 if (onMusicChangeListener != null) {
-                    if(position==0){
-                        onMusicChangeListener?.change("","")
+                    if (position == 0) {
+                        onMusicChangeListener?.change("", "")
                         return@setOnItemClickListener
                     }
                     currentSeleted = position
@@ -120,7 +133,7 @@ class MusicFragment : Fragment() {
      * music 切换监听
      */
     interface OnMusicChangeListener {
-        fun change(url: String?,name:String?)
+        fun change(url: String?, name: String?)
     }
 
     companion object {

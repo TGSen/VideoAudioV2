@@ -10,6 +10,7 @@
     <color name="mask">#E0000000</color>
     <color name="mask1">#D9000000</color>
     <color name="trans">#00000000</color>
+    <color name="mblue">#3394EC</color>
 
 
 </resources>
