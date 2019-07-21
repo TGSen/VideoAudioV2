@@ -2,160 +2,184 @@ package com.owoh.video.widget;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.drawable.Drawable;
-import android.support.v7.widget.AppCompatTextView;
+import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.view.View;
 
-public class MarqueeTextView extends AppCompatTextView {
+import com.cgfay.filterlibrary.utils.DensityUtils;
 
-    public static final String TAG = "MarqueeTextView";
+/**
+ * Created by xRoon on 2016/2/27.
+ */
+public class MarqueeTextView extends View {
+    private final float DEF_TEXT_SIZE = 25.0F;//The default text size
+    private float mSpeed = 3.0F; //The default text scroll speed
+    private boolean isScroll = true; //The default set as auto scroll
+    private Context mContext;
+    private Paint mPaint;
+    private String mText;//This is to display the content
+    private float mTextSize;//This is text size
+    private int mTextColor; //This is text color
 
-    /**
-     * 字幕滚动的速度 0:慢, 1:普通, 2:快
-     */
-    public static final int SCROLL_SLOW = 0;
-    public static final int SCROLL_NORM = 1;
-    public static final int SCROLL_FAST = 2;
-    /**
-     * 字幕滚动的方向 0:左往右, 1:右往左
-     */
-
-
-    /**
-     * 文字的横坐标偏移量
-     */
-    private float offX = 0f;
-    /**
-     * 默认的移动速度
-     */
-    private float mStep = 2f;
-    /**
-     * 画笔
-     */
-    private Paint mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-
-    /**
-     * 文本长度
-     */
-    private float textLength = 0f;
-    /**
-     * view 的宽度
-     */
-    private float viewWidth = 0f;
-    /**
-     * 文字的纵坐标
-     */
-    private float y = 0f;
-    /**
-     * 文本和view的长度之和
-     */
-    private float viewTextWidth = 0.0f;
-    /**
-     * 滚动文本
-     */
-    private String text = "";
+    private float mCoordinateX;//Draw the starting point of the X coordinate
+    private float mCoordinateY;//Draw the starting point of the Y coordinate
+    private float mTextWidth; //This is text width
+    private int mViewWidth; //This is View width
 
     public MarqueeTextView(Context context) {
-        this(context, null);
-        setSingleLine(true);
+        super(context);
+        init(context);
 
     }
 
     public MarqueeTextView(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
-        setSingleLine(true);
+        super(context, attrs);
+        init(context);
+
     }
 
     public MarqueeTextView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        setSingleLine(true);
+        init(context);
+
     }
 
     /**
-     * 初始化
+     * Initializes the related parameters
+     *
+     * @param context
      */
-    public void init() {
-        mPaint = getPaint();
-        mPaint.setColor(Color.WHITE);
-        mPaint.setTextSize(sp2px(getContext(), 16));
+    private void init(Context context) {
+        this.mContext = context;
 
-        text = getText().toString();
-        textLength = mPaint.measureText(text);
-
-        viewWidth = viewWidth - getLeft() - getLeft();
-        // 滚动文本的长度: view 长度 + 文本滑出屏幕的长度
-        viewTextWidth = viewWidth + textLength;
-        // 滚动文本的绘制起始 y 坐标
-        y = getTextSize() + getPaddingTop();
-
+        if (TextUtils.isEmpty(mText)) {
+            mText = "";
+        }
+        mPaint = new Paint();
+        mPaint.setAntiAlias(true);
+        mPaint.setTextSize(DEF_TEXT_SIZE);
     }
 
-    private int drawableLeft = 0;
+
+    public void setText(String text) {
+        mText = text;
+        if (TextUtils.isEmpty(mText)) {
+            mText = "";
+        }
+        requestLayout();
+        invalidate();
+    }
+
+    /**
+     * Set the text size, if this value is < 0, set to the default size
+     *
+     * @param textSize
+     */
+    public void setTextSize(float textSize) {
+
+        this.mTextSize = textSize;
+        mPaint.setTextSize(mTextSize <= 0 ? DEF_TEXT_SIZE : mTextSize);
+        requestLayout();
+        invalidate();
+    }
+
+    public void setTextColor(int textColor) {
+        this.mTextColor = textColor;
+        mPaint.setColor(mTextColor);
+        invalidate();
+    }
+
+    /**
+     * Set the text scrolling speed, if the value < 0, set to the default is 0
+     *
+     * @param speed If this value is 0, then stop scrolling
+     */
+    public void setTextSpeed(float speed) {
+        this.mSpeed = speed < 0 ? 0 : speed;
+        invalidate();
+    }
+
+    public float getTextSpeed() {
+        return mSpeed;
+    }
+
+    public void setScroll(boolean isScroll) {
+        this.isScroll = isScroll;
+        invalidate();
+    }
+
+    public boolean isScroll() {
+        return isScroll;
+    }
+
 
     @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
-        init();
-        Drawable[] drawables = getCompoundDrawables();
-        if (drawables != null && drawables.length > 0) {
-            Drawable drawable = drawables[0];
-            drawableLeft = drawable.getIntrinsicWidth();
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        mTextWidth = mPaint.measureText(mText);
+        mCoordinateX = getPaddingLeft();
+        mCoordinateY = getPaddingTop() + Math.abs(mPaint.ascent());
+        mViewWidth = measureWidth(widthMeasureSpec);
+        int mViewHeight = measureHeight(heightMeasureSpec);
+
+        //If you do not call this method, will be thrown "IllegalStateException"
+        setMeasuredDimension(mViewWidth, mViewHeight);
+    }
+
+
+    private int measureWidth(int measureSpec) {
+        int result = 0;
+        int specMode = MeasureSpec.getMode(measureSpec);
+        int specSize = MeasureSpec.getSize(measureSpec);
+
+        if (specMode == MeasureSpec.EXACTLY) {
+            result = specSize;
+        } else {
+            result = (int) mPaint.measureText(mText) + getPaddingLeft()
+                    + getPaddingRight();
+            if (specMode == MeasureSpec.AT_MOST) {
+                result = Math.min(result, specSize);
+            }
         }
-        setText("");
+
+        return result;
+    }
+
+    private int measureHeight(int measureSpec) {
+        int result = 0;
+        int specMode = MeasureSpec.getMode(measureSpec);
+        int specSize = MeasureSpec.getSize(measureSpec);
+
+        if (specMode == MeasureSpec.EXACTLY) {
+            result = specSize;
+        } else {
+            result = (int) mPaint.getTextSize() + getPaddingTop()
+                    + getPaddingBottom();
+            if (specMode == MeasureSpec.AT_MOST) {
+                result = Math.min(result, specSize);
+            }
+        }
+        return result;
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        if (offX <= viewTextWidth) {
-            /**
-             * viewWidth - offX： x 坐标逐渐变小,往左移动
-             */
-            canvas.save();
-            canvas.translate(drawableLeft, 0);
-            canvas.drawText(text, viewWidth - offX, y, mPaint);
-            canvas.restore();
 
+        canvas.drawText(mText, mCoordinateX, mCoordinateY, mPaint);
 
-        } else {
-            offX = viewWidth;
+        if (!isScroll) {
+            return;
         }
 
+        mCoordinateX -= mSpeed;
 
-        // 滚动文本的偏移量
-        offX += mStep;
+        if (Math.abs(mCoordinateX) > mTextWidth && mCoordinateX < 0) {
+            mCoordinateX = mViewWidth;
+        }
 
-        // 重绘
         invalidate();
+
     }
 
-    /**
-     * 设置字幕滚动的速度
-     *
-     * @param scrollMod
-     */
-    public void setScrollMode(int scrollMod) {
-        if (scrollMod == SCROLL_SLOW) {
-            mStep = 1f;
-        } else if (scrollMod == SCROLL_NORM) {
-            mStep = 2f;
-        } else {
-            mStep = 3f;
-        }
-    }
-
-
-    /**
-     * 将sp值转换为px值
-     *
-     * @param context
-     * @param spValue
-     * @return
-     */
-    private int sp2px(Context context, float spValue) {
-        final float fontScale = context.getResources().getDisplayMetrics().scaledDensity;
-        return (int) (spValue * fontScale + 0.5f);
-    }
 }

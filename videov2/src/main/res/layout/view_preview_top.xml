@@ -24,22 +24,45 @@
         app:constraint_referenced_ids="tvSeletedBgm" />
 
 
+    <!--<TextView-->
+    <!--android:id="@+id/tvSeletedBgm"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:drawablePadding="@dimen/dp4"-->
+    <!--android:focusableInTouchMode="true"-->
+    <!--android:gravity="center_vertical"-->
+    <!--android:scrollHorizontally="true"-->
+    <!--android:singleLine="true"-->
+    <!--android:text="@string/seleted_music"-->
+    <!--android:drawableLeft="@mipmap/ic_music"-->
+    <!--android:textColor="@drawable/color_textview_anble"-->
+    <!--android:textSize="18sp"-->
+    <!--app:layout_constraintBottom_toBottomOf="@+id/btCloseImag"-->
+    <!--app:layout_constraintLeft_toLeftOf="parent"-->
+    <!--app:layout_constraintRight_toRightOf="parent"-->
+    <!--app:layout_constraintTop_toTopOf="@+id/btCloseImag" />-->
+    <ImageView
+        android:id="@+id/imageMusic"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:padding="2dp"
+        android:layout_marginTop="4dp"
+        android:src="@mipmap/ic_music"
+        app:layout_constraintBottom_toBottomOf="@+id/tvSeletedBgm"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/tvSeletedBgm"
+        app:layout_constraintTop_toTopOf="@+id/tvSeletedBgm" />
 
-    <TextView
+    <com.owoh.video.widget.MarqueeTextView
         android:id="@+id/tvSeletedBgm"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:drawablePadding="@dimen/dp4"
+        android:padding="@dimen/dp8"
         android:focusableInTouchMode="true"
         android:gravity="center_vertical"
-        android:scrollHorizontally="true"
-        android:singleLine="true"
-        android:text="@string/seleted_music"
-        android:drawableLeft="@mipmap/ic_music"
-        android:textColor="@drawable/color_textview_anble"
-        android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="@+id/btCloseImag"
-        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/imageMusic"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="@+id/btCloseImag" />
 

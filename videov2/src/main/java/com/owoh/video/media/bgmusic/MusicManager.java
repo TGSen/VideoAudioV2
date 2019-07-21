@@ -57,7 +57,9 @@ public class MusicManager {
     }
 
     public boolean changeAudioPlay(String url) {
-        if (currentUrl.equals(url) || mMusicBinder == null || TextUtils.isEmpty(url)) return false;
+        if ( mMusicBinder == null || TextUtils.isEmpty(url)) {
+            return false;
+        }
         if (mMusicBinder.changeUrl(url)) {
             this.currentUrl = url;
             return true;

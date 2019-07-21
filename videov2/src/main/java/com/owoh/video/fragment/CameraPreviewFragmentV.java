@@ -386,20 +386,20 @@ public class CameraPreviewFragmentV extends Fragment implements View.OnClickList
             musicFragment = MusicFragment.Companion.getInstance();
             MusicManager.getInstance().startService(mActivity, bgMusicMediaPlayerLinstener);
             VideoAudioCombine.getInstance().setVideoAudioCombineStateListener(mVideoAudioCombineStateListener);
-            musicFragment.setOnMusicChangeListener(new MusicFragment.OnMusicChangeListener() {
-                @Override
-                public void change(String url) {
-                    Log.e("Harrison", url + "***");
-                    ///这里规定，如果url 为null，就启动麦克风，否则就是背景音乐
-                    if (MusicManager.getInstance().changeAudioPlay(url)) {
-                        VideoAudioCombine.getInstance().setBgMusicEnable(true).setAudioPath(url);
-                        PreviewRecorder.getInstance().enableAudio(false);
-                    } else {
-                        PreviewRecorder.getInstance().enableAudio(true);
-                        VideoAudioCombine.getInstance().setBgMusicEnable(false);
-                    }
-                }
-            });
+//            musicFragment.setOnMusicChangeListener(new MusicFragment.OnMusicChangeListener() {
+//                @Override
+//                public void change(String url) {
+//                    Log.e("Harrison", url + "***");
+//                    ///这里规定，如果url 为null，就启动麦克风，否则就是背景音乐
+//                    if (MusicManager.getInstance().changeAudioPlay(url)) {
+//                        VideoAudioCombine.getInstance().setBgMusicEnable(true).setAudioPath(url);
+//                        PreviewRecorder.getInstance().enableAudio(false);
+//                    } else {
+//                        PreviewRecorder.getInstance().enableAudio(true);
+//                        VideoAudioCombine.getInstance().setBgMusicEnable(false);
+//                    }
+//                }
+//            });
             ft.add(R.id.fragment_container, musicFragment);
         } else {
             ft.show(musicFragment);

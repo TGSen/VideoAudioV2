@@ -33,7 +33,7 @@ class MusicFragment : Fragment() {
 
 
     private var mActivity: Activity? = null
-
+    private var currentSeleted:Int=-1
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
@@ -79,12 +79,17 @@ class MusicFragment : Fragment() {
             musicAdapter = MusicAdapter(mActivity, mResourceData)
             previewResourceList.adapter = musicAdapter
             previewResourceList.addItemDecoration(GridDecoration(16, 5))
-            DownLoadService.getInstance().setDownloadListener { path -> onMusicChangeListener?.change(path) }
+            DownLoadService.getInstance().setDownloadListener { path -> onMusicChangeListener?.change(path,mResourceData[currentSeleted].getName_cn()) }
             var savePath = Environment.getExternalStorageDirectory().toString() + "/OwOh/download/music"
             musicAdapter?.setOnItemClickListener { position ->
                 //            onMusicChangeListener?.change(mResourceData[position].getMusic())
 //            //切换音乐
                 if (onMusicChangeListener != null) {
+                    if(position==0){
+                        onMusicChangeListener?.change("","")
+                        return@setOnItemClickListener
+                    }
+                    currentSeleted = position
                     Log.e("Harrison", "*******download:" + mResourceData[position].getMusic())
                     DownLoadService.getInstance().downloadFile(mResourceData[position].getMusic(), savePath)
                 }
@@ -115,7 +120,7 @@ class MusicFragment : Fragment() {
      * music 切换监听
      */
     interface OnMusicChangeListener {
-        fun change(url: String?)
+        fun change(url: String?,name:String?)
     }
 
     companion object {

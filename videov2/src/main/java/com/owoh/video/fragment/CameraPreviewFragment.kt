@@ -8,9 +8,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
-import android.content.res.ColorStateList
 import android.databinding.DataBindingUtil
-import android.graphics.drawable.Drawable
+import android.graphics.Color
 import android.hardware.Camera
 import android.media.MediaFormat
 import android.os.Bundle
@@ -19,7 +18,6 @@ import android.os.Message
 import android.provider.MediaStore
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentTransaction
-import android.support.v4.graphics.drawable.DrawableCompat
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.PagerSnapHelper
 import android.support.v7.widget.RecyclerView
@@ -35,6 +33,7 @@ import com.cgfay.filterlibrary.fragment.PermissionConfirmDialogFragment
 import com.cgfay.filterlibrary.fragment.PermissionErrorDialogFragment
 import com.cgfay.filterlibrary.multimedia.VideoCombiner
 import com.cgfay.filterlibrary.utils.BrightnessUtils
+import com.cgfay.filterlibrary.utils.DensityUtils
 import com.cgfay.filterlibrary.utils.PermissionUtils
 import com.owoh.R
 import com.owoh.databinding.FragmentCameraPreviewBinding
@@ -53,7 +52,6 @@ import com.owoh.video.media.combine.VideoAudioCombine
 import com.owoh.video.utils.DrawableUtil
 import com.owoh.video.utils.PathConstraints
 import com.owoh.video.widget.CainSurfaceView
-import com.owoh.video.widget.MarqueeTextView
 import com.owoh.video.widget.ShutterView
 import com.owoh.video.widget.recycleview.CenterLayoutManager
 import com.owoh.video.widget.recycleview.GalleryItemDecoration
@@ -197,9 +195,10 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
         override fun onStartRecord() {
             Log.e("Harrison", "***onStartRecord")
             binding.layoutBottom.layoutGroupDeleted!!.visibility = View.GONE
-           binding.mRecordProgBar!!.visibility = View.VISIBLE
+            binding.mRecordProgBar!!.visibility = View.VISIBLE
             binding.layoutTop.tvSeletedBgm.isEnabled = false
-            DrawableUtil.tintDrawable(binding.layoutTop.tvSeletedBgm.compoundDrawables[0],"#60EEEEEE")
+            DrawableUtil.tintDrawable(binding.layoutTop.imageMusic.drawable, "#60EEEEEE")
+            binding.layoutTop.tvSeletedBgm.setTextColor(Color.parseColor("#60EEEEEE"))
             showAllToolView(false)
             // 是否允许录制音频
             val enableAudio = (mCameraParam.audioPermitted && mCameraParam.recordAudio
@@ -421,6 +420,11 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
             btCloseImag.setOnClickListener(this@CameraPreviewFragment)
             btSwitchCamera.setOnClickListener(this@CameraPreviewFragment)
             tvSeletedBgm.setOnClickListener(this@CameraPreviewFragment)
+            tvSeletedBgm.setText(getString(R.string.choose_music))
+            tvSeletedBgm.isScroll = true
+            tvSeletedBgm.setTextSize(DensityUtils.sp2px(activity, 18f).toFloat())
+            tvSeletedBgm.textSpeed = 0f
+            tvSeletedBgm.setTextColor(Color.WHITE)
             btFlash.setOnClickListener(this@CameraPreviewFragment)
             btFilters.setOnClickListener(this@CameraPreviewFragment)
         }
@@ -545,10 +549,10 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
                 showCameraStyleTools()
             //测试视频编辑页面
             R.id.btFlash -> {
-                if(FlashlightUtils.isFlashlightEnable()){
-                    if(FlashlightUtils.isFlashlightOn()){
+                if (FlashlightUtils.isFlashlightEnable()) {
+                    if (FlashlightUtils.isFlashlightOn()) {
                         FlashlightUtils.setFlashlightStatus(false)
-                    }else{
+                    } else {
                         FlashlightUtils.setFlashlightStatus(true)
                     }
                 }
@@ -578,18 +582,22 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
             MusicManager.getInstance().startService(mActivity, bgMusicMediaPlayerLinstener)
             VideoAudioCombine.getInstance().setVideoAudioCombineStateListener(mVideoAudioCombineStateListener)
             musicFragment?.setOnMusicChangeListener(object : MusicFragment.OnMusicChangeListener {
-                override fun change(url: String?) {
+                override fun change(url: String?, name: String?) {
                     Log.e("Harrison", "$url***")
                     ///这里规定，如果url 为null，就启动麦克风，否则就是背景音乐
                     if (MusicManager.getInstance().changeAudioPlay(url)) {
+                        binding.layoutTop.tvSeletedBgm.setText(name)
+                        binding.layoutTop.tvSeletedBgm.textSpeed = 1.0f
                         VideoAudioCombine.getInstance().setBgMusicEnable(true).audioPath = url
                         PreviewRecorder.getInstance().enableAudio(false)
                     } else {
+                        MusicManager.getInstance().stop()
+                        binding.layoutTop.tvSeletedBgm.setText(getString(R.string.choose_music))
                         PreviewRecorder.getInstance().enableAudio(true)
+                        binding.layoutTop.tvSeletedBgm.textSpeed = 0.0f
                         VideoAudioCombine.getInstance().isBgMusicEnable = false
                     }
                 }
-
             })
             ft.add(R.id.fragment_container, musicFragment!!)
         } else {
@@ -806,14 +814,12 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
 
             binding.layoutBottom.btShutter.reset()
             binding.layoutTop.tvSeletedBgm.isEnabled = true
-            DrawableUtil.tintDrawable(binding.layoutTop.tvSeletedBgm.compoundDrawables[0],"#FFFFFFFF")
+            DrawableUtil.tintDrawable(binding.layoutTop.imageMusic.drawable, "#FFFFFFFF")
+            binding.layoutTop.tvSeletedBgm.setTextColor(Color.WHITE)
 
         }
 
     }
-
-
-
 
 
     /**
