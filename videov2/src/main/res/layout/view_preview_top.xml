@@ -36,7 +36,7 @@
         android:singleLine="true"
         android:text="@string/seleted_music"
         android:drawableLeft="@mipmap/ic_music"
-        android:textColor="@color/colorWhilte"
+        android:textColor="@drawable/color_textview_anble"
         android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="@+id/btCloseImag"
         app:layout_constraintLeft_toLeftOf="parent"

@@ -8,7 +8,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.content.res.ColorStateList
 import android.databinding.DataBindingUtil
+import android.graphics.drawable.Drawable
 import android.hardware.Camera
 import android.media.MediaFormat
 import android.os.Bundle
@@ -17,6 +19,7 @@ import android.os.Message
 import android.provider.MediaStore
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentTransaction
+import android.support.v4.graphics.drawable.DrawableCompat
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.PagerSnapHelper
 import android.support.v7.widget.RecyclerView
@@ -47,6 +50,7 @@ import com.owoh.video.media.bgmusic.MusicManager
 import com.owoh.video.media.bgmusic.MusicService
 import com.owoh.video.media.change.AudioCodec
 import com.owoh.video.media.combine.VideoAudioCombine
+import com.owoh.video.utils.DrawableUtil
 import com.owoh.video.utils.PathConstraints
 import com.owoh.video.widget.CainSurfaceView
 import com.owoh.video.widget.MarqueeTextView
@@ -192,8 +196,10 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
 
         override fun onStartRecord() {
             Log.e("Harrison", "***onStartRecord")
-            layoutGroupDeleted!!.visibility = View.GONE
-            mRecordProgBar!!.visibility = View.VISIBLE
+            binding.layoutBottom.layoutGroupDeleted!!.visibility = View.GONE
+           binding.mRecordProgBar!!.visibility = View.VISIBLE
+            binding.layoutTop.tvSeletedBgm.isEnabled = false
+            DrawableUtil.tintDrawable(binding.layoutTop.tvSeletedBgm.compoundDrawables[0],"#60EEEEEE")
             showAllToolView(false)
             // 是否允许录制音频
             val enableAudio = (mCameraParam.audioPermitted && mCameraParam.recordAudio
@@ -571,7 +577,7 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
             musicFragment = MusicFragment.instance
             MusicManager.getInstance().startService(mActivity, bgMusicMediaPlayerLinstener)
             VideoAudioCombine.getInstance().setVideoAudioCombineStateListener(mVideoAudioCombineStateListener)
-            musicFragment!!.setOnMusicChangeListener(object : MusicFragment.OnMusicChangeListener {
+            musicFragment?.setOnMusicChangeListener(object : MusicFragment.OnMusicChangeListener {
                 override fun change(url: String?) {
                     Log.e("Harrison", "$url***")
                     ///这里规定，如果url 为null，就启动麦克风，否则就是背景音乐
@@ -795,14 +801,19 @@ class CameraPreviewFragment : Fragment(), View.OnClickListener {
         PreviewRecorder.getInstance().removeLastSubVideo()
         mRecordProgBar!!.progress = PreviewRecorder.getInstance().visibleDuration.toInt()
         if (PreviewRecorder.getInstance().numberOfSubVideo <= 0) {
-            layoutGroupDeleted!!.visibility = View.GONE
+            binding.layoutBottom.layoutGroupDeleted.visibility = View.GONE
             binding.layoutBottom.btUpload.visibility = View.VISIBLE
 
-            binding.layoutBottom.btShutter!!.reset()
+            binding.layoutBottom.btShutter.reset()
+            binding.layoutTop.tvSeletedBgm.isEnabled = true
+            DrawableUtil.tintDrawable(binding.layoutTop.tvSeletedBgm.compoundDrawables[0],"#FFFFFFFF")
 
         }
 
     }
+
+
+
 
 
     /**
