@@ -449,7 +449,7 @@ public class CameraPreviewFragmentV extends Fragment implements View.OnClickList
         FragmentTransaction ft = getChildFragmentManager().beginTransaction();
         hideFragment(ft);
         if (mCameraFilterFragment == null) {
-            mCameraFilterFragment = PreviewFiltersFragment.getInstance(PreviewFiltersFragment.TYPE_CAMERA_FILTER, PreviewFiltersFragment.TYPE_VIDEO_SHOT);
+            mCameraFilterFragment = PreviewFiltersFragment.Companion.getInstance(PreviewFiltersFragment.TYPE_CAMERA_FILTER, PreviewFiltersFragment.TYPE_VIDEO_SHOT);
             ft.add(R.id.fragment_container, mCameraFilterFragment);
         } else {
             ft.show(mCameraFilterFragment);
@@ -465,7 +465,7 @@ public class CameraPreviewFragmentV extends Fragment implements View.OnClickList
         FragmentTransaction ft = getChildFragmentManager().beginTransaction();
         hideFragment(ft);
         if (mColorFilterFragment == null) {
-            mColorFilterFragment = PreviewFiltersFragment.getInstance(PreviewFiltersFragment.TYPE_COLOR_FILTER, PreviewFiltersFragment.TYPE_VIDEO_SHOT);
+            mColorFilterFragment = PreviewFiltersFragment.Companion.getInstance(PreviewFiltersFragment.TYPE_COLOR_FILTER, PreviewFiltersFragment.TYPE_VIDEO_SHOT);
             ft.add(R.id.fragment_container, mColorFilterFragment);
         } else {
             ft.show(mColorFilterFragment);

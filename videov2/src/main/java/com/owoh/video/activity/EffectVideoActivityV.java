@@ -978,7 +978,7 @@ public class EffectVideoActivityV extends AppCompatActivity implements View.OnCl
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         hideFragment(ft);
         if (mStickerFragment == null) {
-            mStickerFragment = StickersFragment.getInstance();
+            mStickerFragment = StickersFragment.Companion.getInstance();
             ft.add(R.id.fragment_container, mStickerFragment);
             mStickerFragment.setOnStickerAddListener(new StickersFragment.OnStickerPanlListener() {
                 @Override
@@ -1141,7 +1141,7 @@ public class EffectVideoActivityV extends AppCompatActivity implements View.OnCl
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         hideFragment(ft);
         if (mColorFilterFragment == null) {
-            mColorFilterFragment = PreviewFiltersFragment.getInstance(PreviewFiltersFragment.TYPE_COLOR_FILTER, PreviewFiltersFragment.TYPE_VIDEO_EIDTEXT);
+            mColorFilterFragment = PreviewFiltersFragment.Companion.getInstance(PreviewFiltersFragment.TYPE_COLOR_FILTER, PreviewFiltersFragment.TYPE_VIDEO_EIDTEXT);
             mColorFilterFragment.setVideoRenderer(mVideoRenderer);
             ft.add(R.id.fragment_container, mColorFilterFragment);
         } else {

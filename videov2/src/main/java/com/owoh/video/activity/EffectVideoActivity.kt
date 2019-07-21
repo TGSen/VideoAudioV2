@@ -990,7 +990,7 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
         val ft = supportFragmentManager.beginTransaction()
         hideFragment(ft)
         if (mStickerFragment == null) {
-            mStickerFragment = StickersFragment.getInstance()
+            mStickerFragment = StickersFragment.instance
             ft.add(R.id.fragment_container, mStickerFragment!!)
             mStickerFragment?.setOnStickerAddListener(object : StickersFragment.OnStickerPanlListener {
                 override fun addSticker(item: ItemSticker) {
@@ -1163,7 +1163,7 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
                     PreviewFiltersFragment.TYPE_COLOR_FILTER,
                     PreviewFiltersFragment.TYPE_VIDEO_EIDTEXT
             )
-            mColorFilterFragment?.setVideoRenderer(mVideoRenderer)
+            mVideoRenderer?.let { mColorFilterFragment?.setVideoRenderer(it) }
             ft.add(R.id.fragment_container, mColorFilterFragment!!)
         } else {
             ft.show(mColorFilterFragment!!)
@@ -1309,8 +1309,8 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
             //如果沒播放的話，好像回到全屏是有问题的
             mVideoRenderer?.startPlayVideo()
         }
-        if (binding.imgVideo?.visibility == View.VISIBLE) {
-            binding.imgVideo?.visibility = View.GONE
+        if (binding.imgVideo.visibility == View.VISIBLE) {
+            binding.imgVideo.visibility = View.GONE
         }
         val set = ConstraintSet()
         set.clone(binding.rootView)

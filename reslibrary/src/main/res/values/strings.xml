@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">ResLibrary</string>
     <string name="choose_music">选择音乐</string>
+    <string name="music">音乐</string>
     <string name="switch_camera">翻转</string>
     <string name="filter_tools">道具</string>
     <string name="upload_file">上传</string>
