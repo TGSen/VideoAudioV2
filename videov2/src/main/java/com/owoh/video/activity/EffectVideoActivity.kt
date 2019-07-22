@@ -302,7 +302,7 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onAddSticker(item: ItemSticker.StickersBean) {
-
+        Log.e("Harrison", "onAddSticker*******"+item.type+"****"+item.big_image)
         if (!TextUtils.isEmpty(item.big_image) && File(item.big_image).exists()) {
             when (item.type) {
                 "gif" -> {

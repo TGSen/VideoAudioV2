@@ -8,6 +8,7 @@ import android.os.Handler
 import android.os.Looper
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -71,6 +72,7 @@ class StickersFragment : Fragment() {
             var jsonElements = jsonParser.parse(ItemSticker.jason).asJsonArray;//获取JsonArray对象
             for (value in jsonElements) {
                 var item = gson.fromJson(value, ItemSticker::class.javaObjectType)
+
                 var itemStickerIndex = ItemSticker.ItemStickerIndex()
                 itemStickerIndex.id = item.getId()
                 itemStickerIndex.name_cn = item.getName_cn()
@@ -81,8 +83,21 @@ class StickersFragment : Fragment() {
                 mStickerIndex.add(itemStickerIndex)
 
                 var itemStickerList = ItemSticker.ItemStickerIndexList()
-                itemStickerList.stickers = item.getStickers()
-                itemStickerList.type = item.getType()
+
+                var stickers: List<ItemSticker.StickersBean>? = item.getStickers()
+                stickers?.let {
+                    for (value in stickers) {
+                        value.type = item.getType()
+                        itemStickerList.stickers?.add(value)
+                    }
+                }
+                var stickers2: List<ItemSticker.StickersBean>? = itemStickerList.stickers
+                stickers2?.let {
+                    for (value in stickers2) {
+                        Log.e("Harrison", "********" + value.type + "***" + value.big_image)
+                    }
+                }
+
                 mStickerIndexList.add(itemStickerList)
 
             }

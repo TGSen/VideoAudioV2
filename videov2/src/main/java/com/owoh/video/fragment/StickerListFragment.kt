@@ -6,6 +6,7 @@ import android.os.Environment
 import android.support.v4.app.Fragment
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -31,7 +32,7 @@ class StickerListFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_sticker_item_list, container, false)
-        initView();
+        initView()
         return binding.root
     }
 
@@ -44,7 +45,7 @@ class StickerListFragment : Fragment() {
         binding.recyclerview.adapter = listAdapter
         DownLoadService.getInstance().setDownloadListener { path ->
             stickerListBo?.stickers?.get(currentSeleted)?.big_image = path
-            stickerListBo?.stickers?.get(currentSeleted)?.type = stickerListBo.type
+            Log.e("Harrison","******type**"+stickerListBo?.stickers?.get(currentSeleted)?.type)
             EventBus.getDefault().post(stickerListBo?.stickers?.get(currentSeleted))
         }
         var savePath = Environment.getExternalStorageDirectory().toString() + "/OwOh/download/sticker"

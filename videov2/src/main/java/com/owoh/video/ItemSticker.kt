@@ -15,8 +15,11 @@ class ItemSticker {
     }
 
     class ItemStickerIndexList : Serializable {
-        var stickers: List<StickersBean>? = null
-        var type: String? = null
+        var stickers: ArrayList<StickersBean>? = arrayListOf<StickersBean>()
+
+        fun addItem(bean: StickersBean) {
+            stickers?.add(bean)
+        }
 
     }
 
@@ -108,7 +111,7 @@ class ItemSticker {
         var small_image: String? = null
         var size: String? = null
         var textframe: String? = null
-        var type :String? = null
+        var type: String? = null
     }
 
     companion object {
