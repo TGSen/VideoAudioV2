@@ -99,9 +99,9 @@ class AddTextStickerActivity : AppCompatActivity(), View.OnClickListener {
             binding?.recyclerview?.adapter = colorAdapter
             var layoutManager = LinearLayoutManager(this@AddTextStickerActivity)
             layoutManager.orientation = LinearLayoutManager.HORIZONTAL
-            binding?.recyclerview?.layoutManager = layoutManager
+            recyclerview.layoutManager = layoutManager
             var db = DensityUtils.dp2px(this@AddTextStickerActivity, 8f)
-            binding?.recyclerview?.addItemDecoration(SpaceItemDecoration(db, db))
+            recyclerview.addItemDecoration(SpaceItemDecoration(db, db))
             colorAdapter?.setOnColorSeletedLinstener(object : ColorAdapter.OnColorSeletedLinstener {
                 override fun onSeleted(color: String, position: Int) {
 

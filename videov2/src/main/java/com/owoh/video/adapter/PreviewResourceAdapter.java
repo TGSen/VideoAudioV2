@@ -54,7 +54,7 @@ public class PreviewResourceAdapter extends RecyclerView.Adapter<PreviewResource
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ResourceHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ResourceHolder holder, final int position) {
         ResourceData resource = mResourceList.get(position);
         // 如果是asset下面的，则直接解码
         if (!TextUtils.isEmpty(resource.thumbPath) && resource.thumbPath.startsWith("assets://")) {
@@ -73,19 +73,19 @@ public class PreviewResourceAdapter extends RecyclerView.Adapter<PreviewResource
             holder.imageSeleted.setVisibility(View.GONE);
         }
 
-        final int currentPosition = position;
+
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mSelected == currentPosition) {
+                if (mSelected == position) {
                     return;
                 }
                 int last = mSelected;
-                mSelected = currentPosition;
+                mSelected = position;
                 notifyItemChanged(last);
-                notifyItemChanged(currentPosition);
+                notifyItemChanged(position);
                 if (mListener != null) {
-                    mListener.onResourceChanged(mResourceList.get(currentPosition), currentPosition);
+                    mListener.onResourceChanged(mResourceList.get(position), position);
                 }
             }
         });

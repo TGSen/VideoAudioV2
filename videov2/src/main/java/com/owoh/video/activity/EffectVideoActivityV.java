@@ -980,38 +980,38 @@ public class EffectVideoActivityV extends AppCompatActivity implements View.OnCl
         if (mStickerFragment == null) {
             mStickerFragment = StickersFragment.Companion.getInstance();
             ft.add(R.id.fragment_container, mStickerFragment);
-            mStickerFragment.setOnStickerAddListener(new StickersFragment.OnStickerPanlListener() {
-                @Override
-                public void addSticker(ItemSticker item) {
-
-                    if (!TextUtils.isEmpty(item.getPath()) && new File(item.getPath()).exists()) {
-                        if (item.getType() == item.getTYPE_GIF()) {
-                            //android P 以上版本
-//                                drawable = ImageDecoder.decodeDrawable(
-//                                        ImageDecoder.createSource(new File(item.getPath())));
-//                                if (drawable instanceof AnimatedImageDrawable) {
-//                                    ((AnimatedImageDrawable) drawable).start();
-//                                }
-
-                            GifDrawable gifDrawable = null;
-                            try {
-                                gifDrawable = new GifDrawable(item.getPath());
-                                gifDrawable.start();
-                                mStickerView.addSticker(new GifSticker(gifDrawable).setEndTime(mSeekBar.getMax()));
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        } else {
-                            Bitmap bitmap = BitmapFactory.decodeFile(item.getPath());
-                            Drawable drawable = new BitmapDrawable(bitmap);
-                            mStickerView.addSticker(new DrawableSticker(drawable).setEndTime(mSeekBar.getMax()));
-                        }
-                    }
-
-                }
-
-
-            });
+//            mStickerFragment.setOnStickerAddListener(new StickersFragment.OnStickerPanlListener() {
+//                @Override
+//                public void addSticker(ItemSticker item) {
+//
+////                    if (!TextUtils.isEmpty(item.getPath()) && new File(item.getPath()).exists()) {
+////                        if (item.getType() == item.getTYPE_GIF()) {
+////                            //android P 以上版本
+//////                                drawable = ImageDecoder.decodeDrawable(
+//////                                        ImageDecoder.createSource(new File(item.getPath())));
+//////                                if (drawable instanceof AnimatedImageDrawable) {
+//////                                    ((AnimatedImageDrawable) drawable).start();
+//////                                }
+////
+////                            GifDrawable gifDrawable = null;
+////                            try {
+////                                gifDrawable = new GifDrawable(item.getPath());
+////                                gifDrawable.start();
+////                                mStickerView.addSticker(new GifSticker(gifDrawable).setEndTime(mSeekBar.getMax()));
+////                            } catch (IOException e) {
+////                                e.printStackTrace();
+////                            }
+////                        } else {
+////                            Bitmap bitmap = BitmapFactory.decodeFile(item.getPath());
+////                            Drawable drawable = new BitmapDrawable(bitmap);
+////                            mStickerView.addSticker(new DrawableSticker(drawable).setEndTime(mSeekBar.getMax()));
+////                        }
+////                    }
+//
+//                }
+//
+//
+//            });
 
         } else {
             ft.show(mStickerFragment);

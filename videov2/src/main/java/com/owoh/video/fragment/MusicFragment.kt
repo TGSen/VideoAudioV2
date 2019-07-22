@@ -68,7 +68,7 @@ class MusicFragment : Fragment() {
             var item = gson.fromJson(value, ItemMusic::class.javaObjectType)
             mResourceData.add(item)
         }
-        musicAdapter!!.notifyDataSetChanged()
+        musicAdapter?.notifyDataSetChanged()
     }
 
     private var mTitle: String? = null

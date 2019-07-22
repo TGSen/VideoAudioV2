@@ -4,29 +4,38 @@ import android.app.Activity
 import android.content.Context
 import android.databinding.DataBindingUtil
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.support.v4.app.Fragment
-import android.support.v7.widget.GridLayoutManager
+import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.cgfay.filterlibrary.utils.DensityUtils
+import com.google.gson.Gson
+import com.google.gson.JsonParser
 import com.owoh.R
 import com.owoh.video.ItemSticker
-import com.owoh.video.adapter.StickersAdapter
+import com.owoh.video.adapter.StickerIndexAdapter
+import com.owoh.video.adapter.StickerViewPageAdapter
 import com.owoh.video.media.VideoRenderer
+import com.owoh.video.widget.SpaceItemDecoration
 import java.util.*
+import java.util.concurrent.Executor
+import java.util.concurrent.Executors
 
 /**
  *
  */
 class StickersFragment : Fragment() {
-    private var stickersAdapter: StickersAdapter? = null
+    private var stickersIndexAdapter: StickerIndexAdapter? = null
 
-    private val mResourceData = ArrayList<ItemSticker>()
+    private val mStickerIndex = ArrayList<ItemSticker.ItemStickerIndex>()
+    private val mStickerIndexList = ArrayList<ItemSticker.ItemStickerIndexList>()
 
     private var mVideoRenderer: VideoRenderer? = null
-    private var onStickerAddListener: OnStickerPanlListener? = null
 
-
+    private var mHandler = Handler(Looper.getMainLooper())
     private var mActivity: Activity? = null
 
     fun setVideoRenderer(mVideoRenderer: VideoRenderer) {
@@ -38,10 +47,9 @@ class StickersFragment : Fragment() {
         mActivity = activity
     }
 
-    private lateinit var binding: com.owoh.databinding.FragmentPreviewResourceBinding
+    private lateinit var binding: com.owoh.databinding.FragmentStickerListBinding
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_preview_resource, container, false)
-
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_sticker_list, container, false)
         return binding?.root
     }
 
@@ -56,7 +64,42 @@ class StickersFragment : Fragment() {
     }
 
     private fun initStickerData() {
-        stickersAdapter!!.notifyDataSetChanged()
+        EXECUTOR.execute {
+
+            var gson = Gson()
+            var jsonParser = JsonParser()
+            var jsonElements = jsonParser.parse(ItemSticker.jason).asJsonArray;//获取JsonArray对象
+            for (value in jsonElements) {
+                var item = gson.fromJson(value, ItemSticker::class.javaObjectType)
+                var itemStickerIndex = ItemSticker.ItemStickerIndex()
+                itemStickerIndex.id = item.getId()
+                itemStickerIndex.name_cn = item.getName_cn()
+                itemStickerIndex.name_tw = item.getName_tw()
+                itemStickerIndex.name_en = item.getName_en()
+                itemStickerIndex.type = item.getType()
+                itemStickerIndex.seq = item.getSeq()
+                mStickerIndex.add(itemStickerIndex)
+
+                var itemStickerList = ItemSticker.ItemStickerIndexList()
+                itemStickerList.stickers = item.getStickers()
+                itemStickerList.type = item.getType()
+                mStickerIndexList.add(itemStickerList)
+
+            }
+
+            mHandler.post {
+                if (mStickerIndex.size > 0) {
+                    mStickerIndex[0].isSelected = true
+                }
+                stickersIndexAdapter?.notifyDataSetChanged()
+                var stickerListAdapter = activity?.let { StickerViewPageAdapter(it, childFragmentManager, mStickerIndexList) }
+                stickerListAdapter.let {
+                    binding.viewPager.adapter = stickerListAdapter
+                    binding.viewPager.currentItem = 0;
+                }
+            }
+        }
+
     }
 
 
@@ -64,15 +107,17 @@ class StickersFragment : Fragment() {
         binding?.apply {
             title.text = getString(R.string.video_sticker)
 
-            val manager = GridLayoutManager(mActivity, 5)
+            val manager = LinearLayoutManager(mActivity)
+            manager.orientation = LinearLayoutManager.HORIZONTAL
             previewResourceList.layoutManager = manager
-            mResourceData.addAll(ItemSticker.stickerList)
-            stickersAdapter = StickersAdapter(mActivity!!, mResourceData)
-            previewResourceList.adapter = stickersAdapter
-            stickersAdapter!!.setOnItemClickListener { position ->
-                if (onStickerAddListener != null) {
-                    onStickerAddListener!!.addSticker(mResourceData[position])
-                }
+
+            stickersIndexAdapter = StickerIndexAdapter(mActivity, mStickerIndex)
+            previewResourceList.adapter = stickersIndexAdapter
+            var db = DensityUtils.dp2px(activity, 8f)
+            previewResourceList.addItemDecoration(SpaceItemDecoration(db, db))
+            stickersIndexAdapter?.setOnItemClickListener { position ->
+                binding.viewPager.currentItem = position
+//                }
             }
         }
 
@@ -98,24 +143,12 @@ class StickersFragment : Fragment() {
         super.onDestroy()
     }
 
-    fun setOnStickerAddListener(listener: OnStickerPanlListener) {
-        this.onStickerAddListener = listener
-    }
-
-    /**
-     * music 切换监听
-     */
-    interface OnStickerPanlListener {
-        fun addSticker(url: ItemSticker)
-
-
-    }
 
     companion object {
 
         private val TAG = "PreviewFiltersFragment"
 
-
+        var EXECUTOR: Executor = Executors.newCachedThreadPool()
         val instance: StickersFragment
             get() {
                 val bundle = Bundle()

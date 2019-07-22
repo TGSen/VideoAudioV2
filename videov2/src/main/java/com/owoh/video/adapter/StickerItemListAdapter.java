@@ -2,17 +2,17 @@ package com.owoh.video.adapter;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.owoh.R;
 import com.owoh.video.ItemSticker;
+import com.owoh.video.Stickers;
 import com.owoh.video.loader.MediaLoader;
 import com.owoh.video.loader.impl.GlideMediaLoader;
 
@@ -21,10 +21,10 @@ import java.util.List;
 /**
  * 音乐
  */
-public class StickersAdapter extends RecyclerView.Adapter<StickersAdapter.ResourceHolder> {
+public class StickerItemListAdapter extends RecyclerView.Adapter<StickerItemListAdapter.ResourceHolder> {
 
     private Drawable mPlaceHolder;
-    private List<ItemSticker> mResourceList;
+    private List<ItemSticker.StickersBean> mResourceList;
     private Context mContext;
     private int mSelected;
 
@@ -32,7 +32,7 @@ public class StickersAdapter extends RecyclerView.Adapter<StickersAdapter.Resour
 
     private OnItemClickListener mListener;
 
-    public StickersAdapter(Context context, List<ItemSticker> itemList) {
+    public StickerItemListAdapter(Context context, List<ItemSticker.StickersBean> itemList) {
         mContext = context;
         mResourceList = itemList;
         mSelected = 0;
@@ -51,11 +51,11 @@ public class StickersAdapter extends RecyclerView.Adapter<StickersAdapter.Resour
 
     @Override
     public void onBindViewHolder(@NonNull ResourceHolder holder, final int position) {
-//        ItemSticker resource = mResourceList.get(position);
-//        Log.e("Harrison",resource.getPath());
-//        if (mMediaLoader != null) {
-//            mMediaLoader.loadImage(mContext, mPlaceHolder, holder.resourceThumb,resource.getPath());
-//        }
+        ItemSticker.StickersBean resource = mResourceList.get(position);
+        if (mMediaLoader != null) {
+            mMediaLoader.loadThumbnail(mContext, mPlaceHolder, holder.resourceThumb,
+                    Uri.parse(resource.getSmall_image()));
+        }
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -77,7 +77,6 @@ public class StickersAdapter extends RecyclerView.Adapter<StickersAdapter.Resour
 
     public class ResourceHolder extends RecyclerView.ViewHolder {
 
-        public TextView name;
         public ImageView resourceThumb;
 
         public ResourceHolder(View itemView) {

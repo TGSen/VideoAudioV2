@@ -300,6 +300,47 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
     }
 
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onAddSticker(item: ItemSticker.StickersBean) {
+
+        if (!TextUtils.isEmpty(item.big_image) && File(item.big_image).exists()) {
+            when (item.type) {
+                "gif" -> {
+                    var gifDrawable: GifDrawable? = null
+                    try {
+                        Log.e("Harrison", item.big_image)
+                        gifDrawable = GifDrawable(item.big_image!!)
+                        gifDrawable.start()
+                        binding.stickerView.addSticker(GifSticker(gifDrawable).setEndTime(binding.videoEffectBar.max.toFloat()))
+                    } catch (e: IOException) {
+                        e.printStackTrace()
+                    }
+                }
+
+                "image" -> {
+                    val bitmap = BitmapFactory.decodeFile(item.big_image)
+                    val drawable = BitmapDrawable(bitmap)
+                    binding.stickerView.addSticker(DrawableSticker(drawable).setEndTime(binding.videoEffectBar.max.toFloat()))
+                }
+
+                "text" -> {
+                    val bitmap = BitmapFactory.decodeFile(item.big_image)
+                    val drawable = BitmapDrawable(bitmap)
+                    var textSticker = TextSticker(this@EffectVideoActivity)
+                    textSticker.path = item.big_image
+                    textSticker.drawable = drawable
+                    textSticker.text = " "
+                    textSticker.resizeText()
+                    textSticker.endTime = binding.videoEffectBar.max.toFloat()
+                    binding.stickerView.addSticker(textSticker)
+                }
+
+            }
+
+        }
+    }
+
+
     /**
      * 初始化贴纸 的view
      */
@@ -999,48 +1040,6 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
         if (mStickerFragment == null) {
             mStickerFragment = StickersFragment.instance
             ft.add(R.id.fragment_container, mStickerFragment!!)
-            mStickerFragment?.setOnStickerAddListener(object : StickersFragment.OnStickerPanlListener {
-                override fun addSticker(item: ItemSticker) {
-
-                    if (!TextUtils.isEmpty(item.path) && File(item.path).exists()) {
-                        when (item.type) {
-                            item.TYPE_GIF -> {
-                                var gifDrawable: GifDrawable? = null
-                                try {
-                                    Log.e("Harrison", item.path)
-                                    gifDrawable = GifDrawable(item.path!!)
-                                    gifDrawable.start()
-                                    binding.stickerView.addSticker(GifSticker(gifDrawable).setEndTime(binding.videoEffectBar.max.toFloat()))
-                                } catch (e: IOException) {
-                                    e.printStackTrace()
-                                }
-                            }
-
-                            item.TYPE_PNG -> {
-                                val bitmap = BitmapFactory.decodeFile(item.path)
-                                val drawable = BitmapDrawable(bitmap)
-                                binding.stickerView.addSticker(DrawableSticker(drawable).setEndTime(binding.videoEffectBar.max.toFloat()))
-                            }
-
-                            item.TYPE_TEXT -> {
-                                val bitmap = BitmapFactory.decodeFile(item.path)
-                                val drawable = BitmapDrawable(bitmap)
-                                var textSticker = TextSticker(this@EffectVideoActivity)
-                                textSticker.path = item.path
-                                textSticker.drawable = drawable
-                                textSticker.text = " "
-                                textSticker.resizeText()
-                                textSticker.endTime = binding.videoEffectBar.max.toFloat()
-                                binding.stickerView.addSticker(textSticker)
-                            }
-
-                        }
-
-                    }
-
-                }
-
-            })
 
         } else {
             ft.show(mStickerFragment!!)
@@ -1203,7 +1202,7 @@ class EffectVideoActivity : AppCompatActivity(), View.OnClickListener {
             if (it.isAdded)
                 ft.hide(it)
         }
-        musicFragment?. let {
+        musicFragment?.let {
             if (it.isAdded)
                 ft.hide(it)
         }
